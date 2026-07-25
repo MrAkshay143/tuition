@@ -4,10 +4,24 @@ import { Input, Textarea, Select, Button } from '@/components/ui'
 import { useCreateAssignment } from '@/api/resources/assignments'
 import { useApiQuery } from '@/api/resources/hooks'
 import { AssetPickerDrawer } from '@/features/media/AssetPickerDrawer'
+import { api } from '@/api/client'
+import { useQueryClient } from '@tanstack/react-query'
+import { toast } from 'react-hot-toast'
 
-export const CreateAssignmentModal = ({ open, isOpen, onClose }: { open?: boolean, isOpen?: boolean, onClose: () => void }) => {
+export const CreateAssignmentModal = ({ 
+  open, 
+  isOpen, 
+  onClose,
+  initialData
+}: { 
+  open?: boolean
+  isOpen?: boolean
+  onClose: () => void
+  initialData?: any
+}) => {
   const isModalOpen = !!(open ?? isOpen)
   const createMutation = useCreateAssignment()
+  const queryClient = useQueryClient()
   const { data: batches } = useApiQuery(
     ['batches'],
     '/batches'
@@ -20,6 +34,30 @@ export const CreateAssignmentModal = ({ open, isOpen, onClose }: { open?: boolea
   const [selectedBatch, setSelectedBatch] = React.useState('')
   const [attachment, setAttachment] = React.useState<number | null>(null)
   const [pickerOpen, setPickerOpen] = React.useState(false)
+  const [isSubmitting, setIsSubmitting] = React.useState(false)
+
+  React.useEffect(() => {
+    if (initialData && isModalOpen) {
+      setTitle(initialData.title || '')
+      setDescription(initialData.description || '')
+      if (initialData.due_at) {
+        try {
+          const d = new Date(initialData.due_at)
+          setDueAt(d.toISOString().slice(0, 16))
+        } catch {
+          setDueAt('')
+        }
+      } else {
+        setDueAt('')
+      }
+      setMaxMarks(initialData.max_marks || 100)
+      setSelectedBatch(initialData.batches?.[0]?.id ? String(initialData.batches[0].id) : '')
+      setAttachment(initialData.media_id || null)
+    } else if (!initialData && isModalOpen) {
+      setTitle(''); setDescription(''); setDueAt('')
+      setMaxMarks(100); setSelectedBatch(''); setAttachment(null)
+    }
+  }, [initialData, isModalOpen])
 
   const handleClose = () => {
     setTitle(''); setDescription(''); setDueAt('')
@@ -27,29 +65,47 @@ export const CreateAssignmentModal = ({ open, isOpen, onClose }: { open?: boolea
     onClose()
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!title || !dueAt || !maxMarks || !selectedBatch) return
-    createMutation.mutate({
-      title, description,
+
+    const payload = {
+      title, 
+      description,
       due_at: new Date(dueAt).toISOString(),
       max_marks: Number(maxMarks),
       batch_ids: [Number(selectedBatch)],
       media_id: attachment || undefined
-    }, { onSuccess: handleClose })
+    }
+
+    setIsSubmitting(true)
+    try {
+      if (initialData?.id) {
+        await api.put(`/assignments/${initialData.id}`, payload)
+        toast.success('Assignment updated successfully!')
+        queryClient.invalidateQueries({ queryKey: ['assignments'] })
+      } else {
+        await createMutation.mutateAsync(payload)
+      }
+      handleClose()
+    } catch (err: any) {
+      toast.error(err?.response?.data?.message || 'Failed to save assignment')
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   return (
     <Modal
-      title="Create Assignment"
+      title={initialData ? "Edit Assignment" : "Create Assignment"}
       open={isModalOpen}
       onClose={handleClose}
       size="md"
       footer={
         <>
           <Button type="button" variant="outline" onClick={handleClose}>Cancel</Button>
-          <Button type="submit" form="assignment-form" variant="primary" loading={createMutation.isPending}>
-            Create Assignment
+          <Button type="submit" form="assignment-form" variant="primary" loading={isSubmitting || createMutation.isPending}>
+            {initialData ? "Update Assignment" : "Create Assignment"}
           </Button>
         </>
       }

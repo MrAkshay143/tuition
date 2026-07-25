@@ -4,7 +4,8 @@ import { Button, Card, Badge, Spinner } from '@/components/ui'
 import { 
   Plus, Trash2, Users, Clock, ClipboardList, Search, ChevronDown, 
   Bookmark, MoreVertical, LayoutGrid, List, ChevronLeft, ChevronRight,
-  ChevronsLeft, ChevronsRight, Send, CheckCircle2, FileText, SlidersHorizontal
+  ChevronsLeft, ChevronsRight, Send, CheckCircle2, FileText, SlidersHorizontal,
+  Pencil
 } from 'lucide-react'
 import { CreateAssignmentModal } from './CreateAssignmentModal'
 import { useNavigate } from 'react-router-dom'
@@ -24,6 +25,7 @@ export const AssignmentsPage = () => {
   const rolePrefix = isAdmin ? '/admin' : '/teacher'
 
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
+  const [editingAssignment, setEditingAssignment] = useState<any | null>(null)
   const [deleteTargetId, setDeleteTargetId] = useState<number | null>(null)
   const [search, setSearch] = useState('')
   const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'inactive' | 'ended'>('all')
@@ -51,19 +53,27 @@ export const AssignmentsPage = () => {
   const totalSubmissions = useMemo(() => list.reduce((acc: number, item: any) => acc + (item.submissions_count || 0), 0), [list])
 
   const filtered = useMemo(() => list.filter((a: any) => {
-    const matchSearch = a.title.toLowerCase().includes(search.toLowerCase())
+    const matchSearch = !search || (a.title && a.title.toLowerCase().includes(search.toLowerCase())) || 
+                        (a.description && a.description.toLowerCase().includes(search.toLowerCase()))
+    
+    const isPastDue = a.due_at && new Date(a.due_at) < new Date()
     let matchStatus = true
-    if (statusFilter === 'active') matchStatus = !a.due_at || new Date(a.due_at) > new Date()
-    else if (statusFilter === 'inactive') matchStatus = false
-    else if (statusFilter === 'ended') matchStatus = a.due_at && new Date(a.due_at) < new Date()
-    return matchSearch && matchStatus
-  }), [list, search, statusFilter])
+    if (statusFilter === 'active') matchStatus = !isPastDue
+    else if (statusFilter === 'inactive' || statusFilter === 'ended') matchStatus = isPastDue
+
+    let matchTeacher = true
+    if (selectedTeacherId && a.teacher_id) {
+      matchTeacher = String(a.teacher_id) === String(selectedTeacherId)
+    }
+
+    return matchSearch && matchStatus && matchTeacher
+  }), [list, search, statusFilter, selectedTeacherId])
 
   if (isLoading) return <div className="flex justify-center p-12"><Spinner /></div>
 
   return (
     <div className="flex flex-col gap-5 max-w-[1400px] mx-auto pb-12">
-      {/* 1. Single-Line Header Bar matching Users & Roles Pages */}
+      {/* 1. Header Bar */}
       <div className="flex flex-row items-center justify-between gap-3 min-w-0 bg-[rgb(var(--bg-surface))] p-3.5 sm:p-4 rounded-2xl border border-[rgb(var(--border))] shadow-xs">
         <div className="flex items-center gap-3 min-w-0">
           <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-purple-500/10 text-purple-400 border border-purple-500/20 flex items-center justify-center shadow-xs flex-shrink-0">
@@ -84,7 +94,10 @@ export const AssignmentsPage = () => {
             variant="primary"
             size="sm"
             leftIcon={<Plus size={15} />}
-            onClick={() => setIsCreateModalOpen(true)}
+            onClick={() => {
+              setEditingAssignment(null)
+              setIsCreateModalOpen(true)
+            }}
             className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-3 sm:px-4 py-1.5 rounded-xl text-xs shadow-md shadow-indigo-600/20 cursor-pointer shrink-0 whitespace-nowrap"
           >
             <span className="hidden sm:inline">Create Assignment</span>
@@ -93,10 +106,10 @@ export const AssignmentsPage = () => {
         </div>
       </div>
 
-      {/* 2. Top 4 KPI Metrics Cards Row matching Users & Roles Pages */}
+      {/* 2. Top 4 KPI Metrics Cards Row */}
       <div className="admin-stats-row flex overflow-x-auto scrollbar-hide gap-3 pb-1">
         {/* Card 1: Total Assignments */}
-        <Card className="p-3 border border-[rgb(var(--border))] relative overflow-hidden flex flex-col justify-between hover:border-purple-500/30 transition-all">
+        <Card className="p-3 border border-[rgb(var(--border))] relative overflow-hidden flex flex-col justify-between hover:border-purple-500/30 transition-all min-w-[140px] shrink-0 sm:shrink flex-1">
           <div className="flex items-center justify-between gap-2 mb-1.5">
             <div className="w-7 h-7 rounded-lg bg-purple-500/10 text-purple-400 flex items-center justify-center shrink-0">
               <FileText size={15} />
@@ -113,7 +126,7 @@ export const AssignmentsPage = () => {
         </Card>
 
         {/* Card 2: Active */}
-        <Card className="p-3 border border-[rgb(var(--border))] relative overflow-hidden flex flex-col justify-between hover:border-emerald-500/30 transition-all">
+        <Card className="p-3 border border-[rgb(var(--border))] relative overflow-hidden flex flex-col justify-between hover:border-emerald-500/30 transition-all min-w-[140px] shrink-0 sm:shrink flex-1">
           <div className="flex items-center justify-between gap-2 mb-1.5">
             <div className="w-7 h-7 rounded-lg bg-emerald-500/10 text-emerald-400 flex items-center justify-center shrink-0">
               <CheckCircle2 size={15} />
@@ -130,7 +143,7 @@ export const AssignmentsPage = () => {
         </Card>
 
         {/* Card 3: Overdue */}
-        <Card className="p-3 border border-[rgb(var(--border))] relative overflow-hidden flex flex-col justify-between hover:border-rose-500/30 transition-all">
+        <Card className="p-3 border border-[rgb(var(--border))] relative overflow-hidden flex flex-col justify-between hover:border-rose-500/30 transition-all min-w-[140px] shrink-0 sm:shrink flex-1">
           <div className="flex items-center justify-between gap-2 mb-1.5">
             <div className="w-7 h-7 rounded-lg bg-rose-500/10 text-rose-400 flex items-center justify-center shrink-0">
               <Send size={15} />
@@ -147,7 +160,7 @@ export const AssignmentsPage = () => {
         </Card>
 
         {/* Card 4: Total Submissions */}
-        <Card className="p-3 border border-[rgb(var(--border))] relative overflow-hidden flex flex-col justify-between hover:border-amber-500/30 transition-all">
+        <Card className="p-3 border border-[rgb(var(--border))] relative overflow-hidden flex flex-col justify-between hover:border-amber-500/30 transition-all min-w-[140px] shrink-0 sm:shrink flex-1">
           <div className="flex items-center justify-between gap-2 mb-1.5">
             <div className="w-7 h-7 rounded-lg bg-amber-500/10 text-amber-400 flex items-center justify-center shrink-0">
               <Users size={15} />
@@ -164,7 +177,7 @@ export const AssignmentsPage = () => {
         </Card>
       </div>
 
-      {/* 3. Search & Workable Filter Bar */}
+      {/* 3. Search & Filter Controls */}
       <div className="space-y-3">
         <div className="flex items-center gap-2">
           {/* Left Search Input */}
@@ -172,18 +185,18 @@ export const AssignmentsPage = () => {
             <Search size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[rgb(var(--text-muted))]" />
             <input
               type="text"
-              placeholder="Search assignments by title..."
+              placeholder="Search assignments by title or description..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className="w-full pl-9 pr-4 py-2 text-xs rounded-xl bg-[rgb(var(--bg-surface))] border border-[rgb(var(--border))] text-[rgb(var(--text-primary))] placeholder:text-[rgb(var(--text-muted))] outline-none focus:border-indigo-500/50 transition-all"
             />
           </div>
 
-          {/* Workable Filter Toggle Button on Right Side */}
+          {/* Filter Toggle Button */}
           <button
             onClick={() => setShowFilters(prev => !prev)}
             className={cn(
-              "flex items-center gap-1.5 px-3.5 py-2 text-xs font-semibold rounded-xl border transition-all cursor-pointer shrink-0",
+              "flex items-center gap-1.5 px-3.5 py-2 text-xs font-semibold rounded-xl border transition-all cursor-pointer shrink-0 select-none",
               showFilters || selectedTeacherId !== '' || statusFilter !== 'all'
                 ? "bg-indigo-600 text-white border-indigo-600 shadow-xs"
                 : "bg-[rgb(var(--bg-surface))] border-[rgb(var(--border))] text-[rgb(var(--text-primary))] hover:border-indigo-500/40"
@@ -203,7 +216,7 @@ export const AssignmentsPage = () => {
               onClick={() => setViewMode('grid')}
               className={cn(
                 "p-1.5 rounded-lg text-[rgb(var(--text-muted))] transition-all cursor-pointer",
-                viewMode === 'grid' && "bg-indigo-600 text-white"
+                viewMode === 'grid' && "bg-indigo-600 text-white shadow-xs"
               )}
               title="Grid View"
             >
@@ -213,7 +226,7 @@ export const AssignmentsPage = () => {
               onClick={() => setViewMode('list')}
               className={cn(
                 "p-1.5 rounded-lg text-[rgb(var(--text-muted))] transition-all cursor-pointer",
-                viewMode === 'list' && "bg-indigo-600 text-white"
+                viewMode === 'list' && "bg-indigo-600 text-white shadow-xs"
               )}
               title="List View"
             >
@@ -222,7 +235,7 @@ export const AssignmentsPage = () => {
           </div>
         </div>
 
-        {/* Collapsible Filter Panel - Side by Side */}
+        {/* Collapsible Filter Panel */}
         {(showFilters || selectedTeacherId !== '' || statusFilter !== 'all') && (
           <div className="p-2.5 sm:p-3 rounded-2xl border border-[rgb(var(--border))] bg-[rgb(var(--bg-surface))] flex flex-row items-center justify-between gap-2.5 shadow-xs flex-wrap sm:flex-nowrap">
             <div className="flex flex-row items-center gap-2 flex-1 min-w-0 overflow-x-auto scrollbar-hide">
@@ -251,9 +264,8 @@ export const AssignmentsPage = () => {
                   className="w-full pl-3 pr-7 py-1.5 text-[11px] sm:text-xs font-semibold rounded-xl bg-[rgb(var(--bg-elevated))] border border-[rgb(var(--border))] text-[rgb(var(--text-primary))] outline-none focus:border-indigo-500/50 appearance-none cursor-pointer truncate"
                 >
                   <option value="all">All Status</option>
-                  <option value="active">Active</option>
-                  <option value="inactive">Inactive</option>
-                  <option value="ended">Ended</option>
+                  <option value="active">Active (Ongoing)</option>
+                  <option value="inactive">Overdue / Closed</option>
                 </select>
                 <ChevronDown size={13} className="absolute right-2 top-1/2 -translate-y-1/2 text-[rgb(var(--text-muted))] pointer-events-none" />
               </div>
@@ -262,7 +274,7 @@ export const AssignmentsPage = () => {
             {(selectedTeacherId !== '' || statusFilter !== 'all') && (
               <button
                 onClick={() => { setSelectedTeacherId(''); setStatusFilter('all') }}
-                className="text-xs font-semibold text-indigo-400 hover:underline shrink-0 whitespace-nowrap"
+                className="text-xs font-semibold text-rose-400 hover:underline shrink-0 whitespace-nowrap"
               >
                 Reset
               </button>
@@ -271,7 +283,7 @@ export const AssignmentsPage = () => {
         )}
       </div>
 
-      {/* 4. Assignments List / Grid View */}
+      {/* 4. Assignments Grid or List View */}
       {filtered.length === 0 ? (
         <Card className="py-12 text-slate-500 dark:text-slate-400 text-center border border-dashed border-[rgb(var(--border))]">
           <ClipboardList size={32} className="mx-auto text-[rgb(var(--text-muted))] mb-2 opacity-50" />
@@ -279,76 +291,83 @@ export const AssignmentsPage = () => {
           <p className="text-xs text-[rgb(var(--text-muted))] mt-1">Try adjusting your search criteria or create a new assignment</p>
         </Card>
       ) : viewMode === 'grid' ? (
-        <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
           {filtered.map((assignment: any) => {
             const isPastDue = assignment.due_at && new Date(assignment.due_at) < new Date()
             const dateObj = assignment.due_at ? new Date(assignment.due_at) : new Date('2026-07-29')
             const dateStr = dateObj.toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })
             const timeStr = dateObj.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' }).toLowerCase()
-            const batchTag = assignment.batches?.[0]?.name || 'JEE 2026'
+            const batchTag = assignment.batches?.[0]?.name || 'JEE ADVANCED 2026'
 
             return (
               <Card
                 key={assignment.id}
                 className={cn(
-                  "p-2.5 sm:p-3.5 border border-[rgb(var(--border))] flex flex-col justify-between space-y-2 sm:space-y-3 hover:border-indigo-500/40 transition-all group relative",
+                  "p-3.5 sm:p-4 border border-[rgb(var(--border))] flex flex-col justify-between space-y-3.5 hover:border-indigo-500/40 transition-all group relative rounded-2xl shadow-xs",
                   isPastDue && "border-rose-500/30"
                 )}
               >
                 {/* Header Status & Marks Tag */}
                 <div className="flex items-center justify-between gap-1">
                   {isPastDue ? (
-                    <span className="inline-flex items-center gap-1 text-[8px] sm:text-[9px] font-extrabold uppercase tracking-wider text-rose-400 bg-rose-500/10 border border-rose-500/20 px-1.5 sm:px-2 py-0.5 rounded-full truncate">
+                    <span className="inline-flex items-center gap-1 text-[9px] font-extrabold uppercase tracking-wider text-rose-400 bg-rose-500/10 border border-rose-500/20 px-2 py-0.5 rounded-full truncate">
                       OVERDUE
                     </span>
                   ) : (
-                    <span className="inline-flex items-center gap-1 text-[8px] sm:text-[9px] font-extrabold uppercase tracking-wider text-indigo-400 bg-indigo-500/10 border border-indigo-500/20 px-1.5 sm:px-2 py-0.5 rounded-full truncate">
+                    <span className="inline-flex items-center gap-1 text-[9px] font-extrabold uppercase tracking-wider text-indigo-400 bg-indigo-500/10 border border-indigo-500/20 px-2 py-0.5 rounded-full truncate">
                       ACTIVE
                     </span>
                   )}
 
-                  <div className="flex items-center gap-1">
-                    <span className="text-[8px] sm:text-[9px] font-extrabold text-indigo-400 bg-indigo-500/10 border border-indigo-500/20 px-1.5 sm:px-2 py-0.5 rounded-md font-mono">
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-[9px] font-extrabold text-indigo-400 bg-indigo-500/10 border border-indigo-500/20 px-2 py-0.5 rounded-md font-mono">
                       {assignment.max_marks || 100}M
                     </span>
 
+                    {/* Explicit Edit & Delete Action Icon Buttons */}
+                    <button
+                      onClick={() => setEditingAssignment(assignment)}
+                      className="p-1.5 rounded-lg text-[rgb(var(--text-muted))] hover:text-indigo-400 hover:bg-indigo-500/10 transition-colors cursor-pointer"
+                      title="Edit Assignment"
+                    >
+                      <Pencil size={14} />
+                    </button>
                     <button
                       onClick={() => setDeleteTargetId(assignment.id)}
-                      className="p-1 hover:text-rose-400 text-[rgb(var(--text-muted))] cursor-pointer shrink-0"
+                      className="p-1.5 rounded-lg text-[rgb(var(--text-muted))] hover:text-rose-400 hover:bg-rose-500/10 transition-colors cursor-pointer"
                       title="Delete Assignment"
                     >
-                      <MoreVertical size={13} />
+                      <Trash2 size={14} />
                     </button>
                   </div>
                 </div>
 
                 {/* Title & Tag */}
                 <div>
-                  <h3 className="font-extrabold text-xs sm:text-sm text-[rgb(var(--text-primary))] font-[Outfit] leading-snug line-clamp-1 sm:line-clamp-2">
+                  <h3 className="font-extrabold text-sm text-[rgb(var(--text-primary))] font-[Outfit] leading-snug line-clamp-2">
                     {assignment.title}
                   </h3>
-                  <span className="inline-block mt-1 text-[8px] sm:text-[9px] font-mono uppercase font-bold text-[rgb(var(--text-muted))] bg-[rgb(var(--bg-surface))] border border-[rgb(var(--border))] px-1.5 sm:px-2 py-0.5 rounded-md truncate max-w-full">
+                  <span className="inline-block mt-1 text-[9px] font-mono uppercase font-bold text-indigo-400 bg-indigo-500/10 border border-indigo-500/20 px-2 py-0.5 rounded-md truncate max-w-full">
                     {batchTag}
                   </span>
                 </div>
 
                 {/* Due Date & Submissions */}
-                <div className="flex items-center justify-between py-1.5 px-2 sm:px-2.5 rounded-lg bg-[rgb(var(--bg-surface))] border border-[rgb(var(--border))] text-[9px] sm:text-[10px] font-mono">
+                <div className="flex items-center justify-between py-1.5 px-2.5 rounded-xl bg-[rgb(var(--bg-surface))] border border-[rgb(var(--border))] text-[10px] font-mono">
                   <div className={cn("truncate", isPastDue ? "text-rose-400 font-bold" : "text-[rgb(var(--text-muted))]")}>
                     Due: {dateStr}, {timeStr}
                   </div>
                   <span className="font-bold text-indigo-400 shrink-0">{assignment.submissions_count ?? 0} subs</span>
                 </div>
 
-                {/* Bottom Action Button */}
+                {/* Bottom Grade Action Button */}
                 <div>
                   <Button
                     variant="primary"
-                    className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-1.5 sm:py-2 rounded-xl text-[10px] sm:text-xs shadow-xs cursor-pointer truncate"
+                    className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 rounded-xl text-xs shadow-xs cursor-pointer truncate"
                     onClick={() => navigate(`${rolePrefix}/assignments/${assignment.id}/submissions`)}
                   >
-                    <span className="hidden sm:inline">Grade Submissions</span>
-                    <span className="inline sm:hidden">Grade</span>
+                    Grade Submissions
                   </Button>
                 </div>
               </Card>
@@ -364,7 +383,7 @@ export const AssignmentsPage = () => {
             const batchTag = assignment.batches?.[0]?.name || 'JEE ADVANCED 2026'
 
             return (
-              <Card key={assignment.id} className="p-3 sm:p-3.5 border border-[rgb(var(--border))] flex flex-col md:flex-row items-start md:items-center justify-between gap-3 hover:border-indigo-500/40 transition-all">
+              <Card key={assignment.id} className="p-3 sm:p-3.5 border border-[rgb(var(--border))] flex flex-col md:flex-row items-start md:items-center justify-between gap-3 hover:border-indigo-500/40 transition-all rounded-2xl">
                 <div className="flex items-center gap-3 min-w-0 flex-1">
                   <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-purple-500/10 text-purple-400 flex items-center justify-center flex-shrink-0">
                     <FileText size={18} />
@@ -386,8 +405,19 @@ export const AssignmentsPage = () => {
                   >
                     Grade
                   </Button>
-                  <button onClick={() => setDeleteTargetId(assignment.id)} className="p-2 hover:text-rose-400 text-[rgb(var(--text-muted))] cursor-pointer">
-                    <MoreVertical size={14} />
+                  <button 
+                    onClick={() => setEditingAssignment(assignment)} 
+                    className="p-1.5 rounded-lg text-[rgb(var(--text-muted))] hover:text-indigo-400 hover:bg-indigo-500/10 transition-colors cursor-pointer"
+                    title="Edit Assignment"
+                  >
+                    <Pencil size={15} />
+                  </button>
+                  <button 
+                    onClick={() => setDeleteTargetId(assignment.id)} 
+                    className="p-1.5 rounded-lg text-[rgb(var(--text-muted))] hover:text-rose-400 hover:bg-rose-500/10 transition-colors cursor-pointer"
+                    title="Delete Assignment"
+                  >
+                    <Trash2 size={15} />
                   </button>
                 </div>
               </Card>
@@ -396,33 +426,21 @@ export const AssignmentsPage = () => {
         </div>
       )}
 
-      {/* 5. Centralized & Mobile Responsive Bottom Pagination Bar */}
-      <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-4 border-t border-[rgb(var(--border))] mt-6 text-xs text-[rgb(var(--text-muted))]">
-        <span className="font-medium text-center sm:text-left">
-          Showing 1 to {filtered.length} of {list.length} assignments
-        </span>
-
-        <div className="flex items-center justify-center gap-1.5 flex-wrap">
-          <button className="w-8 h-8 rounded-xl bg-[rgb(var(--bg-surface))] border border-[rgb(var(--border))] text-[rgb(var(--text-primary))] hover:border-indigo-500/50 flex items-center justify-center transition-all cursor-pointer">
-            &lt;
-          </button>
-          <button className="w-8 h-8 rounded-xl bg-indigo-600 text-white font-extrabold flex items-center justify-center shadow-xs">
-            1
-          </button>
-          <button className="w-8 h-8 rounded-xl bg-[rgb(var(--bg-surface))] border border-[rgb(var(--border))] text-[rgb(var(--text-primary))] hover:border-indigo-500/50 flex items-center justify-center transition-all cursor-pointer">
-            &gt;
-          </button>
-        </div>
-      </div>
-
       {/* Modals */}
-      <CreateAssignmentModal open={isCreateModalOpen} onClose={() => setIsCreateModalOpen(false)} />
+      <CreateAssignmentModal 
+        open={isCreateModalOpen || !!editingAssignment} 
+        initialData={editingAssignment}
+        onClose={() => {
+          setIsCreateModalOpen(false)
+          setEditingAssignment(null)
+        }} 
+      />
 
       <ConfirmModal
         open={!!deleteTargetId}
         onClose={() => setDeleteTargetId(null)}
         title="Delete Assignment"
-        message="Delete this assignment and all student submissions?"
+        message="Are you sure you want to delete this assignment and all student submissions? This action cannot be undone."
         confirmLabel="Delete"
         variant="danger"
         onConfirm={() => {
