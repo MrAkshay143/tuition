@@ -414,11 +414,12 @@ Route::middleware(['auth:sanctum', 'active', \App\Http\Middleware\ValidateSessio
         Route::delete('academic-sessions/{id}',        [AcademicSessionController::class, 'destroy']);
         Route::post  ('academic-sessions/{id}/restore',[AcademicSessionController::class, 'restore']);
 
-        // Exports
-        Route::get('export/students',  fn() => response()->streamDownload(fn() => null, 'students.csv'));
-        Route::get('export/batches',   fn() => response()->streamDownload(fn() => null, 'batches.csv'));
-        Route::get('export/assignments',fn() => response()->streamDownload(fn() => null, 'assignments.csv'));
-        Route::get('export/exams',     fn() => response()->streamDownload(fn() => null, 'exams.csv'));
-        Route::get('export/logs',      fn() => response()->streamDownload(fn() => null, 'logs.csv'));
+        // Real CSV Data Exports
+        Route::get('export/students',    [BackupController::class, 'exportCsvStudent']);
+        Route::get('export/batches',     [BackupController::class, 'exportCsvBatch']);
+        Route::get('export/assignments', [BackupController::class, 'exportCsvAssignment']);
+        Route::get('export/exams',       [BackupController::class, 'exportCsvExam']);
+        Route::get('export/logs',        [BackupController::class, 'exportCsvLog']);
+        Route::get('export/{type}',      [BackupController::class, 'exportCsv']);
     });
 });

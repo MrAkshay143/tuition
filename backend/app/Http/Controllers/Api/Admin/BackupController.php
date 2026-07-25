@@ -250,36 +250,56 @@ class BackupController extends ApiController
         return $this->error('Backup file not found.', 404);
     }
 
+    public function exportCsvStudent() { return $this->exportCsv('students'); }
+    public function exportCsvBatch() { return $this->exportCsv('batches'); }
+    public function exportCsvAssignment() { return $this->exportCsv('assignments'); }
+    public function exportCsvExam() { return $this->exportCsv('exams'); }
+    public function exportCsvLog() { return $this->exportCsv('logs'); }
+
     // Export dataset to downloadable CSV
-    public function exportCsv(string $type)
+    public function exportCsv(string $type = 'logs')
     {
         ActivityLog::record('data_export', "Exported {$type} dataset to CSV");
 
         $headers = [
-            'Content-Type'        => 'text/csv',
+            'Content-Type'        => 'text/csv; charset=UTF-8',
             'Content-Disposition' => "attachment; filename=\"eduflow_{$type}_export_" . date('Y_m_d') . ".csv\"",
         ];
 
         $callback = function () use ($type) {
             $file = fopen('php://output', 'w');
+            // Add UTF-8 BOM for Excel compatibility
+            fprintf($file, chr(0xEF).chr(0xBB).chr(0xBF));
 
             if ($type === 'students') {
-                fputcsv($file, ['ID', 'Name', 'Email', 'Phone', 'Created_At']);
+                fputcsv($file, ['ID', 'Name', 'Email', 'Phone', 'Role', 'Status', 'Created_At']);
                 $students = User::where('role', 'student')->get();
                 foreach ($students as $s) {
-                    fputcsv($file, [$s->id, $s->name, $s->email, $s->phone ?? 'N/A', $s->created_at]);
+                    fputcsv($file, [$s->id, $s->name, $s->email, $s->phone ?? 'N/A', $s->role ?? 'student', $s->active ? 'Active' : 'Suspended', $s->created_at]);
                 }
             } elseif ($type === 'batches') {
-                fputcsv($file, ['ID', 'Name', 'Code', 'Status', 'Created_At']);
+                fputcsv($file, ['ID', 'Name', 'Code', 'Max_Students', 'Created_At']);
                 $batches = Batch::all();
                 foreach ($batches as $b) {
-                    fputcsv($file, [$b->id, $b->name, $b->code ?? 'N/A', $b->status ?? 'active', $b->created_at]);
+                    fputcsv($file, [$b->id, $b->name, $b->code ?? 'N/A', $b->max_students ?? 'Unlimited', $b->created_at]);
+                }
+            } elseif ($type === 'assignments') {
+                fputcsv($file, ['ID', 'Title', 'Total_Marks', 'Due_Date', 'Created_At']);
+                $assignments = \App\Domains\Assessment\Models\Assignment::latest()->get();
+                foreach ($assignments as $a) {
+                    fputcsv($file, [$a->id, $a->title, $a->total_marks ?? 100, $a->due_date ?? 'N/A', $a->created_at]);
+                }
+            } elseif ($type === 'exams') {
+                fputcsv($file, ['ID', 'Title', 'Duration_Mins', 'Total_Marks', 'Pass_Marks', 'Created_At']);
+                $exams = \App\Domains\Assessment\Models\Exam::latest()->get();
+                foreach ($exams as $e) {
+                    fputcsv($file, [$e->id, $e->title, $e->duration_minutes ?? 60, $e->total_marks ?? 100, $e->pass_marks ?? 40, $e->created_at]);
                 }
             } else {
                 fputcsv($file, ['ID', 'Event', 'Description', 'IP_Address', 'Created_At']);
-                $logs = ActivityLog::latest()->take(100)->get();
+                $logs = ActivityLog::latest()->take(500)->get();
                 foreach ($logs as $l) {
-                    fputcsv($file, [$l->id, $l->event, $l->description, $l->ip_address, $l->created_at]);
+                    fputcsv($file, [$l->id, $l->event, $l->description, $l->ip_address ?? '127.0.0.1', $l->created_at]);
                 }
             }
 
