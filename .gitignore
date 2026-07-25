@@ -15,3 +15,7 @@ deploy.py
 
 # PowerShell Scripts
 *.ps1
+
+# Scratch/Test scripts
+*.py
+test_*.php
