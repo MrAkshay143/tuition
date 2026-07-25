@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useMemo } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { motion } from 'framer-motion'
 import { 
@@ -87,8 +87,91 @@ export default function AdminLogsPage() {
   const totalEventsTrend = backendStats?.total_events_trend || '+0 this month'
   const uniqueUsersTrend = backendStats?.unique_users_trend || '+0 active this month'
 
-  const topUsersList = backendStats?.top_users || []
-  const topEventsList = backendStats?.top_events || []
+  const topUsersList = useMemo(() => {
+    if (backendStats?.top_users && backendStats.top_users.length > 0) {
+      const maxCount = Math.max(...backendStats.top_users.map((u: any) => u.count || 1), 1)
+      return backendStats.top_users.map((u: any) => ({
+        ...u,
+        pct: `${Math.round((u.count / maxCount) * 100)}%`
+      }))
+    }
+    const map = new Map<string, { name: string; role: string; count: number }>()
+    rawLogs.forEach((l) => {
+      const uName = l.user?.name || 'Platform Admin'
+      const uRole = l.user?.role || 'Admin'
+      if (!map.has(uName)) {
+        map.set(uName, { name: uName, role: uRole, count: 1 })
+      } else {
+        map.get(uName)!.count++
+      }
+    })
+    const sorted = Array.from(map.values()).sort((a, b) => b.count - a.count).slice(0, 4)
+    const maxCount = sorted[0]?.count || 1
+    return sorted.map((u) => ({
+      ...u,
+      pct: `${Math.round((u.count / maxCount) * 100)}%`
+    }))
+  }, [backendStats, rawLogs])
+
+  const topEventsList = useMemo(() => {
+    if (backendStats?.top_events && backendStats.top_events.length > 0) {
+      const maxCount = Math.max(...backendStats.top_events.map((e: any) => e.count || 1), 1)
+      return backendStats.top_events.map((e: any) => ({
+        type: e.event || e.type,
+        count: e.count,
+        pct: `${Math.round((e.count / maxCount) * 100)}%`
+      }))
+    }
+    const map = new Map<string, number>()
+    rawLogs.forEach((l) => {
+      const evt = l.event || 'activity'
+      map.set(evt, (map.get(evt) || 0) + 1)
+    })
+    const sorted = Array.from(map.entries()).map(([type, count]) => ({ type, count })).sort((a, b) => b.count - a.count).slice(0, 5)
+    const maxCount = sorted[0]?.count || 1
+    return sorted.map((e) => ({
+      ...e,
+      pct: `${Math.round((e.count / maxCount) * 100)}%`
+    }))
+  }, [backendStats, rawLogs])
+
+  const activityHeatmapData = useMemo(() => {
+    const counts = [
+      [0, 0, 0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0, 0, 0],
+    ]
+
+    rawLogs.forEach((l) => {
+      if (!l.created_at) return
+      const date = new Date(l.created_at)
+      if (isNaN(date.getTime())) return
+
+      const jsDay = date.getDay()
+      const dayIdx = jsDay === 0 ? 6 : jsDay - 1
+
+      const hour = date.getHours()
+      let timeIdx = 0
+      if (hour >= 6 && hour < 12) timeIdx = 1
+      else if (hour >= 12 && hour < 18) timeIdx = 2
+      else if (hour >= 18) timeIdx = 3
+
+      counts[timeIdx][dayIdx] += 1
+    })
+
+    let maxVal = 1
+    counts.forEach(row => row.forEach(val => { if (val > maxVal) maxVal = val }))
+
+    const labels = ['12 AM', '6 AM', '12 PM', '6 PM']
+    return labels.map((label, rIdx) => ({
+      time: label,
+      cells: counts[rIdx].map((c) => ({
+        count: c,
+        opacity: c > 0 ? Math.max(0.3, Math.min(1, c / maxVal)) : 0.1
+      }))
+    }))
+  }, [rawLogs])
 
   const clearAllFilters = () => {
     setSearch('')
@@ -597,20 +680,15 @@ export default function AdminLogsPage() {
                 <span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span><span>Sun</span>
               </div>
 
-              {[
-                { time: '12 AM', opacity: [0.1, 0.2, 0.4, 0.8, 0.2, 0.6, 0.3] },
-                { time: '6 AM', opacity: [0.3, 0.8, 0.2, 0.5, 0.9, 0.4, 0.2] },
-                { time: '12 PM', opacity: [0.6, 0.4, 0.9, 0.3, 0.7, 0.8, 0.5] },
-                { time: '6 PM', opacity: [0.9, 0.7, 0.5, 0.8, 0.4, 0.9, 0.6] },
-              ].map((row, rIdx) => (
+              {activityHeatmapData.map((row, rIdx) => (
                 <div key={rIdx} className="grid grid-cols-8 md:grid-cols-8 gap-1.5 items-center text-[rgb(var(--text-muted))] font-mono">
                   <span>{row.time}</span>
-                  {row.opacity.map((op, cIdx) => (
+                  {row.cells.map((cell, cIdx) => (
                     <div
                       key={cIdx}
                       className="w-full h-4 rounded-sm bg-indigo-600 transition-opacity hover:opacity-100 cursor-pointer"
-                      style={{ opacity: op }}
-                      title={`Activity level: ${Math.round(op * 100)}%`}
+                      style={{ opacity: cell.opacity }}
+                      title={`Activity count: ${cell.count} events (${Math.round(cell.opacity * 100)}%)`}
                     ></div>
                   ))}
                 </div>
