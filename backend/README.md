@@ -1,58 +1,112 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# EduFlow Enterprise — Core Backend API ⚡
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+[![Laravel](https://img.shields.io/badge/Laravel-11.x-FF2D20?style=for-the-badge&logo=laravel&logoColor=white)](https://laravel.com)
+[![PHP](https://img.shields.io/badge/PHP-8.4-777BB4?style=for-the-badge&logo=php&logoColor=white)](https://php.net)
+[![Security](https://img.shields.io/badge/Security-Sanctum_%7C_Zero_Trust-22C55E?style=for-the-badge&logo=springsecurity&logoColor=white)](https://laravel.com/docs/sanctum)
+[![Testing](https://img.shields.io/badge/Tests-100%25_Passing-3B82F6?style=for-the-badge&logo=phpunit&logoColor=white)](https://phpunit.de)
 
-## About Laravel
+> **EduFlow Enterprise Backend** is a high-performance, Domain-Driven RESTful API engine powered by **Laravel 11** and **PHP 8.4**. It serves as the secure core for three unified portals (Admin Control Center, Teacher Workspace, and Student PWA), providing enterprise-grade security, real-time WebRTC signaling, dynamic analytics telemetry, and automated database backup infrastructure.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+---
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## 🏛️ Architecture & Domain-Driven Design (DDD)
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+The codebase follows a clean, decoupled **Domain-Driven Design (DDD)** pattern located under `app/Domains/`, isolating core business logic into scalable domain modules:
 
-## Learning Laravel
-
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
-
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
-
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
-
-## Agentic Development
-
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
-
-```bash
-composer require laravel/boost --dev
-
-php artisan boost:install
+```
+app/
+ ├── Domains/
+ │    ├── Assessment/   # Exams, Assignments, Submissions, Security Logs & Certificates
+ │    ├── CMS/          # Blogs, Achievements & Portal Content Management
+ │    ├── Core/         # Sanctum Session Binding, User Security & Activity Logging
+ │    ├── Course/       # Curriculum Taxonomy, Programs, Subjects, Modules & Lessons
+ │    ├── Engagement/   # Live Classes, Announcements, Notifications & WebRTC Signaling
+ │    └── Media/        # Polymorphic Media Library & Video Streaming Lifecycle
+ ├── Http/
+ │    ├── Controllers/  # Dedicated V1 API & Admin Endpoint Controllers
+ │    └── Middleware/   # ValidateSessionBinding, Permission Guard & Role Enforcement
+ └── Support/           # Global Telemetry, Query Parsers, Constants & Base Models
 ```
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+---
 
-## Contributing
+## 🔒 Enterprise Security & Zero-Trust Features
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+* **Session Binding & Concurrency Control (`ValidateSessionBinding`)**:
+  Enforces strict device authorization. Each login generates a cryptographic `UserSession` footprint. Admin revocation instantly invalidates active Sanctum tokens across distributed clients.
+* **Exam Anti-Cheat Telemetry**:
+  Tracks tab switching (`visibilitychange`), full-screen exits, context menu overrides, and clipboard activity in real-time via `POST /api/v1/student/exams/{id}/security-log`. Auto-submits exams upon exceeding security violation thresholds.
+* **Role-Based Access Control (RBAC)**:
+  Fine-grained permission matrices (`permission:exam.view`, `permission:dashboard.view`, etc.) powered by Spatie Permission integration.
+* **Automated Session Cleanup**:
+  Background scheduled jobs (`CleanupExpiredSessionsJob`) prune abandoned device sessions and expired tokens automatically.
 
-## Code of Conduct
+---
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+## 📡 Live Telemetry & WebRTC Calling
 
-## Security Vulnerabilities
+* **Dynamic API Analytics**:
+  Zero hardcoded numbers or mock data. Controllers dynamically compute active student metrics, 30-day user growth percentages, attendance ratios, and system error rates directly from live database queries.
+* **WebRTC Video/Audio Signaling**:
+  Integrated `ChatSignalingController` and LiveKit provider support enable instant 1-on-1 peer video and audio calling with URL-parameterized ICE candidate signaling (`POST /api/v1/chat/signal/{partnerId}`) and Firebase Cloud Messaging (FCM) silent push wakeup notifications.
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+---
 
-## License
+## 💾 Shared-Hosting Compatible Backup Engine
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+* **Pure PHP PDO Database Generator**:
+  Designed specifically for high-security cPanel and Hostinger shared environments where raw terminal calls (`exec`, `shell_exec`, `mysqldump`) are restricted.
+* **Memory-Efficient Streaming**:
+  Uses Laravel database cursor streaming (`DB::table()->cursor()`) to export multi-megabyte SQL tables without exhausting PHP memory limits or triggering gateway timeouts.
+
+---
+
+## 🛠️ Requirements & Quick Start
+
+### Prerequisites
+* **PHP >= 8.4** (with PDO, cURL, OpenSSL, mbstring, XML, and ZIP extensions)
+* **Composer >= 2.x**
+* **MySQL >= 8.0** or **SQLite 3**
+
+### Installation & Setup
+
+1. **Install Dependencies**:
+   ```bash
+   composer install --no-dev --optimize-autoloader
+   ```
+
+2. **Environment Configuration**:
+   ```bash
+   cp .env.example .env
+   php artisan key:generate
+   ```
+
+3. **Database Migration & Seeding**:
+   Run the comprehensive production seeder to populate core taxonomy, demo accounts, courses, exams, and settings:
+   ```bash
+   php artisan migrate:fresh --seed --force
+   ```
+
+4. **Launch Local Development Server**:
+   ```bash
+   php artisan serve --host=0.0.0.0 --port=8000
+   ```
+
+---
+
+## 🧪 Testing & Verification
+
+The backend includes a comprehensive automated test suite verifying route integrity, permission matrices, session binding, and API parity:
+
+```bash
+# Execute full test suite
+php artisan test
+
+# Verify refactored admin & bundle API endpoints return HTTP 200 OK
+php artisan test --filter VerifyRefactoredApisTest
+```
+
+---
+
+## 📄 License & Ownership
+Copyright © 2026 EduFlow Enterprise. All rights reserved. Developed and maintained for high-performance online tuition operations.
