@@ -123,9 +123,9 @@ class PublicExploreService
             'landing_faqs'           => json_decode(Setting::get('landing_faqs', '[]'), true),
             'landing_footer_links'   => json_decode(Setting::get('landing_footer_links', '[]'), true),
             'landing_social_links'   => json_decode(Setting::get('landing_social_links', '[]'), true),
-            'stats_students'         => Setting::get('stats_students') ?: (($sc = \App\Domains\Core\Models\User::where('role', 'student')->count()) >= 1000 ? round($sc/1000).'K+' : ($sc > 0 ? $sc.'+' : '10K+')),
-            'stats_lectures'         => Setting::get('stats_lectures') ?: (($lc = \App\Domains\Course\Models\Lesson::count()) >= 1000 ? round($lc/1000).'K+' : ($lc > 0 ? $lc.'+' : '200+')),
-            'stats_live_classes'     => Setting::get('stats_live_classes') ?: (($lvc = \App\Domains\Engagement\Models\LiveClass::count()) >= 1000 ? round($lvc/1000).'K+' : ($lvc > 0 ? $lvc.'+' : '50+')),
+            'stats_students'         => Setting::get('stats_students') ?: ((($sc = rescue(fn() => \App\Domains\Core\Models\User::where('role', 'student')->count(), 0)) >= 1000) ? round($sc/1000).'K+' : ($sc > 0 ? $sc.'+' : '10K+')),
+            'stats_lectures'         => Setting::get('stats_lectures') ?: ((($lc = rescue(fn() => \App\Domains\Course\Models\Lesson::count(), 0)) >= 1000) ? round($lc/1000).'K+' : ($lc > 0 ? $lc.'+' : '200+')),
+            'stats_live_classes'     => Setting::get('stats_live_classes') ?: ((($lvc = rescue(fn() => \App\Domains\LiveClass\Models\LiveClass::count(), 0)) >= 1000) ? round($lvc/1000).'K+' : ($lvc > 0 ? $lvc.'+' : '50+')),
             'stats_success_rate'     => Setting::get('stats_success_rate', '98%'),
         ];
 
