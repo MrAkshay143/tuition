@@ -420,7 +420,6 @@ Online Tuition/
 │   ├── src/pages/        # Public website pages
 │   └── src/router/       # Page routing for all three portals
 │
-├── deploy.py             # One-command deploy script to Hostinger
 ├── root.htaccess         # Web server config for single-page app routing
 └── README.md
 ```
