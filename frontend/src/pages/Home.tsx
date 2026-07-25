@@ -393,7 +393,9 @@ export default function Home() {
                 <GraduationCap size={12} className="sm:w-[16px] sm:h-[16px]" />
               </div>
               <div className="min-w-0">
-                <h3 className="text-xs sm:text-base font-extrabold text-slate-900 dark:text-white font-[Outfit] leading-none group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">10K+</h3>
+                <h3 className="text-xs sm:text-base font-extrabold text-slate-900 dark:text-white font-[Outfit] leading-none group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
+                  {cms?.stats_students || '10K+'}
+                </h3>
                 <p className="text-[7.5px] sm:text-[10.5px] text-slate-500 dark:text-[#8e91b5] font-medium mt-0.5 truncate">Students</p>
               </div>
             </div>
@@ -404,7 +406,9 @@ export default function Home() {
                 <Play size={10} fill="currentColor" className="sm:w-[13px] sm:h-[13px]" />
               </div>
               <div className="min-w-0">
-                <h3 className="text-xs sm:text-base font-extrabold text-slate-900 dark:text-white font-[Outfit] leading-none group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">200+</h3>
+                <h3 className="text-xs sm:text-base font-extrabold text-slate-900 dark:text-white font-[Outfit] leading-none group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                  {cms?.stats_lectures || '200+'}
+                </h3>
                 <p className="text-[7.5px] sm:text-[10.5px] text-slate-500 dark:text-[#8e91b5] font-medium mt-0.5 truncate">Lectures</p>
               </div>
             </div>
@@ -415,7 +419,9 @@ export default function Home() {
                 <Tv size={11} className="sm:w-[15px] sm:h-[15px]" />
               </div>
               <div className="min-w-0">
-                <h3 className="text-xs sm:text-base font-extrabold text-slate-900 dark:text-white font-[Outfit] leading-none group-hover:text-rose-600 dark:group-hover:text-rose-400 transition-colors">50+</h3>
+                <h3 className="text-xs sm:text-base font-extrabold text-slate-900 dark:text-white font-[Outfit] leading-none group-hover:text-rose-600 dark:group-hover:text-rose-400 transition-colors">
+                  {cms?.stats_live_classes || '50+'}
+                </h3>
                 <p className="text-[7.5px] sm:text-[10.5px] text-slate-500 dark:text-[#8e91b5] font-medium mt-0.5 truncate">Live Classes</p>
               </div>
             </div>
@@ -426,7 +432,9 @@ export default function Home() {
                 <Award size={12} className="sm:w-[16px] sm:h-[16px]" />
               </div>
               <div className="min-w-0">
-                <h3 className="text-xs sm:text-base font-extrabold text-slate-900 dark:text-emerald-400 font-[Outfit] leading-none">98%</h3>
+                <h3 className="text-xs sm:text-base font-extrabold text-slate-900 dark:text-emerald-400 font-[Outfit] leading-none">
+                  {cms?.stats_success_rate || '98%'}
+                </h3>
                 <p className="text-[7.5px] sm:text-[10.5px] text-slate-500 dark:text-[#8e91b5] font-medium mt-0.5 truncate">Success</p>
               </div>
             </div>
