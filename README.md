@@ -277,7 +277,8 @@ Students get a clean, app-like experience designed entirely around learning.
 - Filter: In Progress, Completed, Not Started
 
 ### Lesson Viewer
-- Watch videos: self-hosted (with adaptive streaming), YouTube, or Vimeo - all in one premium player
+- **Custom Video Player**: Watch videos (self-hosted, YouTube, or Vimeo) through a premium, unified TV-style custom player.
+- **Watermark-Free YouTube**: The custom YouTube player hides all YouTube watermarks, video titles, and end cards for a distraction-free experience.
 - Progress is saved automatically every few seconds - resume exactly where you stopped
 - Works offline: progress is saved on your device and synced when back online
 - Mark lessons as complete
@@ -290,6 +291,7 @@ Students get a clean, app-like experience designed entirely around learning.
 - Attendance is recorded automatically when you join
 
 ### Notes
+- **Dynamic Personal Notes**: Create and save personal rich-text notes for any lesson. View them globally via the responsive full-screen markdown preview modal.
 - Access all PDFs and study materials shared across your courses and batches
 
 ### Assignments
@@ -413,7 +415,6 @@ Online Tuition/
 │   ├── src/pages/        # Public website pages
 │   └── src/router/       # Page routing for all three portals
 │
-├── deploy.py             # One-command deploy script to Hostinger
 ├── root.htaccess         # Web server config for single-page app routing
 └── README.md
 ```
@@ -482,7 +483,18 @@ npm run dev
 
 ---
 
+## 🚧 Roadmap & Upcoming Features
+
+The following features are planned for upcoming phases:
+- **WebSockets / Socket.io:** Real-time WebRTC chat signalling without polling.
+- **Payment Gateway:** Integration with Razorpay/Stripe for paid course enrollment processing.
+- **Redis Caching:** Implementation of a dedicated queue worker and Redis cache store to optimize high-traffic database calls.
+- **Offline ServiceWorker Caching:** Caching full video segments for complete offline playback when disconnected.
+- **Deep Analytics Heatmaps:** Visual representations of video playback retention and drop-offs.
+
+---
+
 ## 📄 License
 
 Private repository - all rights reserved.
-Copyright © 2024-2025 EduFlow / Mr. Akshay.
+Copyright © 2026 EduFlow / Mr. Akshay.
