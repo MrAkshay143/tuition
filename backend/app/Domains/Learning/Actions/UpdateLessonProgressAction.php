@@ -66,8 +66,8 @@ class UpdateLessonProgressAction
                         'created_at' => now()->startOfDay()
                     ],
                     [
-                        'course_id' => null,
-                        'lesson_id' => null,
+                        'course_id' => $lesson->module?->course_id ?? \App\Domains\Course\Models\Course::first()?->id ?? 1,
+                        'lesson_id' => $lesson->id,
                         'watch_seconds' => 0,
                         'playback_speed' => 1.0,
                         'device' => 'system'
