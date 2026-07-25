@@ -29,35 +29,37 @@ class DeviceSessionController extends ApiController
 
         if ($status = $request->input('status')) {
             if ($status === 'active') {
-                $query->where('status', UserSessionStatus::ACTIVE->value);
+                $query->whereIn('status', [UserSessionStatus::ACTIVE->value, 'active', 'ACTIVE']);
             } elseif ($status === 'inactive') {
-                $query->where('status', '!=', UserSessionStatus::ACTIVE->value);
+                $query->whereNotIn('status', [UserSessionStatus::ACTIVE->value, 'active', 'ACTIVE']);
             }
         }
 
         $sessions = $query->latest('last_activity_at')->get()->map(function ($s) use ($currentHash, $currentDeviceId) {
-            $s->is_current = ($currentHash && $s->session_hash === $currentHash) || ($currentDeviceId && $s->device_id === $currentDeviceId);
+            $arr = $s->toArray();
+            $arr['is_current'] = ($currentHash && $s->session_hash === $currentHash) || ($currentDeviceId && $s->device_id === $currentDeviceId);
             
             $location = $s->city && $s->country ? "{$s->city}, {$s->country}" : ($s->country ?: 'India');
-            $s->location = $location;
+            $arr['location'] = $location;
             
-            $s->last_active_at = $s->last_activity_at ? $s->last_activity_at->diffForHumans() : ($s->created_at ? $s->created_at->diffForHumans() : 'Just now');
+            $arr['last_active_at'] = $s->last_activity_at ? $s->last_activity_at->diffForHumans() : ($s->created_at ? $s->created_at->diffForHumans() : 'Just now');
 
             $diffMinutes = $s->last_activity_at ? now()->diffInMinutes($s->last_activity_at) : 999;
-            if ($s->status === UserSessionStatus::REVOKED || $s->status === UserSessionStatus::TERMINATED || $s->status === UserSessionStatus::EXPIRED) {
-                $s->status = 'logged_out';
+            $statusVal = $s->status instanceof \BackedEnum ? $s->status->value : (string)$s->status;
+            if (in_array(strtoupper($statusVal), ['REVOKED', 'TERMINATED', 'EXPIRED', 'COMPROMISED', 'LOGGED_OUT'])) {
+                $arr['status'] = 'logged_out';
             } elseif ($diffMinutes <= 120) {
-                $s->status = 'active';
+                $arr['status'] = 'active';
             } elseif ($diffMinutes <= 720) {
-                $s->status = 'inactive';
+                $arr['status'] = 'inactive';
             } else {
-                $s->status = 'logged_out';
+                $arr['status'] = 'logged_out';
             }
 
-            return $s;
+            return $arr;
         });
 
-        $activeCount = UserSession::where('status', UserSessionStatus::ACTIVE->value)->count();
+        $activeCount = UserSession::active()->count();
         $failedLogins = ActivityLog::where('event', 'like', '%failed%')->orWhere('event', 'like', '%deleted%')->count();
         $suspiciousIpsBlocked = count(array_filter(explode(',', Setting::get('blocked_ips', ''))));
         
