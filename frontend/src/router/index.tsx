@@ -145,6 +145,13 @@ function RoleBasedExamsRedirect() {
   return <Navigate to={dest} replace />
 }
 
+function RoleBasedAssignmentsRedirect() {
+  const { isAuthenticated, user } = useAuthStore()
+  if (!isAuthenticated || !user) return <Navigate to="/login" replace />
+  const dest = user.role === 'student' ? '/student/assignments' : user.role === 'admin' ? '/admin/assignments' : '/teacher/assignments'
+  return <Navigate to={dest} replace />
+}
+
 // Redirects unauthenticated users to login, saving the intended path
 // so LoginPage can redirect back after a successful login.
 function RedirectToLogin({ to }: { to: string }) {
@@ -321,9 +328,10 @@ const router = createBrowserRouter([
     }]
   },
 
-  // 6. Generic Profile & Exams Redirect Routes
+  // 6. Generic Profile, Exams & Assignments Redirect Routes
   { path: '/profile', element: <ProfileRedirect /> },
   { path: '/exams', element: <RoleBasedExamsRedirect /> },
+  { path: '/assignments', element: <RoleBasedAssignmentsRedirect /> },
 
   // 7. Catchall 404
   { path: '*', element: <Navigate to="/404" replace /> },

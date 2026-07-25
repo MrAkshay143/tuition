@@ -174,7 +174,7 @@ export default function About() {
           </div>
 
           {/* Right 4 KPI Stats Grid */}
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3.5 w-full md:w-auto md:flex-1 lg:flex-[1.2] pt-4 md:pt-0 border-t md:border-t-0 border-l-0 md:border-l border-[rgb(var(--border))] md:pl-6">
+          <div className="grid grid-cols-2 gap-2 sm:gap-3.5 w-full md:w-auto md:flex-1 pt-4 md:pt-0 border-t md:border-t-0 border-l-0 md:border-l border-[rgb(var(--border))] md:pl-6">
             
             {/* Stat 1 */}
             <div className="p-2.5 sm:p-3.5 rounded-2xl bg-[rgb(var(--bg-elevated))] border border-[rgb(var(--border))] space-y-1 sm:space-y-1.5 flex flex-col justify-center text-left min-w-0">

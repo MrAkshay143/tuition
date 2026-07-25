@@ -1,10 +1,10 @@
-# EduFlow — Private Digital Classroom
+# EduFlow - Private Digital Classroom
 
 [![Live](https://img.shields.io/badge/Live-tuition.imakshay.in-6C63FF?style=for-the-badge&logo=vercel)](https://tuition.imakshay.in)
 [![PWA](https://img.shields.io/badge/Works_Offline-PWA_Ready-5A0FC8?style=for-the-badge&logo=pwa&logoColor=white)](https://tuition.imakshay.in)
 [![Secure](https://img.shields.io/badge/Security-Enterprise_Grade-22C55E?style=for-the-badge&logo=shield&logoColor=white)](https://tuition.imakshay.in)
 
-> **EduFlow** is a complete private digital classroom platform built for coaching institutes and tuition centers. It gives Admins full control, Teachers powerful teaching tools, and Students a smooth, app-like learning experience — all in one place, accessible on any device.
+> **EduFlow** is a complete private digital classroom platform built for coaching institutes and tuition centers. It gives Admins full control, Teachers powerful teaching tools, and Students a smooth, app-like learning experience - all in one place, accessible on any device.
 
 ---
 
@@ -63,13 +63,13 @@ flowchart LR
 
 | User | Role | What They Can Do |
 |------|------|-----------------|
-| 🔐 **Admin** | Platform Owner | Manage everything — users, content, settings, security, backups |
+| 🔐 **Admin** | Platform Owner | Manage everything - users, content, settings, security, backups |
 | 👨‍🏫 **Teacher** | Educator | Create courses, take live classes, set exams, manage students |
 | 🎓 **Student** | Learner | Watch lessons, attend live classes, submit assignments, take exams |
 
 ---
 
-## 🔐 Admin Panel — Everything Under One Roof
+## 🔐 Admin Panel - Everything Under One Roof
 
 The Admin is the platform owner. From the admin panel, everything can be configured and controlled without touching any code.
 
@@ -108,10 +108,10 @@ The Admin is the platform owner. From the admin panel, everything can be configu
 
 ### 🎓 Academic Taxonomy
 Manage the full educational structure of your institute:
-- **Education Types** — School, Undergraduate, Postgraduate, etc.
-- **Programs** — Courses of study under each education type
-- **Subjects** — Subjects linked to each program
-- **Academic Sessions** — Academic years and terms
+- **Education Types** - School, Undergraduate, Postgraduate, etc.
+- **Programs** - Courses of study under each education type
+- **Subjects** - Subjects linked to each program
+- **Academic Sessions** - Academic years and terms
 
 All of these support create, edit, delete, and restore.
 
@@ -123,16 +123,16 @@ All of these support create, edit, delete, and restore.
 
 ### 📚 Courses & Content Builder
 - Create courses with thumbnails, descriptions, and subject tags
-- **Drag-and-drop Course Builder** — build modules and lessons visually
+- **Drag-and-drop Course Builder** - build modules and lessons visually
 - Lessons can have: video (self-hosted, YouTube, or Vimeo), PDF notes, free preview toggle
 - Publish, unpublish, archive, or duplicate any course
-- Save version snapshots — restore any older version of a course
+- Save version snapshots - restore any older version of a course
 
 ### 🎬 Media Library
 - Upload and organise videos, PDFs, images, and documents
 - Embed YouTube and Vimeo videos
 - Bulk delete, publish, archive, or categorise files
-- Recycle bin — restore accidentally deleted files
+- Recycle bin - restore accidentally deleted files
 - Track which lessons are using each media file
 
 ### 📝 Assignments
@@ -182,7 +182,7 @@ All of these support create, edit, delete, and restore.
 
 ---
 
-## 👨‍🏫 Teacher Portal — Full Feature Reference
+## 👨‍🏫 Teacher Portal - Full Feature Reference
 
 Teachers have a dedicated panel to run their teaching operations end-to-end.
 
@@ -208,7 +208,7 @@ Teachers have a dedicated panel to run their teaching operations end-to-end.
 - Create courses with description, subject, and pricing (free or paid)
 - **Drag-and-drop builder**: add modules (chapters) and lessons in any order
 - Each lesson: add video (upload, YouTube, or Vimeo), PDF notes, free preview toggle
-- Autosaves on every change — no work is lost
+- Autosaves on every change - no work is lost
 - Version history and course import/export
 
 ### Content Library, Videos & Notes
@@ -261,7 +261,7 @@ Teachers have a dedicated panel to run their teaching operations end-to-end.
 
 ---
 
-## 🎓 Student Portal — Full Feature Reference
+## 🎓 Student Portal - Full Feature Reference
 
 Students get a clean, app-like experience designed entirely around learning.
 
@@ -277,8 +277,8 @@ Students get a clean, app-like experience designed entirely around learning.
 - Filter: In Progress, Completed, Not Started
 
 ### Lesson Viewer
-- Watch videos: self-hosted (with adaptive streaming), YouTube, or Vimeo — all in one premium player
-- Progress is saved automatically every few seconds — resume exactly where you stopped
+- Watch videos: self-hosted (with adaptive streaming), YouTube, or Vimeo - all in one premium player
+- Progress is saved automatically every few seconds - resume exactly where you stopped
 - Works offline: progress is saved on your device and synced when back online
 - Mark lessons as complete
 - Bookmark any lesson for quick access later
@@ -328,7 +328,7 @@ Students get a clean, app-like experience designed entirely around learning.
 
 ## 🌍 Public Website
 
-EduFlow also includes a full public-facing website — no login needed.
+EduFlow also includes a full public-facing website - no login needed.
 
 | Page | What It Shows |
 |------|---------------|
@@ -350,19 +350,19 @@ EduFlow also includes a full public-facing website — no login needed.
 
 ---
 
-## 🔒 Security — Built for Trust
+## 🔒 Security - Built for Trust
 
 Every part of EduFlow is built with security as a first priority.
 
 | Protection | How It Works |
 |-----------|-------------|
-| **Secure Login** | Passwords are always stored encrypted — never in plain text |
+| **Secure Login** | Passwords are always stored encrypted - never in plain text |
 | **Google Login** | Sign in with Google via OAuth 2.0 (configurable from Admin Settings) |
 | **Password Reset** | Secure time-limited reset links sent to email |
-| **Device Binding** | Each login session is tied to the device that created it — sessions can't be shared |
+| **Device Binding** | Each login session is tied to the device that created it - sessions can't be shared |
 | **Device Management** | Users can see and revoke all their own active sessions |
 | **Admin Session Control** | Admins can view and kill any session across any user |
-| **Session Policies** | Set idle logout time, max devices per user — per role or per person |
+| **Session Policies** | Set idle logout time, max devices per user - per role or per person |
 | **Rate Limiting** | Login attempts are rate-limited to prevent brute-force attacks |
 | **Permission Control** | Every page and API route is gated by role permissions |
 | **Audit Trail** | Every action is logged with user, time, IP, and what changed |
@@ -375,14 +375,14 @@ Every part of EduFlow is built with security as a first priority.
 ### What Runs the App
 | Layer | Technology |
 |-------|-----------|
-| **Frontend App** | React 19 + TypeScript — fast, modern, app-like experience |
-| **Mobile-Ready** | PWA (Progressive Web App) — install on any phone or tablet |
+| **Frontend App** | React 19 + TypeScript - fast, modern, app-like experience |
+| **Mobile-Ready** | PWA (Progressive Web App) - install on any phone or tablet |
 | **Animations** | Smooth transitions using Framer Motion |
 | **Charts** | Interactive data charts via Recharts |
-| **Backend API** | Laravel 11 (PHP) — robust, proven, enterprise-grade framework |
-| **Authentication** | Laravel Sanctum — secure token-based sessions |
-| **Permissions** | Spatie RBAC — fine-grained role and permission control |
-| **Database** | MySQL 8.0 — reliable relational database |
+| **Backend API** | Laravel 11 (PHP) - robust, proven, enterprise-grade framework |
+| **Authentication** | Laravel Sanctum - secure token-based sessions |
+| **Permissions** | Spatie RBAC - fine-grained role and permission control |
+| **Database** | MySQL 8.0 - reliable relational database |
 
 ### Hosting & Services
 | Component | Where / What |
@@ -484,5 +484,5 @@ npm run dev
 
 ## 📄 License
 
-Private repository — all rights reserved.
-Copyright © 2024–2025 EduFlow / Mr. Akshay.
+Private repository - all rights reserved.
+Copyright © 2024-2025 EduFlow / Mr. Akshay.

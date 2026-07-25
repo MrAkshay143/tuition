@@ -84,7 +84,7 @@ export default function CourseDetails() {
 function CourseDetailsInner() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
-  const { isAuthenticated } = useAuthStore()
+  const { isAuthenticated, user } = useAuthStore()
 
   const { notifyLessonStart, notifyLessonClose } = usePlayback()
 
@@ -101,6 +101,8 @@ function CourseDetailsInner() {
 
   const [seekTarget, setSeekTarget] = useState<number | undefined>(undefined)
   const autoResumeDone = useRef(false)
+  // true when the authenticated user is enrolled in this course (or is admin/teacher)
+  const [isEnrolled, setIsEnrolled] = useState(false)
 
   // Fetch Course details from Explore API
   const { data, isLoading } = useQuery({
@@ -154,6 +156,7 @@ function CourseDetailsInner() {
       try {
         const res = await api.get(`/courses/${id}/resume`)
         const data = res?.data
+        setIsEnrolled(true) // 200 response = enrolled
         if (data?.completed_lesson_ids && Array.isArray(data.completed_lesson_ids)) {
           setCompletedLessons(data.completed_lesson_ids)
         }
@@ -161,10 +164,9 @@ function CourseDetailsInner() {
         const allLessons = course.modules.flatMap((m) => m.lessons || [])
         const lesson = allLessons.find((l) => l.id === data.lesson_id)
         if (lesson && data.watched_seconds > 5) {
-          // Auto-start last watched lesson silently
           handleLessonClick(lesson)
         }
-      } catch { /* No progress or not enrolled — show hero */ }
+      } catch { /* Not enrolled or no progress */ }
     }
     fetchCourseResume()
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -233,6 +235,10 @@ function CourseDetailsInner() {
   }
 
   const totalLessonsCount = modulesList.reduce((acc, m) => acc + (m.lessons || []).length, 0)
+
+  // Admin and teacher have full access; enrolled students also have full access
+  const isPrivilegedRole = user?.role === 'admin' || user?.role === 'teacher'
+  const canAccessFullContent = isPrivilegedRole || isEnrolled
 
   if (isLoading) {
     return (
@@ -567,76 +573,120 @@ function CourseDetailsInner() {
           )}
 
           {activeTab === 'materials' && (
-            <div className="bg-white dark:bg-[#0c0d24] border border-slate-200 dark:border-[#1b1c3d] rounded-2xl sm:rounded-[24px] p-4 sm:p-6 lg:p-8 space-y-4 shadow-xl text-left">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-slate-200 dark:border-[#1b1c3d]">
-                <div>
-                  <h3 className="text-slate-500 dark:text-slate-400 text-sm sm:text-base font-extrabold text-slate-900 dark:text-white font-[Outfit]">Downloadable Study Materials</h3>
-                  <p className="text-[11px] sm:text-xs text-slate-500 dark:text-[#8e91b5]">Access formula sheets, lecture notes and revision PDFs.</p>
+            <div className="relative">
+              <div className={!canAccessFullContent ? 'select-none pointer-events-none' : ''}>
+                <div className="bg-white dark:bg-[#0c0d24] border border-slate-200 dark:border-[#1b1c3d] rounded-2xl sm:rounded-[24px] p-4 sm:p-6 lg:p-8 space-y-4 shadow-xl text-left">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-slate-200 dark:border-[#1b1c3d]">
+                    <div>
+                      <h3 className="text-slate-500 dark:text-slate-400 text-sm sm:text-base font-extrabold text-slate-900 dark:text-white font-[Outfit]">Downloadable Study Materials</h3>
+                      <p className="text-[11px] sm:text-xs text-slate-500 dark:text-[#8e91b5]">Access formula sheets, lecture notes and revision PDFs.</p>
+                    </div>
+                    <span className="self-start sm:self-auto text-[10px] sm:text-xs font-mono font-bold text-indigo-500 dark:text-indigo-400 bg-indigo-500/10 px-2.5 sm:px-3 py-1 rounded-full border border-indigo-500/20">3 Files Available</span>
+                  </div>
+
+                  <div className="space-y-2.5 sm:space-y-3">
+                    {[
+                      { title: 'Chapter 01 - Formula Sheet & Quick Recap', type: 'PDF', size: '4.2 MB' },
+                      { title: 'Session Lecture Notes & Handouts (Annotated)', type: 'PDF', size: '8.7 MB' },
+                      { title: 'Top 50 Selected Practice Problems with Solutions', type: 'PDF', size: '5.1 MB' },
+                    ].map((mat, idx) => (
+                      <div key={idx} className="p-3 sm:p-4 rounded-xl bg-slate-50 dark:bg-[#080918] border border-slate-200 dark:border-[#1b1c3d] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 hover:border-indigo-500/40 transition-colors">
+                        <div className="flex items-center gap-3">
+                          <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-slate-100 dark:bg-[#131433] text-indigo-500 dark:text-indigo-400 flex items-center justify-center flex-shrink-0 font-bold text-xs border border-indigo-100 dark:border-[#232552]">
+                            {mat.type}
+                          </div>
+                          <div>
+                            <h4 className="font-extrabold text-xs text-slate-900 dark:text-white font-[Outfit]">{mat.title}</h4>
+                            <span className="text-[10px] text-slate-500 dark:text-[#8e91b5] font-mono">{mat.size} • Verified PDF Document</span>
+                          </div>
+                        </div>
+                        <button
+                          onClick={() => alert(`Downloading ${mat.title}...`)}
+                          className="w-full sm:w-auto flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#594fe6] hover:bg-[#6c61f2] text-white text-xs font-bold transition-colors cursor-pointer"
+                        >
+                          <Download size={13} /> Download
+                        </button>
+                      </div>
+                    ))}
+                  </div>
                 </div>
-                <span className="self-start sm:self-auto text-[10px] sm:text-xs font-mono font-bold text-indigo-500 dark:text-indigo-400 bg-indigo-500/10 px-2.5 sm:px-3 py-1 rounded-full border border-indigo-500/20">3 Files Available</span>
               </div>
 
-              <div className="space-y-2.5 sm:space-y-3">
-                {[
-                  { title: 'Chapter 01 - Formula Sheet & Quick Recap', type: 'PDF', size: '4.2 MB' },
-                  { title: 'Session Lecture Notes & Handouts (Annotated)', type: 'PDF', size: '8.7 MB' },
-                  { title: 'Top 50 Selected Practice Problems with Solutions', type: 'PDF', size: '5.1 MB' },
-                ].map((mat, idx) => (
-                  <div key={idx} className="p-3 sm:p-4 rounded-xl bg-slate-50 dark:bg-[#080918] border border-slate-200 dark:border-[#1b1c3d] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 hover:border-indigo-500/40 transition-colors">
-                    <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-slate-100 dark:bg-[#131433] text-indigo-500 dark:text-indigo-400 flex items-center justify-center flex-shrink-0 font-bold text-xs border border-indigo-100 dark:border-[#232552]">
-                        {mat.type}
-                      </div>
-                      <div>
-                        <h4 className="font-extrabold text-xs text-slate-900 dark:text-white font-[Outfit]">{mat.title}</h4>
-                        <span className="text-[10px] text-slate-500 dark:text-[#8e91b5] font-mono">{mat.size} • Verified PDF Document</span>
-                      </div>
-                    </div>
-                    <button 
-                      onClick={() => alert(`Downloading ${mat.title}...`)}
-                      className="w-full sm:w-auto flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#594fe6] hover:bg-[#6c61f2] text-white text-xs font-bold transition-colors cursor-pointer"
-                    >
-                      <Download size={13} /> Download
-                    </button>
+              {/* Lock overlay for non-enrolled / guests */}
+              {!canAccessFullContent && (
+                <div className="absolute inset-0 rounded-2xl sm:rounded-[24px] flex flex-col items-center justify-center gap-3 backdrop-blur-[6px] bg-white/30 dark:bg-[#07081a]/50 border border-slate-200 dark:border-[#1b1c3d] z-10">
+                  <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-[#594fe6] to-[#7964ff] flex items-center justify-center shadow-lg shadow-indigo-500/30">
+                    <Lock size={22} className="text-white" />
                   </div>
-                ))}
-              </div>
+                  <div className="text-center px-4">
+                    <p className="text-sm font-extrabold text-slate-900 dark:text-white font-[Outfit]">Enrolled Students Only</p>
+                    <p className="text-xs text-slate-500 dark:text-[#9396b8] mt-1">Study materials are available after enrollment.</p>
+                  </div>
+                  {!isAuthenticated && (
+                    <button onClick={() => navigate('/login')} className="px-5 py-2 rounded-full bg-[#594fe6] hover:bg-[#6c61f2] text-white text-xs font-bold transition-colors cursor-pointer">
+                      Login to Access
+                    </button>
+                  )}
+                </div>
+              )}
             </div>
           )}
 
           {activeTab === 'practicetests' && (
-            <div className="bg-white dark:bg-[#0c0d24] border border-slate-200 dark:border-[#1b1c3d] rounded-2xl sm:rounded-[24px] p-4 sm:p-6 lg:p-8 space-y-4 shadow-xl text-left">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-slate-200 dark:border-[#1b1c3d]">
-                <div>
-                  <h3 className="text-slate-500 dark:text-slate-400 text-sm sm:text-base font-extrabold text-slate-900 dark:text-white font-[Outfit]">Practice Tests & Quizzes</h3>
-                  <p className="text-[11px] sm:text-xs text-slate-500 dark:text-[#8e91b5]">Evaluate your conceptual clarity with timed quizzes.</p>
-                </div>
-                <span className="self-start sm:self-auto text-[10px] sm:text-xs font-mono font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-2.5 sm:px-3 py-1 rounded-full border border-emerald-500/20">2 Quizzes Active</span>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-                {[
-                  { title: 'Unit Quiz 01: Core Concepts & Units', questions: '20 Questions', duration: '30 Mins' },
-                  { title: 'Chapter Assessment: Mock Practice DPP', questions: '30 Questions', duration: '45 Mins' },
-                ].map((test, idx) => (
-                  <div key={idx} className="p-4 sm:p-5 rounded-2xl bg-slate-50 dark:bg-[#080918] border border-slate-200 dark:border-[#1b1c3d] space-y-3 sm:space-y-4 flex flex-col justify-between">
-                    <div className="space-y-1.5">
-                      <span className="text-[8.5px] sm:text-[9px] font-extrabold uppercase text-indigo-500 dark:text-indigo-400 bg-indigo-500/10 px-2 py-0.5 rounded-full tracking-wider border border-indigo-500/20">TIMED PRACTICE</span>
-                      <h4 className="font-extrabold text-xs sm:text-sm text-slate-900 dark:text-white font-[Outfit]">{test.title}</h4>
-                      <div className="flex items-center gap-3 text-xs text-slate-500 dark:text-[#8e91b5] font-mono pt-1">
-                        <span>{test.questions}</span> • <span>{test.duration}</span>
-                      </div>
+            <div className="relative">
+              <div className={!canAccessFullContent ? 'select-none pointer-events-none' : ''}>
+                <div className="bg-white dark:bg-[#0c0d24] border border-slate-200 dark:border-[#1b1c3d] rounded-2xl sm:rounded-[24px] p-4 sm:p-6 lg:p-8 space-y-4 shadow-xl text-left">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-slate-200 dark:border-[#1b1c3d]">
+                    <div>
+                      <h3 className="text-slate-500 dark:text-slate-400 text-sm sm:text-base font-extrabold text-slate-900 dark:text-white font-[Outfit]">Practice Tests & Quizzes</h3>
+                      <p className="text-[11px] sm:text-xs text-slate-500 dark:text-[#8e91b5]">Evaluate your conceptual clarity with timed quizzes.</p>
                     </div>
-
-                    <button 
-                      onClick={() => navigate('/exams')}
-                      className="w-full py-2 rounded-xl bg-[#594fe6] hover:bg-[#6c61f2] text-white text-xs font-extrabold transition-colors cursor-pointer text-center"
-                    >
-                      Start Practice Test
-                    </button>
+                    <span className="self-start sm:self-auto text-[10px] sm:text-xs font-mono font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-2.5 sm:px-3 py-1 rounded-full border border-emerald-500/20">2 Quizzes Active</span>
                   </div>
-                ))}
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                    {[
+                      { title: 'Unit Quiz 01: Core Concepts & Units', questions: '20 Questions', duration: '30 Mins' },
+                      { title: 'Chapter Assessment: Mock Practice DPP', questions: '30 Questions', duration: '45 Mins' },
+                    ].map((test, idx) => (
+                      <div key={idx} className="p-4 sm:p-5 rounded-2xl bg-slate-50 dark:bg-[#080918] border border-slate-200 dark:border-[#1b1c3d] space-y-3 sm:space-y-4 flex flex-col justify-between">
+                        <div className="space-y-1.5">
+                          <span className="text-[8.5px] sm:text-[9px] font-extrabold uppercase text-indigo-500 dark:text-indigo-400 bg-indigo-500/10 px-2 py-0.5 rounded-full tracking-wider border border-indigo-500/20">TIMED PRACTICE</span>
+                          <h4 className="font-extrabold text-xs sm:text-sm text-slate-900 dark:text-white font-[Outfit]">{test.title}</h4>
+                          <div className="flex items-center gap-3 text-xs text-slate-500 dark:text-[#8e91b5] font-mono pt-1">
+                            <span>{test.questions}</span> • <span>{test.duration}</span>
+                          </div>
+                        </div>
+
+                        <button
+                          onClick={() => navigate('/exams')}
+                          className="w-full py-2 rounded-xl bg-[#594fe6] hover:bg-[#6c61f2] text-white text-xs font-extrabold transition-colors cursor-pointer text-center"
+                        >
+                          Start Practice Test
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
               </div>
+
+              {/* Lock overlay for non-enrolled / guests */}
+              {!canAccessFullContent && (
+                <div className="absolute inset-0 rounded-2xl sm:rounded-[24px] flex flex-col items-center justify-center gap-3 backdrop-blur-[6px] bg-white/30 dark:bg-[#07081a]/50 border border-slate-200 dark:border-[#1b1c3d] z-10">
+                  <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-[#594fe6] to-[#7964ff] flex items-center justify-center shadow-lg shadow-indigo-500/30">
+                    <Lock size={22} className="text-white" />
+                  </div>
+                  <div className="text-center px-4">
+                    <p className="text-sm font-extrabold text-slate-900 dark:text-white font-[Outfit]">Enrolled Students Only</p>
+                    <p className="text-xs text-slate-500 dark:text-[#9396b8] mt-1">Practice tests are unlocked after enrollment.</p>
+                  </div>
+                  {!isAuthenticated && (
+                    <button onClick={() => navigate('/login')} className="px-5 py-2 rounded-full bg-[#594fe6] hover:bg-[#6c61f2] text-white text-xs font-bold transition-colors cursor-pointer">
+                      Login to Access
+                    </button>
+                  )}
+                </div>
+              )}
             </div>
           )}
 
