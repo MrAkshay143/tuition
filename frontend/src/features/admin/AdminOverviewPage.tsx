@@ -601,14 +601,14 @@ export default function AdminOverviewPage() {
               </div>
 
               {/* Security Tags */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+              <div className="grid grid-cols-2 gap-2">
                 <div className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-[rgb(var(--bg-elevated))] border border-[rgb(var(--border))] text-[10px] font-mono text-[rgb(var(--text-muted))]">
-                  <ShieldAlert size={12} className="text-amber-400" />
-                  <span>2FA: <strong className="text-[rgb(var(--text-primary))]">{stats.teacher.two_factor_enabled ? 'ON' : 'OFF'}</strong></span>
+                  <ShieldAlert size={12} className="text-amber-400 flex-shrink-0" />
+                  <span className="truncate">2FA: <strong className="text-[rgb(var(--text-primary))]">{stats.teacher.two_factor_enabled ? 'ON' : 'OFF'}</strong></span>
                 </div>
                 <div className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-[rgb(var(--bg-elevated))] border border-[rgb(var(--border))] text-[10px] font-mono text-[rgb(var(--text-muted))]">
-                  <Settings size={12} className="text-indigo-400" />
-                  <span>GOOGLE: <strong className="text-[rgb(var(--text-primary))]">{stats.teacher.google_id ? 'LINKED' : 'NO'}</strong></span>
+                  <Settings size={12} className="text-indigo-400 flex-shrink-0" />
+                  <span className="truncate">GOOGLE: <strong className="text-[rgb(var(--text-primary))]">{stats.teacher.google_id ? 'LINKED' : 'NO'}</strong></span>
                 </div>
               </div>
 
