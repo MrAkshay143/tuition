@@ -82,7 +82,7 @@ export default function AdminSettingsPage() {
   const qc = useQueryClient()
   const logoInputRef = useRef<HTMLInputElement>(null)
   const faviconInputRef = useRef<HTMLInputElement>(null)
-  const [integrationModal, setIntegrationModal] = useState<'zoom' | 'openai' | null>(null)
+  const [integrationModal, setIntegrationModal] = useState<'zoom' | 'openai' | 'fcm' | 'google' | null>(null)
   const [isSendingTestEmail, setIsSendingTestEmail] = useState(false)
 
   const handleSendTestEmail = async () => {
@@ -706,10 +706,10 @@ export default function AdminSettingsPage() {
                           CONNECTED
                         </Badge>
                       </div>
-                      <p className="text-[10px] text-[rgb(var(--text-muted))]">Automate live video class scheduling and webinar streams.</p>
+                      <p className="text-[10px] text-[rgb(var(--text-muted))]">Automate live class scheduling and video streams.</p>
                     </div>
                     <Button variant="secondary" size="sm" onClick={() => setIntegrationModal('zoom')} className="w-full text-xs font-bold py-1.5 cursor-pointer">
-                      Configure Zoom Credentials
+                      Configure Zoom API
                     </Button>
                   </div>
 
@@ -727,38 +727,15 @@ export default function AdminSettingsPage() {
                           {formData.fcm_project_id ? "CONFIGURED" : "PENDING"}
                         </Badge>
                       </div>
-                      <p className="text-[10px] text-[rgb(var(--text-muted))]">Setup FCM for WebRTC chat wake-up notifications.</p>
-                      
-                      <div className="space-y-3 pt-2">
-                        <Input
-                          label="FCM Project ID"
-                          value={formData.fcm_project_id || ''}
-                          onChange={(e) => handleChange('fcm_project_id', e.target.value)}
-                          placeholder="your-project-id"
-                        />
-                        <div className="flex items-end gap-2">
-                          <div className="flex-1">
-                            <Input
-                              label="Service Account JSON (Media ID)"
-                              value={formData.fcm_service_account_media_id || ''}
-                              onChange={(e) => handleChange('fcm_service_account_media_id', e.target.value)}
-                              placeholder="e.g. 15"
-                            />
-                          </div>
-                          <Button 
-                            variant="secondary" 
-                            className="h-10 px-3 cursor-pointer"
-                            onClick={() => { setPickerType('fcm'); setIsPickerOpen(true); }}
-                          >
-                            <Upload size={14} />
-                          </Button>
-                        </div>
-                      </div>
+                      <p className="text-[10px] text-[rgb(var(--text-muted))]">Configure push notifications and chat wake-up alerts.</p>
                     </div>
+                    <Button variant="secondary" size="sm" onClick={() => setIntegrationModal('fcm')} className="w-full text-xs font-bold py-1.5 cursor-pointer">
+                      Configure FCM API
+                    </Button>
                   </div>
 
                   {/* Google OAuth 2.0 & API Configuration */}
-                  <div className="p-4 rounded-2xl border border-[rgb(var(--border))] bg-[rgb(var(--bg-surface))] space-y-3 flex flex-col justify-between col-span-1 sm:col-span-2">
+                  <div className="p-4 rounded-2xl border border-[rgb(var(--border))] bg-[rgb(var(--bg-surface))] space-y-3 flex flex-col justify-between">
                     <div className="space-y-2">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
@@ -771,30 +748,11 @@ export default function AdminSettingsPage() {
                           CONFIGURED
                         </Badge>
                       </div>
-                      <p className="text-[10px] text-[rgb(var(--text-muted))]">Setup single sign-on redirect routes and API base URLs for mobile/web clients.</p>
-                      
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
-                        <Input
-                          label="Google OAuth Redirect Route"
-                          value={formData.google_auth_endpoint || ''}
-                          onChange={(e) => handleChange('google_auth_endpoint', e.target.value)}
-                          placeholder="https://tuition.imakshay.in/api_backend/public/api/v1/auth/google"
-                        />
-                        <Input
-                          label="API Server Base URL"
-                          value={formData.api_base_url || ''}
-                          onChange={(e) => handleChange('api_base_url', e.target.value)}
-                          placeholder="https://tuition.imakshay.in/api_backend/public/api/v1"
-                        />
-                        <Input
-                          label="Google Client ID"
-                          value={formData.google_client_id || ''}
-                          onChange={(e) => handleChange('google_client_id', e.target.value)}
-                          placeholder="789123456789-xxxx.apps.googleusercontent.com"
-                          className="sm:col-span-2"
-                        />
-                      </div>
+                      <p className="text-[10px] text-[rgb(var(--text-muted))]">Configure single sign-on routes and API base URLs.</p>
                     </div>
+                    <Button variant="secondary" size="sm" onClick={() => setIntegrationModal('google')} className="w-full text-xs font-bold py-1.5 cursor-pointer">
+                      Configure OAuth & API
+                    </Button>
                   </div>
 
                   {/* Transactional Email Engine */}
@@ -992,6 +950,81 @@ export default function AdminSettingsPage() {
           <Input label="Zoom API Key" value={formData.zoom_api_key} onChange={(e) => handleChange('zoom_api_key', e.target.value)} />
           <Input label="Zoom API Secret" type="password" value={formData.zoom_api_secret} onChange={(e) => handleChange('zoom_api_secret', e.target.value)} />
           <Input label="Zoom Account ID" value={formData.zoom_account_id} onChange={(e) => handleChange('zoom_account_id', e.target.value)} />
+        </div>
+      </Modal>
+
+      {/* FCM Modal */}
+      <Modal
+        open={integrationModal === 'fcm'}
+        onClose={() => setIntegrationModal(null)}
+        title="Configure Firebase Cloud Messaging"
+        size="sm"
+        footer={
+          <>
+            <Button variant="secondary" onClick={() => setIntegrationModal(null)}>Cancel</Button>
+            <Button variant="primary" onClick={() => { saveSettings(formData); setIntegrationModal(null); toast.success('FCM configuration saved!') }} className="bg-indigo-600 text-white font-bold">Save Credentials</Button>
+          </>
+        }
+      >
+        <div className="space-y-3 text-xs">
+          <Input
+            label="FCM Project ID"
+            value={formData.fcm_project_id || ''}
+            onChange={(e) => handleChange('fcm_project_id', e.target.value)}
+            placeholder="your-project-id"
+          />
+          <div className="flex items-end gap-2">
+            <div className="flex-1">
+              <Input
+                label="Service Account JSON (Media ID)"
+                value={formData.fcm_service_account_media_id || ''}
+                onChange={(e) => handleChange('fcm_service_account_media_id', e.target.value)}
+                placeholder="e.g. 15"
+              />
+            </div>
+            <Button 
+              variant="secondary" 
+              className="h-10 px-3 cursor-pointer"
+              onClick={() => { setPickerType('fcm'); setIsPickerOpen(true); }}
+            >
+              <Upload size={14} />
+            </Button>
+          </div>
+        </div>
+      </Modal>
+
+      {/* Google OAuth Modal */}
+      <Modal
+        open={integrationModal === 'google'}
+        onClose={() => setIntegrationModal(null)}
+        title="Configure Google OAuth & API"
+        size="sm"
+        footer={
+          <>
+            <Button variant="secondary" onClick={() => setIntegrationModal(null)}>Cancel</Button>
+            <Button variant="primary" onClick={() => { saveSettings(formData); setIntegrationModal(null); toast.success('Google configuration saved!') }} className="bg-indigo-600 text-white font-bold">Save Settings</Button>
+          </>
+        }
+      >
+        <div className="space-y-3 text-xs">
+          <Input
+            label="Google OAuth Redirect Route"
+            value={formData.google_auth_endpoint || ''}
+            onChange={(e) => handleChange('google_auth_endpoint', e.target.value)}
+            placeholder="https://tuition.imakshay.in/api_backend/public/api/v1/auth/google"
+          />
+          <Input
+            label="API Server Base URL"
+            value={formData.api_base_url || ''}
+            onChange={(e) => handleChange('api_base_url', e.target.value)}
+            placeholder="https://tuition.imakshay.in/api_backend/public/api/v1"
+          />
+          <Input
+            label="Google Client ID"
+            value={formData.google_client_id || ''}
+            onChange={(e) => handleChange('google_client_id', e.target.value)}
+            placeholder="789123456789-xxxx.apps.googleusercontent.com"
+          />
         </div>
       </Modal>
 
