@@ -691,7 +691,7 @@ export default function AdminSettingsPage() {
                   <p className="text-xs text-[rgb(var(--text-muted))]">Manage API keys and external service credentials</p>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                   {/* Zoom Video API */}
                   <div className="p-4 rounded-2xl border border-[rgb(var(--border))] bg-[rgb(var(--bg-surface))] space-y-3 flex flex-col justify-between">
                     <div className="space-y-2">
