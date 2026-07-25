@@ -268,21 +268,23 @@ function CourseDetailsInner() {
             <div className="bg-white dark:bg-[#0c0d24] border border-slate-200 dark:border-[#1b1c3d] rounded-[24px] p-5 sm:p-6 space-y-4 text-left shadow-2xl overflow-hidden">
               
               {/* TITLE ONLY ABOVE PLAYER */}
-              <div className="flex items-center justify-between border-b border-slate-200 dark:border-[#1b1c3d] pb-3">
-                <div className="flex items-center gap-3">
-                  <span className="text-[9.5px] font-extrabold uppercase bg-[#594fe6] text-white px-2.5 py-0.5 rounded-full tracking-wider">
-                    NOW PLAYING
+              <div className="flex items-center justify-between border-b border-slate-200 dark:border-[#1b1c3d] pb-3 gap-2 sm:gap-3">
+                <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+                  <span className="flex items-center justify-center bg-[#594fe6] text-white w-6 h-6 sm:w-auto sm:h-auto sm:px-2.5 sm:py-0.5 rounded-full sm:rounded-full shrink-0 shadow-md">
+                    <Play size={10} className="sm:hidden" fill="currentColor" />
+                    <span className="hidden sm:inline text-[9.5px] font-extrabold uppercase tracking-wider">NOW PLAYING</span>
                   </span>
-                  <h2 className="text-slate-500 dark:text-slate-400 text-base sm:text-lg font-extrabold text-slate-900 dark:text-white font-[Outfit] line-clamp-1">
+                  <h2 className="text-slate-500 dark:text-slate-400 text-sm sm:text-lg font-extrabold text-slate-900 dark:text-white font-[Outfit] truncate">
                     {activeLessonTitle || 'Course Video Lesson'}
                   </h2>
                 </div>
 
                 <button
                   onClick={closeVideoPlayer}
-                  className="flex items-center gap-1.5 text-xs font-semibold text-slate-500 dark:text-[#8e91b5] hover:text-slate-900 dark:text-white transition-colors cursor-pointer px-3.5 py-1.5 rounded-xl bg-slate-100 dark:bg-[#131433] border border-indigo-100 dark:border-[#2b2d5c]"
+                  className="flex items-center justify-center gap-1.5 text-xs font-semibold text-slate-500 dark:text-[#8e91b5] hover:text-slate-900 dark:text-white transition-colors cursor-pointer w-7 h-7 sm:w-auto sm:h-auto sm:px-3.5 sm:py-1.5 rounded-lg sm:rounded-xl bg-slate-100 dark:bg-[#131433] border border-indigo-100 dark:border-[#2b2d5c] shrink-0"
+                  aria-label="Close video"
                 >
-                  <X size={14} /> Close Video
+                  <X size={14} /> <span className="hidden sm:inline">Close</span>
                 </button>
               </div>
 

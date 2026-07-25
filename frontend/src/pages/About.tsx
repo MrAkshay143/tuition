@@ -174,7 +174,7 @@ export default function About() {
           </div>
 
           {/* Right 4 KPI Stats Grid */}
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3.5 w-full pt-4 md:pt-0 border-t md:border-t-0 border-l-0 md:border-l border-[rgb(var(--border))] md:pl-6">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3.5 w-full md:w-auto md:flex-1 lg:flex-[1.2] pt-4 md:pt-0 border-t md:border-t-0 border-l-0 md:border-l border-[rgb(var(--border))] md:pl-6">
             
             {/* Stat 1 */}
             <div className="p-2.5 sm:p-3.5 rounded-2xl bg-[rgb(var(--bg-elevated))] border border-[rgb(var(--border))] space-y-1 sm:space-y-1.5 flex flex-col justify-center text-left min-w-0">
@@ -182,9 +182,9 @@ export default function About() {
                 <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-xl bg-purple-500/10 border border-purple-500/20 text-purple-600 dark:text-purple-400 flex items-center justify-center shrink-0">
                   <User size={14} className="sm:w-[16px] sm:h-[16px]" />
                 </div>
-                <span className="text-sm sm:text-lg font-black font-[Outfit] text-[rgb(var(--text-primary))] truncate">8+</span>
+                <span className="text-sm sm:text-lg font-black font-[Outfit] text-[rgb(var(--text-primary))]">8+</span>
               </div>
-              <p className="text-[9px] sm:text-[10px] text-[rgb(var(--text-muted))] font-semibold truncate">Years Experience</p>
+              <p className="text-[9px] sm:text-[10px] text-[rgb(var(--text-muted))] font-semibold leading-tight">Years Experience</p>
             </div>
 
             {/* Stat 2 */}
@@ -193,9 +193,9 @@ export default function About() {
                 <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-600 dark:text-indigo-400 flex items-center justify-center shrink-0">
                   <Video size={14} className="sm:w-[16px] sm:h-[16px]" />
                 </div>
-                <span className="text-sm sm:text-lg font-black font-[Outfit] text-[rgb(var(--text-primary))] truncate">150+</span>
+                <span className="text-sm sm:text-lg font-black font-[Outfit] text-[rgb(var(--text-primary))]">150+</span>
               </div>
-              <p className="text-[9px] sm:text-[10px] text-[rgb(var(--text-muted))] font-semibold truncate">Offline Batches</p>
+              <p className="text-[9px] sm:text-[10px] text-[rgb(var(--text-muted))] font-semibold leading-tight">Offline Batches</p>
             </div>
 
             {/* Stat 3 */}
@@ -204,9 +204,9 @@ export default function About() {
                 <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0">
                   <Users size={14} className="sm:w-[16px] sm:h-[16px]" />
                 </div>
-                <span className="text-sm sm:text-lg font-black font-[Outfit] text-[rgb(var(--text-primary))] truncate">10K+</span>
+                <span className="text-sm sm:text-lg font-black font-[Outfit] text-[rgb(var(--text-primary))]">10K+</span>
               </div>
-              <p className="text-[9px] sm:text-[10px] text-[rgb(var(--text-muted))] font-semibold truncate">Students Mentored</p>
+              <p className="text-[9px] sm:text-[10px] text-[rgb(var(--text-muted))] font-semibold leading-tight">Students Mentored</p>
             </div>
 
             {/* Stat 4 */}
@@ -215,9 +215,9 @@ export default function About() {
                 <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0">
                   <Trophy size={14} className="sm:w-[16px] sm:h-[16px]" />
                 </div>
-                <span className="text-sm sm:text-lg font-black font-[Outfit] text-[rgb(var(--text-primary))] truncate">95%</span>
+                <span className="text-sm sm:text-lg font-black font-[Outfit] text-[rgb(var(--text-primary))]">95%</span>
               </div>
-              <p className="text-[9px] sm:text-[10px] text-[rgb(var(--text-muted))] font-semibold truncate">Selections</p>
+              <p className="text-[9px] sm:text-[10px] text-[rgb(var(--text-muted))] font-semibold leading-tight">Selections</p>
             </div>
 
           </div>
