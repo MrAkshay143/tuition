@@ -14,6 +14,8 @@ export interface PlayerProps {
   durationSeconds?: number
   /** Optional watermark text overlaid on the player */
   watermarkText?: string
+  /** Whether to autoplay the video (defaults to true for backward compatibility) */
+  autoPlay?: boolean
   /** Fired every ~1s with current playback position */
   onProgress?: (progress: { currentTime: number; duration: number }) => void
   /** Fired immediately when the user pauses (or tab hidden) */

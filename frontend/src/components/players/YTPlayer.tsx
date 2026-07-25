@@ -24,7 +24,7 @@ import { loadYouTubeIframeApi } from '@/lib/youtubeApi'
 const ytProvider = VIDEO_PROVIDERS.find((p) => p.name === 'youtube')!
 
 export default function YTPlayer({
-  videoUrl, title, initialSeekSeconds, durationSeconds,
+  videoUrl, title, initialSeekSeconds, durationSeconds, autoPlay,
   onProgress, onPause, onEnded,
 }: PlayerProps) {
   const { bus }                                         = usePlayback()
@@ -32,7 +32,7 @@ export default function YTPlayer({
           setVolume, setMuted, setPlaybackRate }        = usePlaybackPrefs()
 
   // ── State ─────────────────────────────────────────────────────────────────
-  const [started,      setStarted]      = useState(true)
+  const [started,      setStarted]      = useState(autoPlay ?? true)
   const [active,       setActive]       = useState(false)   // playing
   const [buffering,    setBuffering]    = useState(true)
   const [currentTime,  setCurrentTime]  = useState<number>(initialSeekSeconds ?? 0)
@@ -327,6 +327,7 @@ export default function YTPlayer({
       ref={containerRef}
       className="relative w-full aspect-video bg-black overflow-hidden select-none"
       onMouseMove={resetControlsTimer}
+      onTouchStart={resetControlsTimer}
       onMouseLeave={() => { if (isActiveRef.current) setShowControls(false) }}
     >
       {/* ── Thumbnail / play cover ── */}
@@ -400,7 +401,7 @@ export default function YTPlayer({
           <div
             className={`absolute bottom-0 left-0 right-0 w-full z-50 transition-opacity duration-300 ${showControls ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
           >
-            <div className="w-full bg-black/65 backdrop-blur-md border-t border-white/10 px-3 sm:px-4 py-2.5 space-y-2 shadow-2xl">
+            <div className="w-full bg-black/65 backdrop-blur-md border-t border-white/10 px-2 sm:px-4 py-1.5 sm:py-2.5 space-y-1.5 sm:space-y-2 shadow-2xl">
               {/* Thin Timeline bar (full width) with blue progress and blue point */}
               <div className="w-full px-0.5">
                 <div className="relative w-full h-[3px] group cursor-pointer flex items-center">
@@ -431,7 +432,7 @@ export default function YTPlayer({
               </div>
 
               {/* Buttons row */}
-              <div className="flex items-center gap-2.5 text-white text-xs font-medium">
+              <div className="flex items-center gap-1.5 sm:gap-2.5 text-white text-xs font-medium">
                 {/* Play/Pause */}
                 <button
                   onClick={(e) => { e.stopPropagation(); togglePlay() }}
@@ -464,7 +465,7 @@ export default function YTPlayer({
                 </div>
 
                 {/* Time Display */}
-                <span className="text-[11px] font-mono font-bold text-white/90 whitespace-nowrap pl-1">
+                <span className="text-[10px] sm:text-[11px] font-mono font-bold text-white/90 whitespace-nowrap pl-1">
                   {formatTime(currentTime)} / {formatTime(duration)}
                 </span>
 

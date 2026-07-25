@@ -332,17 +332,7 @@ export default function Courses() {
               </p>
             </div>
           </div>
-
-          <Button
-            variant="primary"
-            leftIcon={<Plus size={15} />}
-            onClick={() => navigate('/admin/courses/new')}
-            className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-3.5 py-2 rounded-xl text-xs shadow-md shadow-indigo-600/20 shrink-0 whitespace-nowrap cursor-pointer"
-          >
-            Add Course
-          </Button>
         </div>
-
         {/* ── 2. Top KPI Metrics Row matching Users & Roles Pages ──────────────── */}
         <div className="admin-stats-row flex overflow-x-auto scrollbar-hide gap-3 pb-1">
           {/* Card 1: Total Courses */}
