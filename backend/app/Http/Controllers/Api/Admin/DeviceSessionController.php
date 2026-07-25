@@ -42,7 +42,7 @@ class DeviceSessionController extends ApiController
             $location = $s->city && $s->country ? "{$s->city}, {$s->country}" : ($s->country ?: 'India');
             $arr['location'] = $location;
             
-            $arr['last_active_at'] = $s->last_activity_at ? $s->last_activity_at->diffForHumans() : ($s->created_at ? $s->created_at->diffForHumans() : 'Just now');
+            $arr['last_active_at'] = $s->last_activity_at ? $s->last_activity_at->toIso8601String() : ($s->created_at ? $s->created_at->toIso8601String() : now()->toIso8601String());
 
             $diffMinutes = $s->last_activity_at ? now()->diffInMinutes($s->last_activity_at) : 999;
             $statusVal = $s->status instanceof \BackedEnum ? $s->status->value : (string)$s->status;

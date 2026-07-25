@@ -39,8 +39,10 @@ export function formatDateTime(dateStr: string): string {
 
 export function timeAgo(dateStr: string): string {
   if (!dateStr) return ''
-  const diff = Date.now() - new Date(dateStr).getTime()
-  const sec  = Math.floor(diff / 1000)
+  const timestamp = new Date(dateStr).getTime()
+  if (isNaN(timestamp)) return dateStr
+  const diff = Date.now() - timestamp
+  const sec  = Math.max(0, Math.floor(diff / 1000))
   if (sec < 60)   return 'just now'
   const min  = Math.floor(sec / 60)
   if (min < 60)   return `${min}m ago`
