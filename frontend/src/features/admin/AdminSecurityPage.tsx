@@ -282,7 +282,7 @@ export default function AdminSecurityPage() {
         {/* LEFT COLUMN: Active Devices Table & Filter Bar (8 Cols) */}
         <div className="lg:col-span-8 flex flex-col gap-4">
           {/* Top Filter Controls Row */}
-          <div className="flex items-center gap-2 bg-[rgb(var(--bg-surface))] p-3 rounded-2xl border border-[rgb(var(--border))]">
+          <div className="flex flex-wrap sm:flex-nowrap items-center gap-2 bg-[rgb(var(--bg-surface))] p-3 rounded-2xl border border-[rgb(var(--border))]">
             <select className="flex-1 min-w-[100px] text-xs font-semibold px-3 py-2 rounded-xl bg-[rgb(var(--bg-elevated))] border border-[rgb(var(--border))] text-[rgb(var(--text-primary))] focus:outline-none cursor-pointer">
               <option value="30">📅 21 Jul - 22 Jul</option>
               <option value="7">Last 7 Days</option>

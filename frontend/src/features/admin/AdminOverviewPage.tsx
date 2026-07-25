@@ -464,13 +464,13 @@ export default function AdminOverviewPage() {
       </motion.div>
 
       {/* 5. Lower Middle Section: Quick Actions / Active Alerts / Teacher Account */}
-      <motion.div variants={item} className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <motion.div variants={item} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {/* Quick Actions Card */}
         <Card className="p-5 border border-[rgb(var(--border))]">
           <h3 className="text-xs font-bold text-[rgb(var(--text-primary))] uppercase tracking-wider mb-4 pb-2 border-b border-[rgb(var(--border))] font-[Outfit]">
             Quick Actions
           </h3>
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 min-w-0 w-full">
             {[
               { label: 'Add New Course', icon: BookOpen, color: 'text-indigo-500 bg-indigo-500/10', path: '/admin/courses' },
               { label: 'Add User', icon: UserPlus, color: 'text-slate-500 dark:text-emerald-500 bg-emerald-500/10', path: '/admin/users' },
@@ -484,7 +484,7 @@ export default function AdminOverviewPage() {
                 <button
                   key={i}
                   onClick={() => navigate(act.path)}
-                  className="p-3 rounded-xl border border-[rgb(var(--border))] bg-[rgb(var(--bg-elevated))] hover:bg-[rgb(var(--bg-surface))] hover:border-indigo-500/40 transition-all flex flex-col items-center justify-center gap-2 cursor-pointer text-slate-500 dark:text-slate-400 text-center group flex-1 min-w-[100px]"
+                  className="p-3 rounded-xl border border-[rgb(var(--border))] bg-[rgb(var(--bg-elevated))] hover:bg-[rgb(var(--bg-surface))] hover:border-indigo-500/40 transition-all flex flex-col items-center justify-center gap-2 cursor-pointer text-slate-500 dark:text-slate-400 text-center group min-w-0 w-full"
                 >
                   <div className={`w-8 h-8 rounded-lg ${act.color} flex items-center justify-center transition-transform group-hover:scale-110`}>
                     <Icon size={16} />

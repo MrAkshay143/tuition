@@ -1018,7 +1018,7 @@ export default function AdminRolesPage() {
           <h3 className="text-xs font-bold text-[rgb(var(--text-primary))] uppercase tracking-wider mb-4 pb-2 border-b border-[rgb(var(--border))] font-[Outfit]">
             Quick Actions
           </h3>
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 min-w-0 w-full">
             {[
               { label: 'Create Role', sub: 'Add new role', icon: Plus, action: () => setAddModalOpen(true) },
               { label: 'Clone Role', sub: 'Duplicate existing role', icon: Copy, action: cloneRole },
@@ -1032,7 +1032,7 @@ export default function AdminRolesPage() {
                 <button
                   key={i}
                   onClick={act.action}
-                  className="p-3 rounded-xl border border-[rgb(var(--border))] bg-[rgb(var(--bg-elevated))] hover:bg-[rgb(var(--bg-surface))] hover:border-indigo-500/40 transition-all flex flex-col items-center justify-center gap-1.5 cursor-pointer text-slate-500 dark:text-slate-400 text-center group"
+                  className="p-3 rounded-xl border border-[rgb(var(--border))] bg-[rgb(var(--bg-elevated))] hover:bg-[rgb(var(--bg-surface))] hover:border-indigo-500/40 transition-all flex flex-col items-center justify-center gap-1.5 cursor-pointer text-slate-500 dark:text-slate-400 text-center group min-w-0 w-full"
                 >
                   <div className="w-8 h-8 rounded-lg bg-indigo-500/10 text-indigo-500 flex items-center justify-center transition-transform group-hover:scale-110">
                     <Icon size={16} />
