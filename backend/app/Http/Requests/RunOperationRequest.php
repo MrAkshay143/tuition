@@ -1,0 +1,1 @@
+<?php namespace App\Http\Requests; class RunOperationRequest extends ApiFormRequest { public function authorize(): bool { return true; } public function rules(): array { return ["operation" => "required|string", "parameters" => "nullable|array"]; } }

@@ -1,0 +1,1 @@
+<?php namespace App\Domains\Media\Requests; use App\Http\Requests\ApiFormRequest; class BulkCategoryMediaRequest extends ApiFormRequest { public function authorize(): bool { return true; } public function rules(): array { return ["ids" => "required|array", "ids.*" => "integer", "category_id" => "nullable|integer|exists:content_categories,id"]; } }

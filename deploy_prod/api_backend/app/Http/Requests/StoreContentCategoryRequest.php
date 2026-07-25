@@ -1,0 +1,1 @@
+<?php namespace App\Http\Requests; class StoreContentCategoryRequest extends ApiFormRequest { public function authorize(): bool { return true; } public function rules(): array { return ["name" => "required|string|max:100", "parent_id" => "nullable|integer|exists:content_categories,id"]; } }

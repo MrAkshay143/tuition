@@ -1,0 +1,1 @@
+<?php namespace App\Http\Requests; class UpdateModuleOrderRequest extends ApiFormRequest { public function authorize(): bool { return true; } public function rules(): array { return ["orders" => "required|array", "orders.*.id" => "required|integer", "orders.*.order" => "required|integer"]; } }

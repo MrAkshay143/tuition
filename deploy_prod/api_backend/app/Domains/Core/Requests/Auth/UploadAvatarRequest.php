@@ -1,0 +1,1 @@
+<?php namespace App\Domains\Core\Requests\Auth; use App\Http\Requests\ApiFormRequest; class UploadAvatarRequest extends ApiFormRequest { public function authorize(): bool { return true; } public function rules(): array { return ["avatar" => "required|image|max:5120"]; } }

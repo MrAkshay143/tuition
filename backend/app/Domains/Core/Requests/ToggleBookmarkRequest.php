@@ -1,0 +1,1 @@
+<?php namespace App\Domains\Core\Requests; use App\Http\Requests\ApiFormRequest; class ToggleBookmarkRequest extends ApiFormRequest { public function authorize(): bool { return true; } public function rules(): array { return ["type" => "required|string|in:course,lesson,media", "id" => "required|integer"]; } }

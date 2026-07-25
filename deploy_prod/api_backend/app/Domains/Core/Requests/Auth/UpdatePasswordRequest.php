@@ -1,0 +1,1 @@
+<?php namespace App\Domains\Core\Requests\Auth; use App\Http\Requests\ApiFormRequest; class UpdatePasswordRequest extends ApiFormRequest { public function authorize(): bool { return true; } public function rules(): array { return ["current_password" => "required|string", "new_password" => "required|string|min:8|confirmed"]; } }

@@ -1,0 +1,13 @@
+# Build & Environment
+deploy_build/
+*.zip
+node_modules/
+dist/
+.env.local
+.env.production.local
+.deploy.env
+
+# Tool & Cache Artifacts
+graphify-out/
+scratch/
+.system_generated/
