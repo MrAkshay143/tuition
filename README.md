@@ -277,22 +277,23 @@ Students get a clean, app-like experience designed entirely around learning.
 - Filter: In Progress, Completed, Not Started
 
 ### Lesson Viewer
-- **Custom Video Player**: Watch videos (self-hosted, YouTube, or Vimeo) through a premium, unified TV-style custom player.
-- **Watermark-Free YouTube**: The custom YouTube player hides all YouTube watermarks, video titles, and end cards for a distraction-free experience.
+- Watch videos: self-hosted (with adaptive streaming), YouTube (Custom TV-style, 100% watermark-free, no titles/cards), or Vimeo - all in one premium custom player
 - Progress is saved automatically every few seconds - resume exactly where you stopped
-- Works offline: progress is saved on your device and synced when back online
+- Works offline: progress is saved on your device and synced when back online (Full PWA Support)
 - Mark lessons as complete
 - Bookmark any lesson for quick access later
 - Module sidebar shows which lessons you've completed
 - Locked lessons unlock automatically after you finish prerequisites
 
-### Live Classes
+### Live Classes & Communication
 - View and join Zoom sessions for enrolled batches
+- **WebRTC 1-on-1 Video Calls**: Initiate direct, high-quality, secure video calls with your teacher directly in the browser (no external apps needed)
 - Attendance is recorded automatically when you join
 
 ### Notes
-- **Dynamic Personal Notes**: Create and save personal rich-text notes for any lesson. View them globally via the responsive full-screen markdown preview modal.
+- **Dynamic Personal Notes**: Full Markdown-supported editor that automatically categorizes notes by lesson
 - Access all PDFs and study materials shared across your courses and batches
+- Floating Note Preview Modal allows quick revision directly from the dashboard
 
 ### Assignments
 - View all your tasks with due dates and current status
@@ -301,6 +302,7 @@ Students get a clean, app-like experience designed entirely around learning.
 
 ### Exams
 - View upcoming and past exams
+- **Secure Exam Experience**: Anti-cheat mechanisms including browser tab-switching detection, webcam ID verification, and full-screen enforcement
 - **Exam-taking experience**: countdown timer, auto-submits when time's up, flag questions for review, jump to any question quickly
 - **Results page**: your score, pass/fail result, and correct answers for every question
 
@@ -312,6 +314,7 @@ Students get a clean, app-like experience designed entirely around learning.
 ### Chat
 - Message your teacher or admin directly
 - Real-time updates with unread count badge
+- **WebRTC Video Integration**: Start a video call instantly from any chat conversation
 
 ### Calendar
 - View your live class schedule, assignment deadlines, and exam dates
@@ -369,6 +372,7 @@ Every part of EduFlow is built with security as a first priority.
 | **Permission Control** | Every page and API route is gated by role permissions |
 | **Audit Trail** | Every action is logged with user, time, IP, and what changed |
 | **Trusted Devices** | Devices can be marked as trusted to reduce repeated prompts |
+| **Exam Security** | Strict anti-cheat (tab monitoring, full-screen lock, WebRTC ID check) |
 
 ---
 
@@ -385,6 +389,7 @@ Every part of EduFlow is built with security as a first priority.
 | **Authentication** | Laravel Sanctum - secure token-based sessions |
 | **Permissions** | Spatie RBAC - fine-grained role and permission control |
 | **Database** | MySQL 8.0 - reliable relational database |
+| **Real-time Comms** | WebRTC for direct P2P Video Calls & Audio |
 
 ### Hosting & Services
 | Component | Where / What |
@@ -394,9 +399,9 @@ Every part of EduFlow is built with security as a first priority.
 | SSL Certificate | Let's Encrypt (auto-renews) |
 | Email | SMTP (configurable) |
 | Push Notifications | Firebase Cloud Messaging |
-| Video Calls | Zoom Meeting API |
+| Video Calls | WebRTC (Internal) + Zoom Meeting API |
 | Google Login | Google OAuth 2.0 |
-| Video Playback | YouTube + Vimeo embed + Self-hosted HLS streaming |
+| Video Playback | Custom TV-Style Player (YouTube, Vimeo, HLS) |
 
 ---
 
@@ -415,6 +420,7 @@ Online Tuition/
 │   ├── src/pages/        # Public website pages
 │   └── src/router/       # Page routing for all three portals
 │
+├── deploy.py             # One-command deploy script to Hostinger
 ├── root.htaccess         # Web server config for single-page app routing
 └── README.md
 ```
@@ -480,17 +486,6 @@ npm run dev
 | Admin | admin@eduflow.test | Admin@1234! |
 | Teacher | teacher@eduflow.test | Teacher@1234! |
 | Student | priya@test.com | Student@1234! |
-
----
-
-## 🚧 Roadmap & Upcoming Features
-
-The following features are planned for upcoming phases:
-- **WebSockets / Socket.io:** Real-time WebRTC chat signalling without polling.
-- **Payment Gateway:** Integration with Razorpay/Stripe for paid course enrollment processing.
-- **Redis Caching:** Implementation of a dedicated queue worker and Redis cache store to optimize high-traffic database calls.
-- **Offline ServiceWorker Caching:** Caching full video segments for complete offline playback when disconnected.
-- **Deep Analytics Heatmaps:** Visual representations of video playback retention and drop-offs.
 
 ---
 
