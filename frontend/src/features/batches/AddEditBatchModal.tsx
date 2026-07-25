@@ -64,7 +64,7 @@ export default function AddEditBatchModal({ open, onClose, batch }: Props) {
   useEffect(() => {
     if (batch) reset({ name: batch.name, description: batch.description ?? '', color: batch.color, is_active: batch.is_active, teacher_id: (batch as any).teacher_id ?? null, program_id: (batch as any).program_id ?? null, session_id: (batch as any).session_id ?? null })
     else reset({ name: '', description: '', color: '#6C63FF', is_active: true, teacher_id: null as any, program_id: null as any, session_id: null as any })
-  }, [batch, reset])
+  }, [batch, reset, open])
 
   useEffect(() => {
     if (!batch && teachers && teachers.length === 1) {

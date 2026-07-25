@@ -35,7 +35,7 @@ export default function AddEditStudentModal({ open, onClose, student }: Props) {
   useEffect(() => {
     if (student) reset({ name: student.name, email: student.email, phone: student.phone ?? '', password: '' })
     else reset({ name: '', email: '', phone: '', password: '' })
-  }, [student, reset])
+  }, [student, reset, open])
 
   const onSubmit = (data: FormData) => {
     const payload = { ...data, password: data.password || undefined }
