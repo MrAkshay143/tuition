@@ -1,5 +1,5 @@
 /**
- * playbackDB.ts — Offline-first IndexedDB store for video playback progress.
+ * playbackDB.ts - Offline-first IndexedDB store for video playback progress.
  * Falls back to localStorage if IndexedDB is unavailable.
  * Stores: progress (per-lesson position) + sync_queue (pending server uploads)
  */

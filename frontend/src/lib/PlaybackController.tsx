@@ -9,7 +9,7 @@
  * CourseDetails wraps with <PlaybackProvider> and calls
  * notifyLessonStart() / notifyLessonClose() to drive the system.
  *
- * Players are pure renderers — they never touch storage directly.
+ * Players are pure renderers - they never touch storage directly.
  */
 import React, {
   createContext,
@@ -86,7 +86,7 @@ export function PlaybackProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => { isAuthRef.current = isAuthenticated }, [isAuthenticated])
 
-  // Stable bus instance — players subscribe/unsubscribe via useEffect
+  // Stable bus instance - players subscribe/unsubscribe via useEffect
   const bus = useMemo(() => new PlaybackEventBus(), [])
 
   const [state, setStateRaw] = useState<PlaybackState>(DEFAULT_STATE)
@@ -260,7 +260,7 @@ export function PlaybackProvider({ children }: { children: React.ReactNode }) {
 
   const notifyLessonClose = useCallback(() => {
     clearTimeout(debounceRef.current)
-    // ⚠️  DO NOT call bus.clear() — same reason as above.
+    // ⚠️  DO NOT call bus.clear() - same reason as above.
     setState(() => DEFAULT_STATE)
   }, [setState])
 

@@ -1,13 +1,13 @@
 /**
  * videoProviders.ts
  * Provider registry for all supported video platforms.
- * Add new providers here — no other file needs to change.
+ * Add new providers here - no other file needs to change.
  *
  * Supported: YouTube, Vimeo, Bunny Stream, Cloudflare Stream, Native (MP4/HLS)
  */
 
 /**
- * Built-in provider names. Custom providers can use any string value —
+ * Built-in provider names. Custom providers can use any string value -
  * they will automatically fall through to GenericEmbedPlayer in the router.
  */
 export type ProviderName = "youtube" | "vimeo" | "bunny" | "cloudflare" | "native" | (string & {})
@@ -116,7 +116,7 @@ const nativeProvider: VideoProvider = {
   name: "native",
   label: "Native Video",
   supportsPostMessage: false,
-  isMatch: (_url) => true, // fallback — matches everything not caught above
+  isMatch: (_url) => true, // fallback - matches everything not caught above
   extractId: (_url) => null,
   getEmbedUrl: (url) => url,
 }

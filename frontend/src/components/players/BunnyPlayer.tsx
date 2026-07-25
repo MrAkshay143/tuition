@@ -1,5 +1,5 @@
 /**
- * BunnyPlayer.tsx — Bunny Stream player.
+ * BunnyPlayer.tsx - Bunny Stream player.
  * Thin wrapper around GenericEmbedPlayer with Bunny-specific embed URL construction.
  * Progress tracking: visible-tab session timer (cannot detect in-player pause without Bunny SDK).
  */

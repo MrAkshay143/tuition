@@ -17,7 +17,7 @@ import { queueSync, getPendingQueue, removeFromQueue } from './playbackDB'
 const MAX_RETRIES = 6
 const BASE_BACKOFF_MS = 1000
 
-/** In-memory retry state — persists the queue in IndexedDB but tracks retry count in RAM. */
+/** In-memory retry state - persists the queue in IndexedDB but tracks retry count in RAM. */
 const retryState = new Map<number, { count: number; nextAt: number }>()
 
 function getBackoffMs(attempt: number): number {
@@ -67,10 +67,10 @@ class SyncQueue {
       for (const item of pending) {
         const retry = retryState.get(item.lessonId) ?? { count: 0, nextAt: 0 }
 
-        // Still in backoff window — skip
+        // Still in backoff window - skip
         if (now < retry.nextAt) continue
 
-        // Exceeded max retries — remove permanently
+        // Exceeded max retries - remove permanently
         if (retry.count >= MAX_RETRIES) {
           await removeFromQueue(item.lessonId)
           retryState.delete(item.lessonId)
@@ -102,5 +102,5 @@ class SyncQueue {
   }
 }
 
-/** Singleton — import this everywhere. */
+/** Singleton - import this everywhere. */
 export const syncQueue = new SyncQueue()

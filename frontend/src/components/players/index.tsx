@@ -1,5 +1,5 @@
 /**
- * players/index.tsx — Dynamic Video Player Router
+ * players/index.tsx - Dynamic Video Player Router
  *
  * Routes to the correct player based on detected provider.
  *

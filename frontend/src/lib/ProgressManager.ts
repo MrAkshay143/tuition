@@ -3,11 +3,11 @@
  * Central authority for all progress persistence decisions.
  *
  * Storage stack (in order of speed):
- *   1. Memory cache  — O(1), no I/O, lost on page close
- *   2. IndexedDB     — fast async, survives refresh
- *   3. localStorage  — synchronous fallback for beforeunload
- *   4. SyncQueue     — IndexedDB-backed retry queue for offline/API failures
- *   5. Server API    — ground truth for cross-device sync
+ *   1. Memory cache  - O(1), no I/O, lost on page close
+ *   2. IndexedDB     - fast async, survives refresh
+ *   3. localStorage  - synchronous fallback for beforeunload
+ *   4. SyncQueue     - IndexedDB-backed retry queue for offline/API failures
+ *   5. Server API    - ground truth for cross-device sync
  *
  * Conflict resolution: "newest timestamp wins" on getResume().
  */
@@ -101,7 +101,7 @@ export class ProgressManager {
       return this._validateSeek(localSeconds, duration)
     }
 
-    // 3. Server (auth only — cross-device conflict resolution)
+    // 3. Server (auth only - cross-device conflict resolution)
     try {
       const server = await serverFetchFn()
       if (!server) return this._validateSeek(localSeconds, duration)
@@ -116,7 +116,7 @@ export class ProgressManager {
 
       return this._validateSeek(best, duration)
     } catch {
-      // Server unreachable — use local
+      // Server unreachable - use local
       return this._validateSeek(localSeconds, duration)
     }
   }
@@ -160,13 +160,13 @@ export class ProgressManager {
   ): void {
     if (!lessonId || currentTime < 2) return
 
-    // localStorage — synchronous, always works
+    // localStorage - synchronous, always works
     try {
       localStorage.setItem(`lesson_${lessonId}_time`, String(Math.floor(currentTime)))
       localStorage.setItem(`lesson_${lessonId}_updatedAt`, String(Date.now()))
     } catch {}
 
-    // Keepalive fetch — survives page close on most browsers
+    // Keepalive fetch - survives page close on most browsers
     if (isAuthenticated) {
       try {
         const base  = (import.meta as any).env?.VITE_API_URL ?? '/api/v1'
@@ -201,5 +201,5 @@ export class ProgressManager {
   }
 }
 
-/** Singleton — import this wherever storage decisions are needed. */
+/** Singleton - import this wherever storage decisions are needed. */
 export const progressManager = new ProgressManager()

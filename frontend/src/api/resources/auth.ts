@@ -53,7 +53,7 @@ export function useLogin() {
               position:      Math.floor(record.watchedSeconds),
             })
           } catch {
-            // Lesson may not exist or user is not enrolled — skip silently
+            // Lesson may not exist or user is not enrolled - skip silently
           }
         }
       }).catch(() => {}) // never throw from migration

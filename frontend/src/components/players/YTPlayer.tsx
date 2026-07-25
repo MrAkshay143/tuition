@@ -1,7 +1,7 @@
 /**
  * YTPlayer.tsx
  *
- * Uses the REAL YouTube IFrame API (new YT.Player) — same approach as Echo24x7 TVCustomPlayer.
+ * Uses the REAL YouTube IFrame API (new YT.Player) - same approach as Echo24x7 TVCustomPlayer.
  * Advantages over postMessage approach:
  *   - playerRef.current.getCurrentTime()  → exact, no estimation
  *   - playerRef.current.getDuration()     → always accurate
@@ -159,7 +159,7 @@ export default function YTPlayer({
       if (disposed || !playerHostRef.current) return
 
       if (playerRef.current) {
-        // Player already exists — load new video at initialSeekSeconds resume position
+        // Player already exists - load new video at initialSeekSeconds resume position
         try {
           setActive(false); setBuffering(true)
           const startSec = initialSeekSeconds && initialSeekSeconds > 2 ? Math.floor(initialSeekSeconds) : 0

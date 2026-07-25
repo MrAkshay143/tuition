@@ -20,15 +20,15 @@ interface Batch {
 }
 
 const SAMPLE_BATCHES: Batch[] = [
-  { id: 1, name: 'Class 10 – Science (Updated)', description: 'Class 10 Science batch', color: '#8B5CF6', category: 'Foundation' },
+  { id: 1, name: 'Class 10 - Science (Updated)', description: 'Class 10 Science batch', color: '#8B5CF6', category: 'Foundation' },
   { id: 2, name: 'NEET 2026', description: 'Medical entrance preparation', color: '#10B981', category: 'Medical' },
   { id: 3, name: 'JEE Advanced 2026', description: 'Engineering entrance preparation', color: '#F59E0B', category: 'Engineering' },
-  { id: 4, name: 'Class 12 – Commerce', description: 'Class 12 Commerce batch', color: '#EF4444', category: 'Commerce' },
+  { id: 4, name: 'Class 12 - Commerce', description: 'Class 12 Commerce batch', color: '#EF4444', category: 'Commerce' },
   { id: 5, name: 'Audit Test Batch 1784681791', description: 'Test batch description', color: '#6366F1', category: 'Testing' },
   { id: 6, name: 'Audit Test Batch 1784681802', description: 'Test batch description', color: '#6366F1', category: 'Testing' },
   { id: 7, name: 'Audit Test Batch 1784681826', description: 'Test batch description', color: '#6366F1', category: 'Testing' },
   { id: 8, name: 'Audit Test Batch 1784681857', description: 'Test batch description', color: '#6366F1', category: 'Testing' },
-  { id: 9, name: 'Class 10 – Science', description: 'Class 10 Science batch', color: '#8B5CF6', category: 'Foundation' },
+  { id: 9, name: 'Class 10 - Science', description: 'Class 10 Science batch', color: '#8B5CF6', category: 'Foundation' },
 ]
 
 /* ── REAL LIVE WORKING ANALOG WATCH & 3D CALENDAR COMPONENT ── */

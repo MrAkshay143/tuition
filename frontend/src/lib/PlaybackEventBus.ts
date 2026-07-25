@@ -3,7 +3,7 @@
  * Lightweight typed event emitter.
  * Players call bus.emit() to report state changes.
  * PlaybackController subscribes and decides what to store/sync.
- * No React dependency — works in any player type.
+ * No React dependency - works in any player type.
  */
 
 export type PlaybackEventMap = {

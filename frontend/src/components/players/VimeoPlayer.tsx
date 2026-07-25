@@ -1,5 +1,5 @@
 /**
- * VimeoPlayer.tsx — Vimeo player via postMessage.
+ * VimeoPlayer.tsx - Vimeo player via postMessage.
  * Emits all events via PlaybackEventBus.
  * Applies volume, muted, playbackRate from PlaybackStateStore.
  */

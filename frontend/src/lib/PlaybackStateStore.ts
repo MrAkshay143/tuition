@@ -10,7 +10,7 @@ export const PLAYBACK_RATES = [0.5, 0.75, 1.0, 1.25, 1.5, 1.75, 2.0] as const
 export type PlaybackRate = (typeof PLAYBACK_RATES)[number]
 
 interface PlaybackPrefsState {
-  volume:       number       // 0–100
+  volume:       number       // 0-100
   muted:        boolean
   playbackRate: PlaybackRate
 

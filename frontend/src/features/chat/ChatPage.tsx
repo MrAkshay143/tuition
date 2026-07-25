@@ -276,7 +276,7 @@ export const ChatPage = () => {
 
     if (isOffline) {
       await chatOutbox.enqueue(newMsg)
-      toast('Queued offline — will send when connected', { icon: '📴' })
+      toast('Queued offline - will send when connected', { icon: '📴' })
     } else {
       webrtcManagerRef.current?.send({
         type: 'chat',

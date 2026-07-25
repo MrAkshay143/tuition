@@ -1466,7 +1466,7 @@ export function ContentLibrary({
                     <div>
                       <span className="text-[10px] text-[rgb(var(--text-secondary))] font-medium block">Assigned Module & Lesson</span>
                       <span className="font-semibold text-[rgb(var(--text-primary))] text-xs">
-                        {usageData?.used_by?.[0]?.details?.module_name || 'Foundations of Physics'} — {usageData?.used_by?.[0]?.details?.name || selectedMedia.name}
+                        {usageData?.used_by?.[0]?.details?.module_name || 'Foundations of Physics'} - {usageData?.used_by?.[0]?.details?.name || selectedMedia.name}
                       </span>
                     </div>
                   </div>

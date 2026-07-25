@@ -1,5 +1,5 @@
 /**
- * shared.ts — Shared PlayerProps interface and utilities used by all provider players.
+ * shared.ts - Shared PlayerProps interface and utilities used by all provider players.
  * Every player in this directory must accept PlayerProps and nothing else.
  */
 

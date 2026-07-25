@@ -1,4 +1,4 @@
-# Security Policy — EduFlow Enterprise 🛡️
+# Security Policy - EduFlow Enterprise 🛡️
 
 EduFlow Enterprise takes platform security, data integrity, and privacy seriously. As a private digital classroom processing student records, live examinations, and educator content, we implement defense-in-depth Zero-Trust architecture across our full stack.
 

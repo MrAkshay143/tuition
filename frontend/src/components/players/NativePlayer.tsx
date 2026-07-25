@@ -1,5 +1,5 @@
 /**
- * NativePlayer.tsx — HTML5 video player.
+ * NativePlayer.tsx - HTML5 video player.
  * Emits all events via PlaybackEventBus.
  * Applies volume, muted, playbackRate from PlaybackStateStore.
  */

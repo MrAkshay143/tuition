@@ -131,8 +131,8 @@ class LessonController extends \App\Http\Controllers\ApiController
     }
 
     /**
-     * GET /api/v1/public/lessons/{lesson}/stream  (free preview — no login needed)
-     * GET /api/v1/lessons/{lesson}/stream         (locked — requires auth + enrollment)
+     * GET /api/v1/public/lessons/{lesson}/stream  (free preview - no login needed)
+     * GET /api/v1/lessons/{lesson}/stream         (locked - requires auth + enrollment)
      *
      * Rules:
      *  - Free preview lessons: anyone (guest or logged-in) can stream.

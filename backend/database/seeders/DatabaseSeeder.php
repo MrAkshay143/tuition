@@ -482,7 +482,7 @@ class SettingsSeeder extends Seeder
                 ['title' => 'Safe & Secure', 'desc' => 'Your data and privacy are our top priority always.', 'icon' => 'Layers'],
                 ['title' => 'Doubt Support', 'desc' => 'Get your doubts solved quickly by teachers and support team.', 'icon' => 'Users'],
                 ['title' => 'Performance Analytics', 'desc' => 'Track your progress with detailed reports and insights.', 'icon' => 'BarChart'],
-                ['title' => 'Learn Anywhere', 'desc' => 'Access on any device – mobile, tablet, or desktop.', 'icon' => 'Tv']
+                ['title' => 'Learn Anywhere', 'desc' => 'Access on any device - mobile, tablet, or desktop.', 'icon' => 'Tv']
             ]),
 
             'landing_testimonials' => json_encode([

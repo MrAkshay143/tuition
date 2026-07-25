@@ -1,5 +1,5 @@
 /**
- * CloudflarePlayer.tsx — Cloudflare Stream player.
+ * CloudflarePlayer.tsx - Cloudflare Stream player.
  * Thin wrapper around GenericEmbedPlayer with Cloudflare-specific embed URL construction.
  * Progress tracking: visible-tab session timer (cannot detect in-player pause without CF SDK).
  */
