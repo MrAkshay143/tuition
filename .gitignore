@@ -12,3 +12,6 @@ graphify-out/
 scratch/
 .system_generated/
 deploy.py
+
+# PowerShell Scripts
+*.ps1
