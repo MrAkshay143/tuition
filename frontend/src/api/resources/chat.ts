@@ -14,15 +14,15 @@ export const useChatThread = (userId: number) => {
     queryKey: ['chat', 'thread', userId],
     queryFn: () => api.get(`/chat/messages/${userId}`).then(res => res.data?.data || res.data),
     enabled: !!userId,
-    refetchInterval: 5000 // Poll every 5s for new messages
+    // WebRTC replaces polling
   })
 }
 
 export const useSendMessage = () => {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: ({ userId, data }: { userId: number, data: { body: string, type?: string } }) => {
-      return api.post(`/chat/messages/${userId}`, { type: 'text', ...data })
+    mutationFn: ({ userId, data }: { userId: number, data: { message: string, type?: string, uuid?: string } }) => {
+      return api.post(`/chat/messages/${userId}`, data)
     },
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ['chat', 'thread', variables.userId] })
@@ -41,6 +41,19 @@ export const useMarkChatRead = () => {
     onSuccess: (_, userId) => {
       queryClient.invalidateQueries({ queryKey: ['chat', 'unread-count'] })
       queryClient.invalidateQueries({ queryKey: ['chat', 'conversations'] })
+      queryClient.invalidateQueries({ queryKey: ['chat', 'thread', userId] })
+    }
+  })
+}
+
+export const useUpdateMessageStatus = () => {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: ({ uuid, status }: { uuid: string, status: 'delivered' | 'read' }) => {
+      return api.patch(`/chat/messages/status/${uuid}`, { status })
+    },
+    onSuccess: () => {
+      // Typically, we might optimistic update, so we don't necessarily need to invalidate immediately
     }
   })
 }
@@ -49,6 +62,12 @@ export const useUnreadCount = () => {
   return useQuery({
     queryKey: ['chat', 'unread-count'],
     queryFn: () => api.get('/chat/unread-count').then(res => res.data?.data || res.data),
-    refetchInterval: 15000 // Poll every 15s for new message notifications
+    // FCM push notifications will invalidate this, no polling needed.
+  })
+}
+
+export const useChatPresence = () => {
+  return useMutation({
+    mutationFn: () => api.post('/chat/presence')
   })
 }

@@ -258,10 +258,10 @@ class CourseSeeder extends Seeder
 
             // Distribute across all 4 batches so every batch gets some courses
             $batchName = match($subjectName) {
-                'Biology'     => 'NEET 2026',
-                'Physics'     => 'JEE Advanced 2026',
+                'Biology'     => 'NEET 2026 - Evening',
+                'Physics'     => ($courseIdx % 2 === 0) ? 'JEE Advanced 2026' : 'JEE Main 2026 - Morning',
                 'Chemistry'   => ($courseIdx % 2 === 0) ? 'JEE Advanced 2026' : 'Class 10 - Science',
-                'Mathematics' => ($courseIdx % 2 === 0) ? 'JEE Advanced 2026' : 'Class 12 - Commerce',
+                'Mathematics' => ($courseIdx % 2 === 0) ? 'JEE Main 2026 - Morning' : 'Class 12 - Commerce',
                 default       => 'JEE Advanced 2026',
             };
 

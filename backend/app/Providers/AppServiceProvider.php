@@ -58,6 +58,10 @@ class AppServiceProvider extends ServiceProvider
             \App\Domains\Academic\Models\Subject::class,
             \App\Domains\Academic\Policies\SubjectPolicy::class
         );
+        \Illuminate\Support\Facades\Gate::policy(
+            \App\Domains\Chat\Models\ChatConversation::class,
+            \App\Domains\Chat\Policies\ChatConversationPolicy::class
+        );
 
         RateLimiter::for('auth-login', function (Request $request) {
             return Limit::perMinute(60)->by($request->ip());

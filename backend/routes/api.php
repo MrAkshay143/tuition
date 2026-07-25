@@ -146,12 +146,23 @@ Route::middleware(['auth:sanctum', 'active', \App\Http\Middleware\ValidateSessio
     });
 
     // ── Chat System (All Authenticated Roles) ──────────────────────────────
-    Route::prefix('chat')->group(function () {
+    Route::prefix('chat')->middleware('throttle:60,1')->group(function () {
         Route::get('conversations', [\App\Http\Controllers\Api\V1\ChatController::class, 'conversations']);
+        Route::get('messages/sync', [\App\Http\Controllers\Api\V1\ChatController::class, 'syncMessages']);
         Route::get('messages/{userId}', [\App\Http\Controllers\Api\V1\ChatController::class, 'thread']);
-        Route::post('messages/{userId}', [\App\Http\Controllers\Api\V1\ChatController::class, 'send']);
+        Route::post('messages/{userId}', [\App\Http\Controllers\Api\V1\ChatController::class, 'send'])->middleware('throttle:30,1');
+        
+        // Message Actions
+        Route::patch('messages/status/{uuid}', [\App\Http\Controllers\Api\V1\ChatController::class, 'updateStatus']);
+        Route::patch('messages/action/{uuid}', [\App\Http\Controllers\Api\V1\ChatController::class, 'messageAction']);
         Route::patch('messages/{userId}/read', [\App\Http\Controllers\Api\V1\ChatController::class, 'markRead']);
         Route::get('unread-count', [\App\Http\Controllers\Api\V1\ChatController::class, 'unreadCount']);
+        Route::post('presence', [\App\Http\Controllers\Api\V1\ChatController::class, 'presence']);
+
+        // Signaling & Config
+        Route::get('webrtc-config', [\App\Http\Controllers\Api\V1\ChatSignalingController::class, 'getConfig']);
+        Route::post('signal', [\App\Http\Controllers\Api\V1\ChatSignalingController::class, 'postSignal']);
+        Route::get('signals', [\App\Http\Controllers\Api\V1\ChatSignalingController::class, 'getSignals']);
     });
 
     // ── Student Learning Platform (LXP) ───────────────────────────────────────
@@ -168,9 +179,10 @@ Route::middleware(['auth:sanctum', 'active', \App\Http\Middleware\ValidateSessio
         Route::post('student/assignments/{id}/submit', [\App\Http\Controllers\Api\V1\AssignmentController::class, 'submit'])->middleware('permission:assignment.submit');
 
         // Exams (Student)
-        Route::get('student/exams', [\App\Http\Controllers\Api\V1\ExamController::class, 'studentIndex']);
+        Route::get('student/exams', [\App\Http\Controllers\Api\V1\ExamController::class, 'studentIndex'])->middleware('permission:exam.view');
         Route::post('student/exams/{id}/start', [\App\Http\Controllers\Api\V1\ExamController::class, 'start'])->middleware('permission:exam.attempt');
         Route::post('student/exams/{id}/submit', [\App\Http\Controllers\Api\V1\ExamController::class, 'submit'])->middleware('permission:exam.attempt');
+        Route::post('student/exams/{id}/security-log', [\App\Http\Controllers\Api\V1\ExamController::class, 'logSecurityEvent'])->middleware('permission:exam.attempt');
 
         // Live Classes (Student)
         Route::get('student/live-classes', [\App\Http\Controllers\Api\V1\LiveClassController::class, 'index']);
@@ -245,6 +257,7 @@ Route::middleware(['auth:sanctum', 'active', \App\Http\Middleware\ValidateSessio
         
         Route::get('media', [\App\Http\Controllers\Api\V1\MediaController::class, 'index']);
         Route::get('media/{id}', [\App\Http\Controllers\Api\V1\MediaController::class, 'show']);
+        Route::get('media/{id}/download', [\App\Http\Controllers\Api\V1\MediaController::class, 'download']);
         Route::post('media', [\App\Http\Controllers\Api\V1\MediaController::class, 'upload']);
         Route::post('media/upload', [\App\Http\Controllers\Api\V1\MediaController::class, 'upload']);
         Route::post('media/youtube', [\App\Http\Controllers\Api\V1\MediaController::class, 'youtube']);
@@ -269,6 +282,7 @@ Route::middleware(['auth:sanctum', 'active', \App\Http\Middleware\ValidateSessio
 
         // ── Certificates ────────────────────────────────────────────────────────
         Route::get('certificates', [\App\Http\Controllers\Api\V1\CertificateController::class, 'index']);
+        Route::get('certificates/{id}/download', [\App\Http\Controllers\Api\V1\CertificateController::class, 'download']);
 
         Route::get('assignments/{id}/submissions', [\App\Http\Controllers\Api\V1\AssignmentController::class, 'submissions']);
         Route::post('assignments/{id}/submissions/{submissionId}/grade', [\App\Http\Controllers\Api\V1\AssignmentController::class, 'grade']);

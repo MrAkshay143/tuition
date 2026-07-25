@@ -79,7 +79,7 @@ export const TeacherCalendarPage = () => {
   return (
     <div className="space-y-5 max-w-[1400px] mx-auto pb-12 text-left">
       {/* Top Banner Navigation */}
-      <div className="flex flex-row items-center justify-between gap-3 bg-[rgb(var(--bg-surface))] border border-[rgb(var(--border))] rounded-2xl p-3 sm:p-3.5 shadow-xs">
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3 bg-[rgb(var(--bg-surface))] border border-[rgb(var(--border))] rounded-2xl p-3 sm:p-3.5 shadow-xs">
         <div className="min-w-0 flex-1 flex items-center gap-2 flex-wrap sm:flex-nowrap">
           <h1 className="text-sm sm:text-base font-extrabold text-[rgb(var(--text-primary))] font-[Outfit] shrink-0">
             Teaching Calendar

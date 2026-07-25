@@ -10,6 +10,8 @@ import {
   AlertCircle, Shield, Globe, Award, BookOpen, Layers, Users, X, HelpCircle, ArrowLeft
 } from 'lucide-react'
 import { Button, Badge, Spinner, PremiumVideoPlayer } from '@/components/ui'
+import { PersonalNotesEditor } from '@/features/courses/PersonalNotesEditor'
+import { PersonalNotesList } from '@/features/courses/PersonalNotesList'
 import { formatBytes } from '@/lib/utils'
 import { PlaybackProvider, usePlayback } from '@/lib/PlaybackController'
 
@@ -306,6 +308,12 @@ function CourseDetailsInner() {
                 />
               </div>
 
+              {activeLessonId && (
+                <div className="mt-4">
+                  <PersonalNotesEditor lessonId={activeLessonId} />
+                </div>
+              )}
+
             </div>
           ) : (
             /* EXACT MATCH HERO BANNER CARD (Vibrant Multi-Tone Light Mode Gradient) */
@@ -410,14 +418,19 @@ function CourseDetailsInner() {
                   </div>
                 </div>
 
+                {/* Personal Notes Editor under active video */}
+                {activeLessonId && (
+                  <PersonalNotesEditor lessonId={activeLessonId} />
+                )}
+
               </div>
             </div>
           )}
 
           {/* 2. Navigation Tabs (Horizontal Scroll on Mobile, Full Row on Desktop) */}
           <div className="border-b border-slate-200 dark:border-[#1f2147] flex items-center gap-3 sm:gap-8 overflow-x-auto scrollbar-hide flex-nowrap text-xs font-extrabold font-[Outfit] text-left pt-1">
-            {['Overview', 'Lessons', 'Materials', 'Practice Tests', 'FAQ'].map((tab) => {
-              const tabKey = tab.toLowerCase().replace(' ', '')
+            {['Overview', 'Lessons', 'Personal Notes', 'Materials', 'Practice Tests', 'FAQ'].map((tab) => {
+              const tabKey = tab.toLowerCase().replace(/\s+/g, '')
               const isActive = activeTab === tabKey
               return (
                 <button
@@ -572,6 +585,24 @@ function CourseDetailsInner() {
             </div>
           )}
 
+          {activeTab === 'personalnotes' && (
+            <div className="text-left">
+              <PersonalNotesList 
+                modulesList={modulesList} 
+                onNoteClick={(lessonId) => {
+                   // Switch to the lesson and to the lessons tab
+                   const moduleForLesson = modulesList.find(m => m.lessons.some(l => l.id === lessonId));
+                   if (moduleForLesson) {
+                      setOpenModules(prev => ({ ...prev, [moduleForLesson.id]: true }));
+                   }
+                   handleLessonClick(modulesList.flatMap(m => m.lessons).find(l => l.id === lessonId)!);
+                   setActiveTab('lessons');
+                   window.scrollTo({ top: 0, behavior: 'smooth' });
+                }} 
+              />
+            </div>
+          )}
+
           {activeTab === 'materials' && (
             <div className="relative">
               <div className={!canAccessFullContent ? 'select-none pointer-events-none' : ''}>
@@ -716,7 +747,7 @@ function CourseDetailsInner() {
         <div className="lg:col-span-4 space-y-4 sm:space-y-5 text-left">
           
           {/* CARD 1: UNLOCK FULL ACCESS LOCK CARD / CURRENT LESSON STATUS */}
-          <div className="bg-gradient-to-br from-indigo-50/90 via-purple-50/30 to-white dark:from-[#0c0d24] dark:to-[#08091c] border border-indigo-100/80 dark:border-[#1b1c3d] rounded-2xl sm:rounded-[24px] overflow-hidden shadow-xl">
+          <div className="hidden md:block bg-gradient-to-br from-indigo-50/90 via-purple-50/30 to-white dark:from-[#0c0d24] dark:to-[#08091c] border border-indigo-100/80 dark:border-[#1b1c3d] rounded-2xl sm:rounded-[24px] overflow-hidden shadow-xl">
             {!isAuthenticated ? (
               <div className="p-5 sm:p-7 text-slate-500 dark:text-slate-400 text-center space-y-3 sm:space-y-4">
                 <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-gradient-to-br from-[#594fe6] to-[#7964ff] text-white flex items-center justify-center mx-auto shadow-lg shadow-indigo-500/25">

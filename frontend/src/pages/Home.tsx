@@ -230,7 +230,7 @@ export default function Home() {
           <div className="col-span-7 lg:col-span-6 space-y-1.5 sm:space-y-4 text-left min-w-0">
             <div>
               <span className="inline-flex items-center gap-1 sm:gap-2 px-2 sm:px-4 py-0.5 sm:py-1.5 rounded-full border border-indigo-500/30 dark:border-indigo-400/30 bg-indigo-50/80 dark:bg-[#151638] text-indigo-700 dark:text-indigo-300 text-[9px] sm:text-xs font-bold shadow-xs">
-                <Star size={10} className="text-amber-400 fill-amber-400 sm:w-[13px] sm:h-[13px]" /> #1 Digital Coaching Platform
+                <Star size={10} className="text-amber-400 fill-amber-400 sm:w-[13px] sm:h-[13px]" /> Digital Coaching Platform
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
               </span>
             </div>
@@ -300,12 +300,12 @@ export default function Home() {
           </div>
 
           {/* Right Column: Teacher Image Always on Right Side Side-by-Side */}
-          <div className="col-span-5 lg:col-span-6 flex justify-center lg:justify-end relative my-0 sm:my-4 lg:my-0">
-            <div className="relative rounded-[12px] sm:rounded-[32px] overflow-hidden border border-slate-200 dark:border-[#2a2b54]/60 bg-gradient-to-b from-indigo-50/50 dark:from-[#131433]/50 to-transparent p-0.5 sm:p-2 shadow-md sm:shadow-[0_20px_50px_rgba(99,95,230,0.2)] z-10 w-full max-w-[130px] sm:max-w-[280px] lg:max-w-[420px]">
+          <div className="col-span-5 lg:col-span-6 flex justify-end relative my-0 sm:my-4 lg:my-0 shrink-0">
+            <div className="relative rounded-[10px] sm:rounded-[32px] overflow-hidden border border-slate-200 dark:border-[#2a2b54]/60 bg-gradient-to-b from-indigo-50/50 dark:from-[#131433]/50 to-transparent p-0.5 sm:p-2 shadow-md sm:shadow-[0_20px_50px_rgba(99,95,230,0.2)] z-10 w-full max-w-[105px] sm:max-w-[260px] lg:max-w-[420px] shrink-0">
               <img
                 src={teacherHero}
                 alt="Student Portrait"
-                className="w-full object-contain rounded-[10px] sm:rounded-[28px]"
+                className="w-full object-contain rounded-[8px] sm:rounded-[28px]"
               />
             </div>
           </div>

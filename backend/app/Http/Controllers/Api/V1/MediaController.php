@@ -136,6 +136,35 @@ class MediaController extends \App\Http\Controllers\ApiController
         return $this->success(null, $message);
     }
 
+    public function download(Request $request, int $id): \Symfony\Component\HttpFoundation\StreamedResponse|JsonResponse
+    {
+        $media = $this->mediaRepository->findById($id, true);
+        if (!$media) {
+            return $this->error('Media not found', 404);
+        }
+
+        // Authorization check: User must be authenticated
+        if (!$request->user()) {
+            return $this->error('Unauthorized', 401);
+        }
+
+        // Generate a temporary signed URL if using S3
+        if ($media->provider === 's3' || $media->storage_driver === 's3') {
+            $url = \Illuminate\Support\Facades\Storage::disk('s3')->temporaryUrl(
+                $media->path, now()->addMinutes(30)
+            );
+            return response()->json(['url' => $url]);
+        }
+
+        // For local storage, stream the download directly (requires token auth)
+        $disk = \Illuminate\Support\Facades\Storage::disk($media->storage_driver ?? 'public');
+        if (!$disk->exists($media->path)) {
+            return $this->error('File not found.', 404);
+        }
+
+        return $disk->download($media->path, $media->original_name ?? $media->file_name ?? 'download');
+    }
+
     public function usage(int $id): JsonResponse
     {
         $media = $this->mediaRepository->findById($id, true);

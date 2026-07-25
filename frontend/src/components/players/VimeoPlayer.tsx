@@ -48,7 +48,7 @@ export default function VimeoPlayer({
 
   const resetControlsTimer = useCallback(() => {
     setShowControls(true); clearTimeout(controlsTimerRef.current)
-    if (active) controlsTimerRef.current = setTimeout(() => setShowControls(false), 2500)
+    if (active) controlsTimerRef.current = setTimeout(() => setShowControls(false), 2000)
   }, [active])
   useEffect(() => { if (active) resetControlsTimer(); else setShowControls(true) }, [active, resetControlsTimer])
 

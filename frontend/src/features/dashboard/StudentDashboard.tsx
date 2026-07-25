@@ -83,148 +83,154 @@ export default function StudentDashboard() {
     )
   }
 
-  const analytics = data?.analytics || { hours_learned: 0.1, lessons_completed: 0, courses_completed: 0, current_streak: 1, longest_streak: 1, weekly_activity: [] }
+  const analytics = data?.analytics || { hours_learned: 0, lessons_completed: 0, courses_completed: 0, current_streak: 0, longest_streak: 0, weekly_activity: [] }
   const resume = data?.resume
   const enrolledCourses = data?.enrolled_courses || []
   const history = data?.history || []
 
   const paginatedHistory = history.slice((activityPage - 1) * activityPerPage, activityPage * activityPerPage)
 
-  // Real or fallback details for Continue Watching Hero
-  const resumeTitle = resume?.lesson?.title || 'Session 1: Sets, Relations & Functions'
-  const moduleTitle = resume?.module?.title || 'Foundations of Matrices & Determinants'
-  const courseTitle = resume?.course?.title || 'Matrices & Determinants'
-  const watchPercentage = resume?.watch_percentage ?? 8
-  const resumePosSeconds = resume?.resume_position ?? 113
+  // Real details for Continue Watching Hero
+  const hasResume = !!resume?.lesson
+  const resumeTitle = resume?.lesson?.title || ''
+  const moduleTitle = resume?.module?.title || ''
+  const courseTitle = resume?.course?.title || ''
+  const watchPercentage = resume?.watch_percentage ?? 0
+  const resumePosSeconds = resume?.resume_position ?? 0
   const lastActiveText = `${Math.floor(resumePosSeconds / 60)}m ${resumePosSeconds % 60}s ago`
   const resumeUrl = resume?.course?.id && resume?.lesson?.id 
     ? `/student/courses/${resume.course.id}/lessons/${resume.lesson.id}`
     : `/student/courses`
 
-  // Default weekly activity for 7 days bar chart if not present
-  const defaultWeeklyActivity = [
-    { day: 'Sat', percentage: 10 },
-    { day: 'Sun', percentage: 20 },
-    { day: 'Mon', percentage: 0 },
-    { day: 'Tue', percentage: 15 },
-    { day: 'Wed', percentage: 8 },
-    { day: 'Thu', percentage: 12 },
-    { day: 'Fri', percentage: 30 },
-  ]
-  const weeklyBars = analytics.weekly_activity?.length > 0 ? analytics.weekly_activity : defaultWeeklyActivity
+  // Convert real weekly activity hours to a percentage (e.g., max 2 hours = 100% bar height)
+  const weeklyBars = analytics.weekly_activity?.length > 0 
+    ? analytics.weekly_activity.map((bar: any) => ({
+        day: bar.day,
+        percentage: Math.min(100, Math.round(((bar.hours || 0) / 2) * 100))
+      }))
+    : [
+        { day: 'Mon', percentage: 0 }, { day: 'Tue', percentage: 0 },
+        { day: 'Wed', percentage: 0 }, { day: 'Thu', percentage: 0 },
+        { day: 'Fri', percentage: 0 }, { day: 'Sat', percentage: 0 },
+        { day: 'Sun', percentage: 0 }
+      ]
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-4">
       {/* Header Greeting Banner */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+      <div className="flex items-center justify-between gap-3">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-extrabold font-[Outfit] tracking-tight text-[rgb(var(--text-primary))] flex items-center gap-2">
+          <h1 className="text-xl sm:text-2xl font-extrabold font-[Outfit] tracking-tight text-[rgb(var(--text-primary))] flex items-center gap-2">
             Good evening, {userName}! 👋
           </h1>
-          <p className="text-xs sm:text-sm text-[rgb(var(--text-muted))] mt-1 font-[Inter]">
+          <p className="text-xs text-[rgb(var(--text-muted))] mt-0.5 font-[Inter]">
             Let's continue building your knowledge today.
           </p>
-        </div>
-        <div className="flex items-center gap-1.5 bg-[rgb(var(--bg-surface))] border border-[rgb(var(--border))] px-3 py-1.5 rounded-full text-xs font-semibold text-[rgb(var(--text-secondary))] shadow-xs self-start sm:self-auto cursor-pointer">
-          <History size={13} className="text-[rgb(var(--text-muted))]" />
-          <span>Student Workspace</span>
-          <ChevronDown size={13} className="text-[rgb(var(--text-muted))]" />
         </div>
       </div>
 
       {/* Hero Banner: Continue Watching Video Card */}
-      <Card className="p-4 sm:p-5 md:p-6 overflow-hidden relative border border-indigo-500/20 bg-[rgb(var(--bg-surface))] shadow-md">
-        <div className="flex flex-col sm:flex-row lg:flex-row items-stretch sm:items-center gap-5 sm:gap-6">
-          {/* 3D Video Thumbnail Box (Click to Play) */}
-          <div 
-            onClick={() => navigate(resumeUrl)}
-            className="w-full sm:w-64 lg:w-72 h-44 rounded-xl overflow-hidden relative cursor-pointer group shrink-0 border border-indigo-500/30 shadow-lg shadow-indigo-500/10 transition-transform hover:scale-[1.01]"
-          >
-            {/* Graphic or Thumbnail Image */}
-            {resume?.lesson?.thumbnail_url || resume?.course?.thumbnail ? (
-              <img 
-                src={resume?.lesson?.thumbnail_url || resume?.course?.thumbnail} 
-                alt={resumeTitle} 
-                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" 
-              />
-            ) : (
-              <Pyramid3DGraphic />
-            )}
-
-            {/* Top Left Badge */}
-            <div className="absolute top-3 left-3 z-10">
-              <span className="bg-indigo-600 text-white font-bold text-[10px] uppercase tracking-wider px-3 py-1 rounded-full shadow-lg shadow-indigo-500/40">
-                Continue Watching
-              </span>
-            </div>
-
-            {/* Bottom Right Play Button Overlay */}
-            <div className="absolute bottom-3 right-3 z-10 w-9 h-9 rounded-full bg-white/90 dark:bg-slate-900/90 text-indigo-600 dark:text-indigo-400 flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform border border-white/20">
-              <PlayCircle size={22} className="fill-indigo-600/20 text-indigo-600 dark:text-indigo-400" />
-            </div>
-          </div>
-
-          {/* Banner Details */}
-          <div className="flex-1 flex flex-col justify-between space-y-4">
-            <div className="space-y-2">
-              <div className="flex items-center gap-2">
-                <span className="text-[11px] text-[rgb(var(--text-muted))] font-medium flex items-center gap-1.5 bg-[rgb(var(--bg-elevated))] px-2.5 py-0.5 rounded-md border border-[rgb(var(--border))]">
-                  <Clock size={12} className="text-indigo-400" /> Last active: {lastActiveText}
+      {hasResume ? (
+        <Card className="p-3.5 sm:p-4 overflow-hidden relative border border-indigo-500/20 bg-[rgb(var(--bg-surface))] shadow-xs">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 sm:gap-5">
+            {/* Thumbnail Box */}
+            <div 
+              onClick={() => navigate(resumeUrl)}
+              className="w-full sm:w-56 h-36 rounded-xl overflow-hidden relative cursor-pointer group shrink-0 border border-indigo-500/30 shadow-md transition-transform hover:scale-[1.01]"
+            >
+              {resume?.lesson?.thumbnail_url || resume?.course?.thumbnail ? (
+                <img 
+                  src={resume?.lesson?.thumbnail_url || resume?.course?.thumbnail} 
+                  alt={resumeTitle} 
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" 
+                />
+              ) : (
+                <Pyramid3DGraphic />
+              )}
+  
+              {/* Top Left Badge */}
+              <div className="absolute top-2.5 left-2.5 z-10">
+                <span className="bg-indigo-600 text-white font-bold text-[9px] uppercase tracking-wider px-2.5 py-0.5 rounded-full shadow-md">
+                  Continue Watching
                 </span>
               </div>
-
-              <h2 className="text-xl sm:text-2xl font-extrabold tracking-tight text-[rgb(var(--text-primary))] font-[Outfit]">
-                {resumeTitle}
-              </h2>
-
-              <p className="text-xs sm:text-sm text-[rgb(var(--text-muted))]">
-                Module: <span className="font-semibold text-[rgb(var(--text-primary))]">{moduleTitle}</span> &bull; Course: <span className="font-semibold text-[rgb(var(--text-primary))]">{courseTitle}</span>
-              </p>
-            </div>
-
-            <div className="space-y-1.5 max-w-lg">
-              <div className="flex justify-between text-xs font-bold text-[rgb(var(--text-secondary))]">
-                <span>Lesson Progress</span>
-                <span className="text-indigo-400">{watchPercentage}% Complete</span>
+  
+              {/* Bottom Right Play Button */}
+              <div className="absolute bottom-2.5 right-2.5 z-10 w-8 h-8 rounded-full bg-white/90 dark:bg-slate-900/90 text-indigo-500 flex items-center justify-center shadow-md group-hover:scale-110 transition-transform">
+                <PlayCircle size={20} className="fill-indigo-500/20 text-indigo-500" />
               </div>
-              <div className="w-full bg-[rgb(var(--border))] h-2 rounded-full overflow-hidden">
-                <div 
-                  className="h-2 rounded-full transition-all duration-500 bg-gradient-to-r from-indigo-500 via-indigo-600 to-purple-500 shadow-sm" 
-                  style={{ width: `${watchPercentage}%` }} 
-                />
-              </div>
-              <p className="text-[11px] text-[rgb(var(--text-muted))] font-medium pt-0.5">
-                Keep going! You're making great progress.
-              </p>
             </div>
+  
+            {/* Banner Details */}
+            <div className="flex-1 flex flex-col justify-between space-y-3">
+              <div className="space-y-1">
+                <div className="flex items-center gap-2">
+                  <span className="text-[10px] text-[rgb(var(--text-muted))] font-medium flex items-center gap-1 bg-[rgb(var(--bg-elevated))] px-2 py-0.5 rounded-md border border-[rgb(var(--border))]">
+                    <Clock size={11} className="text-indigo-400" /> Last active: {lastActiveText}
+                  </span>
+                </div>
+  
+                <h2 className="text-base sm:text-lg font-extrabold tracking-tight text-[rgb(var(--text-primary))] font-[Outfit]">
+                  {resumeTitle}
+                </h2>
+  
+                <p className="text-xs text-[rgb(var(--text-muted))]">
+                  {moduleTitle ? <>Module: <span className="font-semibold text-[rgb(var(--text-primary))]">{moduleTitle}</span> &bull; </> : null}
+                  Course: <span className="font-semibold text-[rgb(var(--text-primary))]">{courseTitle}</span>
+                </p>
+              </div>
+  
+              <div className="space-y-1 max-w-md">
+                <div className="flex justify-between text-xs font-bold text-[rgb(var(--text-secondary))]">
+                  <span>Lesson Progress</span>
+                  <span className="text-indigo-400">{watchPercentage}% Complete</span>
+                </div>
+                <div className="w-full bg-[rgb(var(--border))] h-1.5 rounded-full overflow-hidden">
+                  <div 
+                    className="h-1.5 rounded-full transition-all duration-500 bg-gradient-to-r from-indigo-500 to-purple-500" 
+                    style={{ width: `${watchPercentage}%` }} 
+                  />
+                </div>
+              </div>
+            </div>
+  
+            {/* Resume Action Button */}
+            <Button 
+              size="sm" 
+              className="bg-[#6366f1] hover:bg-[#4f46e5] text-white px-5 py-2 rounded-xl font-bold text-xs flex items-center justify-center gap-1.5 shadow-md cursor-pointer w-full sm:w-auto shrink-0 self-stretch sm:self-center"
+              onClick={() => navigate(resumeUrl)}
+            >
+              Resume Lesson <ChevronRight size={13} />
+            </Button>
           </div>
-
-          {/* Resume Action Button */}
-          <Button 
-            size="md" 
-            className="bg-[#6366f1] hover:bg-[#4f46e5] text-white px-6 py-2.5 rounded-full font-bold text-xs flex items-center justify-center gap-2 shadow-lg shadow-indigo-500/30 cursor-pointer w-full sm:w-auto shrink-0 self-stretch sm:self-start lg:self-center"
-            onClick={() => navigate(resumeUrl)}
-          >
-            Resume Lesson <ChevronRight size={14} />
+        </Card>
+      ) : enrolledCourses.length > 0 ? (
+        <Card className="p-4 overflow-hidden relative border border-indigo-500/20 bg-[rgb(var(--bg-surface))] shadow-xs flex items-center justify-between">
+          <div className="space-y-1">
+            <h2 className="text-base sm:text-lg font-extrabold tracking-tight text-[rgb(var(--text-primary))] font-[Outfit]">Ready to start learning?</h2>
+            <p className="text-xs text-[rgb(var(--text-muted))]">Jump into your enrolled courses and begin your journey.</p>
+          </div>
+          <Button onClick={() => navigate(`/student/courses/${enrolledCourses[0].id}`)} className="bg-[#6366f1] hover:bg-[#4f46e5] text-white px-5 py-2 rounded-xl font-bold text-xs shadow-md cursor-pointer">
+            Go to {enrolledCourses[0].title}
           </Button>
-        </div>
-      </Card>
+        </Card>
+      ) : null}
 
       {/* Top 4 KPI Metrics Sparkline Cards Row */}
       <div className="admin-stats-row">
         {/* Card 1: Learning Streak */}
-        <Card className="p-3.5 border border-[rgb(var(--border))] flex items-center justify-between gap-2 relative overflow-hidden max-w-[280px] min-w-[220px]">
+        <Card className="p-3 border border-[rgb(var(--border))] flex items-center justify-between gap-2 relative overflow-hidden max-w-[280px] min-w-[200px]">
           <div className="flex items-center gap-2.5 min-w-0 flex-1">
-            <div className="w-10 h-10 rounded-xl bg-amber-500/10 text-amber-400 flex items-center justify-center flex-shrink-0">
-              <Flame className="animate-pulse" size={18} />
+            <div className="w-9 h-9 rounded-xl bg-amber-500/10 text-amber-400 flex items-center justify-center flex-shrink-0">
+              <Flame className="animate-pulse" size={16} />
             </div>
             <div className="min-w-0 flex-1">
-              <p className="text-[10px] text-[rgb(var(--text-muted))] font-medium uppercase tracking-wider whitespace-nowrap">Learning Streak</p>
-              <h3 className="text-xl font-extrabold text-[rgb(var(--text-primary))] font-[Outfit] leading-tight">{analytics.current_streak} day</h3>
-              <p className="text-[10px] text-amber-400 font-semibold whitespace-nowrap">Best: {analytics.longest_streak} day</p>
+              <p className="text-[9px] text-[rgb(var(--text-muted))] font-medium uppercase tracking-wider whitespace-nowrap">Streak</p>
+              <h3 className="text-lg font-extrabold text-[rgb(var(--text-primary))] font-[Outfit] leading-tight">{analytics.current_streak} day</h3>
+              <p className="text-[9px] text-amber-400 font-semibold whitespace-nowrap">Best: {analytics.longest_streak} day</p>
             </div>
           </div>
-          <div className="w-10 h-5 text-amber-500/40 flex-shrink-0">
+          <div className="w-9 h-4 text-amber-500/40 flex-shrink-0">
             <svg viewBox="0 0 100 40" className="w-full h-full stroke-current fill-none stroke-2">
               <path d="M0,35 Q20,10 40,25 T80,15 T100,5" />
             </svg>
@@ -232,18 +238,18 @@ export default function StudentDashboard() {
         </Card>
 
         {/* Card 2: Hours Learned */}
-        <Card className="p-3.5 border border-[rgb(var(--border))] flex items-center justify-between gap-2 relative overflow-hidden max-w-[280px] min-w-[220px]">
+        <Card className="p-3 border border-[rgb(var(--border))] flex items-center justify-between gap-2 relative overflow-hidden max-w-[280px] min-w-[200px]">
           <div className="flex items-center gap-2.5 min-w-0 flex-1">
-            <div className="w-10 h-10 rounded-xl bg-purple-500/10 text-purple-400 flex items-center justify-center flex-shrink-0">
-              <Clock size={18} />
+            <div className="w-9 h-9 rounded-xl bg-purple-500/10 text-purple-400 flex items-center justify-center flex-shrink-0">
+              <Clock size={16} />
             </div>
             <div className="min-w-0 flex-1">
-              <p className="text-[10px] text-[rgb(var(--text-muted))] font-medium uppercase tracking-wider whitespace-nowrap">Hours Learned</p>
-              <h3 className="text-xl font-extrabold text-[rgb(var(--text-primary))] font-[Outfit] leading-tight">{analytics.hours_learned} hrs</h3>
-              <p className="text-[10px] text-purple-400 font-semibold whitespace-nowrap">Video stream time</p>
+              <p className="text-[9px] text-[rgb(var(--text-muted))] font-medium uppercase tracking-wider whitespace-nowrap">Hours Learned</p>
+              <h3 className="text-lg font-extrabold text-[rgb(var(--text-primary))] font-[Outfit] leading-tight">{analytics.hours_learned} hrs</h3>
+              <p className="text-[9px] text-purple-400 font-semibold whitespace-nowrap">Video stream time</p>
             </div>
           </div>
-          <div className="w-10 h-5 text-purple-500/40 flex-shrink-0">
+          <div className="w-9 h-4 text-purple-500/40 flex-shrink-0">
             <svg viewBox="0 0 100 40" className="w-full h-full stroke-current fill-none stroke-2">
               <path d="M0,25 Q30,5 60,15 T100,10" />
             </svg>
@@ -251,18 +257,18 @@ export default function StudentDashboard() {
         </Card>
 
         {/* Card 3: Lessons Finished */}
-        <Card className="p-3.5 border border-[rgb(var(--border))] flex items-center justify-between gap-2 relative overflow-hidden max-w-[280px] min-w-[220px]">
+        <Card className="p-3 border border-[rgb(var(--border))] flex items-center justify-between gap-2 relative overflow-hidden max-w-[280px] min-w-[200px]">
           <div className="flex items-center gap-2.5 min-w-0 flex-1">
-            <div className="w-10 h-10 rounded-xl bg-emerald-500/10 text-slate-500 dark:text-emerald-400 flex items-center justify-center flex-shrink-0">
-              <BookOpenCheck size={18} />
+            <div className="w-9 h-9 rounded-xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center flex-shrink-0">
+              <BookOpenCheck size={16} />
             </div>
             <div className="min-w-0 flex-1">
-              <p className="text-[10px] text-[rgb(var(--text-muted))] font-medium uppercase tracking-wider whitespace-nowrap">Lessons Finished</p>
-              <h3 className="text-xl font-extrabold text-[rgb(var(--text-primary))] font-[Outfit] leading-tight">{analytics.lessons_completed}</h3>
-              <p className="text-[10px] text-slate-500 dark:text-emerald-400 font-semibold whitespace-nowrap">Completed lessons</p>
+              <p className="text-[9px] text-[rgb(var(--text-muted))] font-medium uppercase tracking-wider whitespace-nowrap">Lessons</p>
+              <h3 className="text-lg font-extrabold text-[rgb(var(--text-primary))] font-[Outfit] leading-tight">{analytics.lessons_completed}</h3>
+              <p className="text-[9px] text-emerald-400 font-semibold whitespace-nowrap">Completed</p>
             </div>
           </div>
-          <div className="w-10 h-5 text-slate-500 dark:text-emerald-500/40 flex-shrink-0">
+          <div className="w-9 h-4 text-emerald-500/40 flex-shrink-0">
             <svg viewBox="0 0 100 40" className="w-full h-full stroke-current fill-none stroke-2">
               <path d="M0,35 Q20,10 40,25 T80,15 T100,5" />
             </svg>
@@ -270,18 +276,18 @@ export default function StudentDashboard() {
         </Card>
 
         {/* Card 4: Courses Completed */}
-        <Card className="p-3.5 border border-[rgb(var(--border))] flex items-center justify-between gap-2 relative overflow-hidden max-w-[280px] min-w-[220px]">
+        <Card className="p-3 border border-[rgb(var(--border))] flex items-center justify-between gap-2 relative overflow-hidden max-w-[280px] min-w-[200px]">
           <div className="flex items-center gap-2.5 min-w-0 flex-1">
-            <div className="w-10 h-10 rounded-xl bg-blue-500/10 text-slate-500 dark:text-blue-400 flex items-center justify-center flex-shrink-0">
-              <Award size={18} />
+            <div className="w-9 h-9 rounded-xl bg-blue-500/10 text-blue-400 flex items-center justify-center flex-shrink-0">
+              <Award size={16} />
             </div>
             <div className="min-w-0 flex-1">
-              <p className="text-[10px] text-[rgb(var(--text-muted))] font-medium uppercase tracking-wider whitespace-nowrap">Courses Completed</p>
-              <h3 className="text-xl font-extrabold text-[rgb(var(--text-primary))] font-[Outfit] leading-tight">{analytics.courses_completed}</h3>
-              <p className="text-[10px] text-slate-500 dark:text-blue-400 font-semibold whitespace-nowrap">Certificates issued</p>
+              <p className="text-[9px] text-[rgb(var(--text-muted))] font-medium uppercase tracking-wider whitespace-nowrap">Courses</p>
+              <h3 className="text-lg font-extrabold text-[rgb(var(--text-primary))] font-[Outfit] leading-tight">{analytics.courses_completed}</h3>
+              <p className="text-[9px] text-blue-400 font-semibold whitespace-nowrap">Completed</p>
             </div>
           </div>
-          <div className="w-10 h-5 text-slate-500 dark:text-blue-500/40 flex-shrink-0">
+          <div className="w-9 h-4 text-blue-500/40 flex-shrink-0">
             <svg viewBox="0 0 100 40" className="w-full h-full stroke-current fill-none stroke-2">
               <path d="M0,20 Q25,35 50,15 T100,25" />
             </svg>
@@ -289,47 +295,47 @@ export default function StudentDashboard() {
         </Card>
       </div>
 
-      {/* Main Responsive Grid Layout matching snapshot */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-5">
+      {/* Main Responsive Grid Layout */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-4">
         {/* Column 1: Active Enrolled Courses (md:col-span-1 lg:col-span-4) */}
         <div className="md:col-span-1 lg:col-span-4 space-y-4">
-          <Card className="p-5 flex flex-col justify-between h-full space-y-4">
+          <Card className="p-4 flex flex-col justify-between h-full space-y-3">
             <div>
-              <h2 className="text-base font-extrabold tracking-tight text-[rgb(var(--text-primary))] font-[Outfit] flex items-center gap-2 mb-4">
-                <Edit3 size={16} className="text-indigo-400" /> My Active Enrolled Courses
+              <h2 className="text-sm font-extrabold tracking-tight text-[rgb(var(--text-primary))] font-[Outfit] flex items-center gap-2 mb-3">
+                <FolderOpen size={15} className="text-indigo-400" /> Active Enrolled Courses
               </h2>
 
               {enrolledCourses.length === 0 ? (
-                <div className="py-8 flex flex-col items-center justify-center text-center space-y-3">
-                  <div className="w-16 h-16 rounded-2xl bg-indigo-500/10 text-indigo-400 flex items-center justify-center">
-                    <FolderOpen size={32} />
+                <div className="py-6 flex flex-col items-center justify-center text-center space-y-2">
+                  <div className="w-12 h-12 rounded-xl bg-indigo-500/10 text-indigo-400 flex items-center justify-center">
+                    <FolderOpen size={24} />
                   </div>
-                  <p className="text-xs text-[rgb(var(--text-muted))] max-w-[200px]">
-                    You are not enrolled in any active courses yet.
+                  <p className="text-xs text-[rgb(var(--text-muted))] max-w-[180px]">
+                    No active enrolled courses.
                   </p>
                   <Button 
                     size="sm" 
-                    className="bg-[#6366f1] hover:bg-[#4f46e5] text-white px-5 py-2 rounded-full text-xs font-bold shadow-md cursor-pointer mt-2"
+                    className="bg-[#6366f1] hover:bg-[#4f46e5] text-white px-4 py-1.5 rounded-full text-xs font-bold shadow-md cursor-pointer mt-1"
                     onClick={() => navigate('/student/courses')}
                   >
                     Explore Courses
                   </Button>
                 </div>
               ) : (
-                <div className="space-y-4">
+                <div className="space-y-3">
                   {enrolledCourses.map((course: any) => (
-                    <div key={course.id} className="p-4 border border-[rgb(var(--border))] rounded-xl space-y-3 hover:border-indigo-500/40 transition-colors">
-                      <div className="flex gap-3 items-center">
+                    <div key={course.id} className="p-3 border border-[rgb(var(--border))] rounded-xl space-y-2.5 hover:border-indigo-500/40 transition-colors bg-[rgb(var(--bg-elevated))]">
+                      <div className="flex gap-2.5 items-center">
                         {course.thumbnail ? (
-                          <img src={course.thumbnail} className="w-10 h-10 rounded-lg object-cover flex-shrink-0" alt={course.title} />
+                          <img src={course.thumbnail} className="w-9 h-9 rounded-lg object-cover flex-shrink-0" alt={course.title} />
                         ) : (
-                          <div className="w-10 h-10 rounded-lg bg-indigo-500/10 text-indigo-400 flex items-center justify-center text-xs font-extrabold font-[Outfit] flex-shrink-0">
+                          <div className="w-9 h-9 rounded-lg bg-indigo-500/10 text-indigo-400 flex items-center justify-center text-xs font-extrabold font-[Outfit] flex-shrink-0">
                             {course.title.substring(0, 2).toUpperCase()}
                           </div>
                         )}
-                        <div className="min-w-0">
-                          <h3 className="font-bold text-xs text-[rgb(var(--text-primary))] font-[Outfit] line-clamp-1">{course.title}</h3>
-                          <span className="text-[10px] text-[rgb(var(--text-muted))]">Curriculum active</span>
+                        <div className="min-w-0 flex-1">
+                          <h3 className="font-bold text-xs text-[rgb(var(--text-primary))] font-[Outfit] truncate">{course.title}</h3>
+                          <span className="text-[10px] text-[rgb(var(--text-muted))]">Enrolled</span>
                         </div>
                       </div>
                       <div className="space-y-1">
@@ -341,7 +347,7 @@ export default function StudentDashboard() {
                           <div className="bg-[rgb(var(--primary))] h-1.5 rounded-full" style={{ width: `${course.completed_percentage ?? 0}%` }} />
                         </div>
                       </div>
-                      <Button size="sm" variant="primary" className="w-full justify-center flex gap-1 items-center text-xs"
+                      <Button size="sm" variant="primary" className="w-full justify-center flex gap-1 items-center text-xs py-1 h-7"
                         onClick={() => navigate(`/student/courses/${course.id}`)}>
                         Continue Learning <ChevronRight size={12} />
                       </Button>
@@ -355,36 +361,32 @@ export default function StudentDashboard() {
 
         {/* Column 2: Weekly Learning Progress (md:col-span-1 lg:col-span-5) */}
         <div className="md:col-span-1 lg:col-span-5 space-y-4">
-          <Card className="p-5 flex flex-col justify-between h-full space-y-4">
+          <Card className="p-4 flex flex-col justify-between h-full space-y-3">
             <div>
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="font-extrabold text-base text-[rgb(var(--text-primary))] font-[Outfit] flex items-center gap-2">
-                  <Edit3 size={16} className="text-indigo-400" /> Weekly Learning Progress
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="font-extrabold text-sm text-[rgb(var(--text-primary))] font-[Outfit] flex items-center gap-2">
+                  <Clock size={15} className="text-indigo-400" /> Weekly Learning Activity
                 </h3>
-                <div className="flex items-center gap-1.5 bg-[rgb(var(--bg-elevated))] border border-[rgb(var(--border))] px-2.5 py-1 rounded-xl">
-                  <Clock size={12} className="text-indigo-400" />
-                  <select className="bg-transparent text-[11px] font-bold text-[rgb(var(--text-primary))] focus:outline-none cursor-pointer">
-                    <option value="7_days" className="bg-[rgb(var(--bg-surface))] text-[rgb(var(--text-primary))]">Last 7 Days</option>
-                    <option value="30_days" className="bg-[rgb(var(--bg-surface))] text-[rgb(var(--text-primary))]">Last 30 Days</option>
-                  </select>
-                </div>
+                <span className="text-[10px] font-bold text-[rgb(var(--text-muted))] bg-[rgb(var(--bg-elevated))] border border-[rgb(var(--border))] px-2 py-0.5 rounded-md">
+                  Last 7 Days
+                </span>
               </div>
 
-              {/* 7 Bars Layout matching snapshot */}
-              <div className="flex justify-between items-end h-44 pt-6 px-1 border-b border-[rgb(var(--border))]/40 pb-3">
+              {/* 7 Bars Layout */}
+              <div className="flex justify-between items-end h-36 pt-4 px-1 border-b border-[rgb(var(--border))]/40 pb-2">
                 {weeklyBars.map((bar: any, idx: number) => {
-                  const dayName = bar.day || ['Sat', 'Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri'][idx % 7]
-                  const pct = bar.percentage !== undefined ? bar.percentage : [10, 20, 0, 15, 8, 12, 30][idx % 7]
+                  const dayName = bar.day
+                  const pct = bar.percentage
                   return (
-                    <div key={idx} className="flex flex-col items-center gap-1.5 flex-1">
-                      <span className="text-[10px] font-bold text-[rgb(var(--text-muted))]">{pct}%</span>
-                      <div className="w-full max-w-[28px] bg-[rgb(var(--bg-elevated))] h-28 rounded-t-lg relative flex items-end overflow-hidden">
+                    <div key={idx} className="flex flex-col items-center gap-1 flex-1">
+                      <span className="text-[9px] font-bold text-[rgb(var(--text-muted))]">{pct}%</span>
+                      <div className="w-full max-w-[24px] bg-[rgb(var(--bg-elevated))] h-24 rounded-t-lg relative flex items-end overflow-hidden">
                         <div
-                          className="w-full rounded-t-lg bg-gradient-to-t from-indigo-600/50 via-indigo-500 to-indigo-400 transition-all duration-500"
-                          style={{ height: `${Math.max(6, pct * 2.5)}%` }}
+                          className="w-full rounded-t-lg bg-gradient-to-t from-indigo-600/60 via-indigo-500 to-indigo-400 transition-all duration-500"
+                          style={{ height: `${Math.max(6, pct * 2.2)}%` }}
                         />
                       </div>
-                      <span className="text-[10px] font-bold text-[rgb(var(--text-muted))]">{dayName}</span>
+                      <span className="text-[9px] font-bold text-[rgb(var(--text-muted))]">{dayName}</span>
                     </div>
                   )
                 })}
@@ -392,28 +394,26 @@ export default function StudentDashboard() {
             </div>
 
             {/* Bottom Motivation Banner inside card */}
-            <div className="p-3 rounded-xl bg-indigo-500/10 border border-indigo-500/20 flex items-center gap-3">
-              <Sparkles size={18} className="text-indigo-400 shrink-0" />
-              <div className="text-[11px]">
-                <p className="font-bold text-[rgb(var(--text-primary))]">Great start! Stay consistent to build momentum.</p>
-                <p className="text-[rgb(var(--text-muted))]">Your learning habit is the key to success.</p>
-              </div>
+            <div className="p-2.5 rounded-xl bg-indigo-500/10 border border-indigo-500/20 flex items-center gap-2.5">
+              <Sparkles size={16} className="text-indigo-400 shrink-0" />
+              <p className="text-[11px] font-medium text-[rgb(var(--text-secondary))]">
+                Great start! Stay consistent to build your streak.
+              </p>
             </div>
           </Card>
         </div>
 
-        {/* Column 3: Right Sidebar (md:col-span-2 lg:col-span-3) */}
-        <div className="md:col-span-2 lg:col-span-3 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-5">
-          {/* Recent Activity Logs */}
-          <Card className="p-5 space-y-3">
+        {/* Column 3: Recent Activity Logs (md:col-span-2 lg:col-span-3) */}
+        <div className="md:col-span-2 lg:col-span-3">
+          <Card className="p-4 space-y-3 h-full">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-1.5 text-[rgb(var(--text-primary))]">
-                <History size={15} className="text-indigo-400" />
+                <History size={14} className="text-indigo-400" />
                 <h3 className="font-bold text-xs font-[Outfit]">Recent Activity Logs</h3>
               </div>
               <button 
                 onClick={() => navigate('/student/progress')}
-                className="text-[10px] font-bold text-[rgb(var(--text-muted))] hover:text-indigo-400 transition-colors bg-[rgb(var(--bg-elevated))] px-2 py-0.5 rounded-md border border-[rgb(var(--border))]"
+                className="text-[9px] font-bold text-[rgb(var(--text-muted))] hover:text-indigo-400 transition-colors bg-[rgb(var(--bg-elevated))] px-2 py-0.5 rounded-md border border-[rgb(var(--border))]"
               >
                 View All
               </button>
@@ -421,28 +421,28 @@ export default function StudentDashboard() {
 
             {history.length === 0 ? (
               <div className="py-6 flex flex-col items-center justify-center text-center space-y-2">
-                <div className="w-10 h-10 rounded-xl bg-[rgb(var(--bg-elevated))] text-[rgb(var(--text-muted))] flex items-center justify-center">
-                  <History size={20} />
+                <div className="w-9 h-9 rounded-xl bg-[rgb(var(--bg-elevated))] text-[rgb(var(--text-muted))] flex items-center justify-center">
+                  <History size={18} />
                 </div>
-                <p className="text-[11px] text-[rgb(var(--text-muted))] max-w-[180px]">
-                  No recent activity records. Start learning to see your activity here.
+                <p className="text-[10px] text-[rgb(var(--text-muted))] max-w-[160px]">
+                  No recent activity records yet.
                 </p>
               </div>
             ) : (
-              <div className="space-y-3">
+              <div className="space-y-2.5">
                 {paginatedHistory.map((h: any, idx: number) => (
-                  <div key={h.id || idx} className="flex gap-2.5 text-xs">
+                  <div key={h.id || idx} className="flex gap-2 text-xs">
                     <div className="w-1.5 h-1.5 rounded-full bg-indigo-500 mt-1.5 shrink-0" />
-                    <div className="space-y-0.5">
-                      <p className="text-[rgb(var(--text-primary))] font-medium text-[11px]">
+                    <div className="space-y-0.5 min-w-0">
+                      <p className="text-[rgb(var(--text-primary))] font-medium text-[11px] leading-tight">
                         {h.action === 'lesson_completed' && 'Completed Lesson'}
                         {h.action === 'lesson_opened' && 'Opened Lesson'}
                         {h.action === 'resume' && 'Resumed Playback'}
                         {h.action === 'bookmark_added' && 'Added Bookmark'}
-                        <span className="font-bold block text-[10px] text-indigo-400 line-clamp-1">{h.lesson_title}</span>
+                        <span className="font-bold block text-[10px] text-indigo-400 truncate">{h.lesson_title}</span>
                       </p>
                       <span className="text-[9px] text-[rgb(var(--text-muted))]">
-                        {new Date(h.created_at).toLocaleString()}
+                        {new Date(h.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                       </span>
                     </div>
                   </div>
@@ -477,37 +477,6 @@ export default function StudentDashboard() {
                 )}
               </div>
             )}
-          </Card>
-
-          {/* Quick Links */}
-          <Card className="p-5 space-y-3">
-            <div className="flex items-center gap-1.5 text-[rgb(var(--text-primary))]">
-              <LinkIcon size={15} className="text-indigo-400" />
-              <h3 className="font-bold text-xs font-[Outfit]">Quick Links</h3>
-            </div>
-            {[
-              { label: 'View All Courses', path: '/student/courses' },
-              { label: 'My Assignments', path: '/student/assignments', badge: '2', badgeColor: 'bg-purple-500/20 text-purple-400' },
-              { label: 'Upcoming Exams', path: '/student/exams', badge: '1', badgeColor: 'bg-emerald-500/20 text-emerald-400' },
-              { label: 'My Progress', path: '/student/progress' },
-              { label: 'Certificates', path: '/student/certificates' },
-            ].map(link => (
-              <button 
-                key={link.path}
-                onClick={() => navigate(link.path)}
-                className="w-full flex items-center justify-between text-xs font-medium text-[rgb(var(--text-secondary))] hover:text-indigo-400 transition-colors py-1.5 border-b border-[rgb(var(--border))]/40 last:border-0 cursor-pointer"
-              >
-                <span className="flex items-center gap-2">
-                  {link.label}
-                  {link.badge && (
-                    <span className={`px-1.5 py-0.2 rounded-full text-[9px] font-bold ${link.badgeColor}`}>
-                      {link.badge}
-                    </span>
-                  )}
-                </span>
-                <ChevronRight size={12} />
-              </button>
-            ))}
           </Card>
         </div>
       </div>

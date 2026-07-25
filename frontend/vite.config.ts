@@ -72,3 +72,4 @@ export default defineConfig({
     },
   },
 })
+// trigger vite dev server restart

@@ -102,12 +102,12 @@ export default function YTPlayer({
     }
   }, [])
 
-  // ── Controls auto-hide ────────────────────────────────────────────────────
+  // ── Controls auto-hide (2 seconds after playing / mouse move) ────────────
   const resetControlsTimer = useCallback(() => {
     setShowControls(true)
     clearTimeout(controlsTimerRef.current)
     if (isActiveRef.current) {
-      controlsTimerRef.current = setTimeout(() => setShowControls(false), 2500)
+      controlsTimerRef.current = setTimeout(() => setShowControls(false), 2000)
     }
   }, [])
 
@@ -220,6 +220,7 @@ export default function YTPlayer({
                     setActive(true); setBuffering(false)
                     bus.emit('play', {})
                     startPoll()
+                    resetControlsTimer()
                     break
                   }
                   case YTState?.PAUSED: {
@@ -397,24 +398,24 @@ export default function YTPlayer({
             </div>
           )}
 
-          {/* Controls bar: Full width, dark blur transparent background, blue accent */}
+          {/* Controls bar: Compact TV-style sleek bar on mobile */}
           <div
-            className={`absolute bottom-0 left-0 right-0 w-full z-50 transition-opacity duration-300 ${showControls ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
+            className={`absolute inset-x-0 bottom-0 w-full z-50 transition-opacity duration-300 ${showControls ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
           >
-            <div className="w-full bg-black/90 sm:bg-black/80 backdrop-blur-md border-t border-white/10 px-2 sm:px-4 py-1 sm:py-2.5 space-y-1 sm:space-y-2 shadow-2xl rounded-none">
+            <div className="w-full bg-gradient-to-t from-black via-black/80 to-transparent backdrop-blur-sm px-3 sm:px-4 pb-2 sm:pb-2.5 pt-3.5 sm:pt-4 space-y-1.5 sm:space-y-1.5 shadow-xl">
               {/* Thin Timeline bar (full width) with blue progress and blue point */}
               <div className="w-full px-0.5">
-                <div className="relative w-full h-[2.5px] sm:h-[3px] group cursor-pointer flex items-center">
+                <div className="relative w-full h-[3px] group cursor-pointer flex items-center">
                   {/* Track background */}
-                  <div className="absolute inset-0 bg-white/20 dark:bg-[#0c0d24]/20 rounded-full" />
+                  <div className="absolute inset-0 bg-white/30 dark:bg-[#0c0d24]/30 rounded-full" />
                   {/* Thin Blue Progress fill */}
                   <div
-                    className="absolute inset-y-0 left-0 bg-blue-500 rounded-full"
+                    className="absolute inset-y-0 left-0 bg-blue-500 rounded-full shadow-[0_0_8px_rgba(59,130,246,0.5)]"
                     style={{ width: `${duration > 0 ? (currentTime / duration) * 100 : 0}%` }}
                   />
                   {/* Thin Blue Scrub Point */}
                   <div
-                    className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-blue-500 shadow-md shadow-blue-500/50 transition-transform scale-100 group-hover:scale-125 pointer-events-none"
+                    className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-3 h-3 rounded-full bg-blue-500 shadow-md shadow-blue-500/50 transition-transform scale-100 group-hover:scale-125 pointer-events-none"
                     style={{ left: `${duration > 0 ? (currentTime / duration) * 100 : 0}%` }}
                   />
                   <input
@@ -431,30 +432,30 @@ export default function YTPlayer({
                 </div>
               </div>
 
-              {/* Buttons row */}
-              <div className="flex items-center gap-1 sm:gap-2.5 text-white text-xs font-medium">
+              {/* TV-Style Compact Buttons row */}
+              <div className="flex items-center gap-2 sm:gap-3 text-white text-[12px] font-medium leading-none pt-0.5">
                 {/* Play/Pause */}
                 <button
                   onClick={(e) => { e.stopPropagation(); togglePlay() }}
-                  className="p-1 sm:p-1.5 rounded-lg sm:rounded-xl bg-white/10 dark:bg-[#0c0d24]/10 hover:bg-white/20 dark:hover:bg-white dark:bg-[#0c0d24]/20 text-white backdrop-blur-sm transition-all cursor-pointer flex items-center justify-center shrink-0"
+                  className="p-1.5 sm:p-2 rounded-lg sm:rounded-xl bg-white/10 dark:bg-[#0c0d24]/20 hover:bg-white/25 text-white backdrop-blur-md transition-all cursor-pointer flex items-center justify-center shrink-0"
                   aria-label={active ? 'Pause' : 'Play'}
                 >
-                  {active ? <Pause size={14} className="sm:w-[16px] sm:h-[16px] text-white" /> : <Play size={14} className="sm:w-[16px] sm:h-[16px] fill-white text-white ml-0.5" />}
+                  {active ? <Pause size={14} className="sm:w-[18px] sm:h-[18px] text-white" /> : <Play size={14} className="sm:w-[18px] sm:h-[18px] fill-white text-white ml-0.5" />}
                 </button>
 
                 {/* Mute/Volume */}
                 <button
                   onClick={(e) => { e.stopPropagation(); toggleMute() }}
-                  className="p-1 sm:p-1.5 rounded-lg sm:rounded-xl bg-white/10 dark:bg-[#0c0d24]/10 hover:bg-white/20 dark:hover:bg-white dark:bg-[#0c0d24]/20 text-white backdrop-blur-sm transition-all cursor-pointer flex items-center justify-center shrink-0"
+                  className="p-1.5 sm:p-2 rounded-lg sm:rounded-xl bg-white/10 dark:bg-[#0c0d24]/20 hover:bg-white/25 text-white backdrop-blur-md transition-all cursor-pointer flex items-center justify-center shrink-0"
                   aria-label="Mute"
                 >
-                  {muted ? <VolumeX size={14} className="sm:w-[16px] sm:h-[16px] text-white" /> : <Volume2 size={14} className="sm:w-[16px] sm:h-[16px] text-white" />}
+                  {muted ? <VolumeX size={14} className="sm:w-[18px] sm:h-[18px] text-white" /> : <Volume2 size={14} className="sm:w-[18px] sm:h-[18px] text-white" />}
                 </button>
 
                 {/* Volume Slider */}
-                <div className="hidden sm:flex items-center relative w-16 h-[3px] group">
-                  <div className="absolute inset-0 bg-white/20 dark:bg-[#0c0d24]/20 rounded-full" />
-                  <div className="absolute inset-y-0 left-0 bg-blue-500 rounded-full" style={{ width: `${muted ? 0 : volume}%` }} />
+                <div className="hidden sm:flex items-center relative w-16 h-[4px] group">
+                  <div className="absolute inset-0 bg-white/30 dark:bg-[#0c0d24]/30 rounded-full" />
+                  <div className="absolute inset-y-0 left-0 bg-blue-500 rounded-full shadow-[0_0_8px_rgba(59,130,246,0.5)]" style={{ width: `${muted ? 0 : volume}%` }} />
                   <input
                     type="range" min={0} max={100} value={muted ? 0 : volume}
                     onChange={handleVolumeChange}
@@ -465,7 +466,7 @@ export default function YTPlayer({
                 </div>
 
                 {/* Time Display */}
-                <span className="text-[9px] sm:text-[11px] font-mono font-bold text-white/90 whitespace-nowrap pl-0.5 sm:pl-1 shrink-0">
+                <span className="text-[10px] sm:text-[12px] font-mono font-bold text-white/90 whitespace-nowrap pl-0.5 sm:pl-1 shrink-0">
                   {formatTime(currentTime)} / {formatTime(duration)}
                 </span>
 
@@ -475,12 +476,12 @@ export default function YTPlayer({
                 <div className="relative shrink-0">
                   <button
                     onClick={(e) => { e.stopPropagation(); setShowRates((v) => !v) }}
-                    className="px-1.5 sm:px-2.5 py-0.5 sm:py-1 rounded-lg sm:rounded-xl bg-white/10 dark:bg-[#0c0d24]/10 hover:bg-white/20 dark:hover:bg-white dark:bg-[#0c0d24]/20 text-white backdrop-blur-sm text-[10px] sm:text-[11px] font-extrabold transition-all cursor-pointer"
+                    className="px-2 sm:px-3 py-1 sm:py-1.5 rounded-lg sm:rounded-xl bg-white/10 dark:bg-[#0c0d24]/20 hover:bg-white/25 text-white backdrop-blur-md text-[10px] sm:text-[12px] font-extrabold transition-all cursor-pointer"
                   >
                     {playbackRate}×
                   </button>
                   {showRates && (
-                    <div className="absolute bottom-full right-0 mb-1.5 bg-black/90 backdrop-blur-md border border-white/10 rounded-xl overflow-hidden shadow-2xl z-50 py-1 min-w-[75px]">
+                    <div className="absolute bottom-full right-0 mb-1.5 bg-black/95 backdrop-blur-md border border-white/10 rounded-xl overflow-hidden shadow-2xl z-50 py-1 min-w-[70px]">
                       {PLAYBACK_RATES.map((r) => (
                         <button
                           key={r}
@@ -490,7 +491,7 @@ export default function YTPlayer({
                             playerRef.current?.setPlaybackRate?.(r)
                             setShowRates(false)
                           }}
-                          className={`block w-full px-3 py-1 text-[11px] text-left transition-colors cursor-pointer ${playbackRate === r ? 'text-slate-500 dark:text-blue-400 font-extrabold bg-blue-500/20' : 'text-white/80 hover:bg-white/10'}`}
+                          className={`block w-full px-2.5 py-1.5 sm:py-2 text-[11px] sm:text-[12px] text-left transition-colors cursor-pointer ${playbackRate === r ? 'text-blue-400 font-extrabold bg-blue-500/20' : 'text-white/80 hover:bg-white/10'}`}
                         >
                           {r}×
                         </button>
@@ -502,10 +503,10 @@ export default function YTPlayer({
                 {/* Fullscreen */}
                 <button
                   onClick={(e) => { e.stopPropagation(); toggleFullscreen() }}
-                  className="p-1 sm:p-1.5 rounded-lg sm:rounded-xl bg-white/10 dark:bg-[#0c0d24]/10 hover:bg-white/20 dark:hover:bg-white dark:bg-[#0c0d24]/20 text-white backdrop-blur-sm transition-all cursor-pointer flex items-center justify-center shrink-0"
+                  className="p-1.5 sm:p-2 rounded-lg sm:rounded-xl bg-white/10 dark:bg-[#0c0d24]/20 hover:bg-white/25 text-white backdrop-blur-md transition-all cursor-pointer flex items-center justify-center shrink-0"
                   aria-label="Fullscreen"
                 >
-                  {isFullscreen ? <Minimize2 size={14} className="sm:w-[16px] sm:h-[16px] text-white" /> : <Maximize2 size={14} className="sm:w-[16px] sm:h-[16px] text-white" />}
+                  {isFullscreen ? <Minimize2 size={14} className="sm:w-[18px] sm:h-[18px] text-white" /> : <Maximize2 size={14} className="sm:w-[18px] sm:h-[18px] text-white" />}
                 </button>
               </div>
             </div>

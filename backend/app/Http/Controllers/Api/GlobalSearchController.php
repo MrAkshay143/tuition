@@ -35,13 +35,19 @@ class GlobalSearchController extends ApiController
 
         $user = auth()->user();
         $isAdmin = $user && $user->role === 'admin';
+        $isTeacher = $user && $user->role === 'teacher';
+        $isStudent = $user && $user->role === 'student';
 
         // 1. Courses
         $courses = [];
         try {
             $coursesQuery = Course::query()->where('title', 'LIKE', "%{$q}%");
-            if (!$isAdmin && $user) {
+            if ($isTeacher) {
                 $coursesQuery->where('teacher_id', $user->id);
+            } elseif ($isStudent) {
+                // Students can only see published courses that they are enrolled in
+                $coursesQuery->where('status', 'published')
+                             ->whereHas('batches.students', fn($sq) => $sq->where('users.id', $user->id));
             }
             $courses = $coursesQuery->limit(5)->get(['id', 'title', 'status']);
         } catch (\Throwable $e) {}
@@ -50,20 +56,25 @@ class GlobalSearchController extends ApiController
         $batches = [];
         try {
             $batchesQuery = Batch::query()->where('name', 'LIKE', "%{$q}%");
-            if (!$isAdmin && $user) {
+            if ($isTeacher) {
                 $batchesQuery->where('teacher_id', $user->id);
+            } elseif ($isStudent) {
+                $batchesQuery->where('is_active', true)
+                             ->whereHas('students', fn($q2) => $q2->where('users.id', $user->id));
             }
             $batches = $batchesQuery->limit(5)->get(['id', 'name', 'color']);
         } catch (\Throwable $e) {}
 
-        // 3. Students
+        // 3. Students (Admin & Teacher only)
         $students = [];
-        try {
-            $studentsQuery = User::query()->where('role', 'student')->where(function ($query) use ($q) {
-                $query->where('name', 'LIKE', "%{$q}%")->orWhere('email', 'LIKE', "%{$q}%");
-            });
-            $students = $studentsQuery->limit(5)->get(['id', 'name', 'email']);
-        } catch (\Throwable $e) {}
+        if ($isAdmin || $isTeacher) {
+            try {
+                $studentsQuery = User::query()->where('role', 'student')->where(function ($query) use ($q) {
+                    $query->where('name', 'LIKE', "%{$q}%")->orWhere('email', 'LIKE', "%{$q}%");
+                });
+                $students = $studentsQuery->limit(5)->get(['id', 'name', 'email']);
+            } catch (\Throwable $e) {}
+        }
 
         // 4. Teachers (Admin-only search)
         $teachers = [];
@@ -83,8 +94,13 @@ class GlobalSearchController extends ApiController
         $modules = [];
         try {
             $modulesQuery = CourseModule::query()->where('title', 'LIKE', "%{$q}%");
-            if (!$isAdmin && $user) {
+            if ($isTeacher) {
                 $modulesQuery->whereHas('course', fn($c) => $c->where('teacher_id', $user->id));
+            } elseif ($isStudent) {
+                $modulesQuery->whereHas('course', fn($c) => 
+                    $c->where('status', 'published')
+                      ->whereHas('batches.students', fn($sq) => $sq->where('users.id', $user->id))
+                );
             }
             $modules = $modulesQuery->limit(5)->get(['id', 'title', 'course_id']);
         } catch (\Throwable $e) {}
@@ -93,8 +109,13 @@ class GlobalSearchController extends ApiController
         $lessons = [];
         try {
             $lessonsQuery = Lesson::query()->where('title', 'LIKE', "%{$q}%");
-            if (!$isAdmin && $user) {
+            if ($isTeacher) {
                 $lessonsQuery->whereHas('chapter.module.course', fn($c) => $c->where('teacher_id', $user->id));
+            } elseif ($isStudent) {
+                $lessonsQuery->whereHas('chapter.module.course', fn($c) => 
+                    $c->where('status', 'published')
+                      ->whereHas('batches.students', fn($sq) => $sq->where('users.id', $user->id))
+                );
             }
             $lessons = $lessonsQuery->limit(5)->get(['id', 'title']);
         } catch (\Throwable $e) {}
@@ -103,8 +124,10 @@ class GlobalSearchController extends ApiController
         $assignments = [];
         try {
             $assignmentsQuery = Assignment::query()->where('title', 'LIKE', "%{$q}%");
-            if (!$isAdmin && $user && $user->isTeacher()) {
+            if ($isTeacher) {
                 $assignmentsQuery->where('teacher_id', $user->id);
+            } elseif ($isStudent) {
+                $assignmentsQuery->whereHas('batches.students', fn($q) => $q->where('users.id', $user->id));
             }
             $assignments = $assignmentsQuery->limit(5)->get(['id', 'title', 'due_at']);
         } catch (\Throwable $e) {}
@@ -113,8 +136,10 @@ class GlobalSearchController extends ApiController
         $exams = [];
         try {
             $examsQuery = Exam::query()->where('title', 'LIKE', "%{$q}%");
-            if (!$isAdmin && $user && $user->isTeacher()) {
+            if ($isTeacher) {
                 $examsQuery->where('teacher_id', $user->id);
+            } elseif ($isStudent) {
+                $examsQuery->whereHas('batches.students', fn($q) => $q->where('users.id', $user->id));
             }
             $exams = $examsQuery->limit(5)->get(['id', 'title', 'duration_minutes']);
         } catch (\Throwable $e) {}

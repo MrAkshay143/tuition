@@ -182,22 +182,40 @@ export default function Sidebar() {
                   }
                 }}
                 className={({ isActive }) => cn(
-                  'sidebar-item group flex items-center gap-3 px-3.5 py-2.5 lg:py-2 rounded-xl text-xs font-semibold transition-all relative min-h-[40px]',
+                  'sidebar-item group flex items-center gap-3 px-3.5 py-2.5 lg:py-2 rounded-xl text-xs font-semibold transition-colors relative min-h-[40px] z-0 overflow-hidden',
                   isActive 
-                    ? 'bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 font-extrabold border-l-4 border-indigo-600 shadow-2xs' 
-                    : 'text-[rgb(var(--text-secondary))] hover:bg-[rgb(var(--bg-elevated))] hover:text-[rgb(var(--text-primary))] border-l-4 border-l-transparent'
+                    ? 'text-indigo-600 dark:text-indigo-400 font-extrabold' 
+                    : 'text-[rgb(var(--text-secondary))] hover:bg-[rgb(var(--bg-elevated))] hover:text-[rgb(var(--text-primary))]'
                 )}
               >
-                <span className="shrink-0">{item.icon}</span>
-                {!sidebarCollapsed && (
-                  <span className="truncate flex-1 font-[Outfit]">
-                    {item.label}
-                  </span>
-                )}
-                {badge && badge > 0 && !sidebarCollapsed && (
-                  <span className="ml-auto bg-rose-500 text-white text-[10px] font-extrabold px-2 py-0.5 rounded-full shadow-2xs">
-                    {badge > 99 ? '99+' : badge}
-                  </span>
+                {({ isActive }) => (
+                  <>
+                    {isActive && (
+                      <>
+                        <motion.div
+                          layoutId="activeSidebarBg"
+                          className="absolute inset-0 bg-indigo-500/10 dark:bg-indigo-500/15 rounded-xl border border-indigo-500/20 -z-10"
+                          transition={{ type: "spring", stiffness: 350, damping: 30 }}
+                        />
+                        <motion.div
+                          layoutId="activeSidebarBar"
+                          className="absolute left-0 top-1.5 bottom-1.5 w-1 bg-gradient-to-b from-indigo-500 to-violet-600 rounded-r-full shadow-[0_0_8px_rgba(99,102,241,0.6)]"
+                          transition={{ type: "spring", stiffness: 350, damping: 30 }}
+                        />
+                      </>
+                    )}
+                    <span className="shrink-0 relative z-10">{item.icon}</span>
+                    {!sidebarCollapsed && (
+                      <span className="truncate flex-1 font-[Outfit] relative z-10">
+                        {item.label}
+                      </span>
+                    )}
+                    {badge && badge > 0 && !sidebarCollapsed && (
+                      <span className="ml-auto bg-rose-500 text-white text-[10px] font-extrabold px-2 py-0.5 rounded-full shadow-2xs relative z-10">
+                        {badge > 99 ? '99+' : badge}
+                      </span>
+                    )}
+                  </>
                 )}
               </NavLink>
             )
@@ -211,7 +229,7 @@ export default function Sidebar() {
         {/* User Card Footer (Desktop View) */}
         <div className="border-t border-[rgb(var(--border))] pt-3 mt-auto flex flex-col gap-1.5">
           <NavLink
-            to={user?.role === 'admin' ? '/admin/settings' : '/teacher/profile'}
+            to={user?.role === 'admin' ? '/admin/settings' : user?.role === 'student' ? '/student/settings' : '/teacher/profile'}
             className={cn(
               'hidden lg:flex items-center gap-2.5 p-2 rounded-xl bg-[rgb(var(--bg-elevated))] border border-[rgb(var(--border))] hover:border-indigo-500/30 transition-all text-left cursor-pointer',
               sidebarCollapsed && 'justify-center p-1.5'
@@ -222,7 +240,7 @@ export default function Sidebar() {
               <div className="flex-1 min-w-0">
                 <p className="text-xs font-bold text-[rgb(var(--text-primary))] truncate font-[Outfit]">{user?.name}</p>
                 <p className="text-[10px] text-indigo-600 dark:text-indigo-400 font-extrabold uppercase tracking-wider">
-                  {user?.role || 'Educator'}
+                  {user?.role || 'User'}
                 </p>
               </div>
             )}

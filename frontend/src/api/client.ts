@@ -50,9 +50,22 @@ apiClient.interceptors.response.use(
 
     if (status === 401) {
       const requestUrl: string = (error.config?.url as string) || ''
-      // Skip global 401 redirect for public stream endpoints (free preview access for guests)
-      const isPublicStreamRoute = requestUrl.includes('/public/lessons/') && requestUrl.includes('/stream')
-      if (!isPublicStreamRoute) {
+      const currentPath = typeof window !== 'undefined' ? window.location.pathname : ''
+
+      // Skip 401 redirects for public endpoints, auth check endpoints, and unauthenticated guest pages
+      const isPublicEndpoint = requestUrl.includes('/public/') || 
+                              requestUrl.includes('/auth/login') || 
+                              requestUrl.includes('/auth/me') ||
+                              requestUrl.includes('/auth/forgot-password') ||
+                              requestUrl.includes('/blogs') ||
+                              requestUrl.includes('/achievements') ||
+                              requestUrl.includes('/health')
+
+      const isProtectedAppRoute = currentPath.startsWith('/student') || 
+                             currentPath.startsWith('/teacher') || 
+                             currentPath.startsWith('/admin')
+
+      if (!isPublicEndpoint && isProtectedAppRoute) {
         removeToken()
         try {
           localStorage.removeItem('eduflow-auth')

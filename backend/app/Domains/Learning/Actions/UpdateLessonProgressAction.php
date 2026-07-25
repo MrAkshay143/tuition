@@ -23,6 +23,8 @@ class UpdateLessonProgressAction
             'lesson_id' => $lesson->id,
         ]);
 
+        $oldWatchSeconds = $progress->watched_seconds;
+
         // IDEMPOTENCY: only move progress forward
         if ($watchSeconds > $progress->watched_seconds) {
             $progress->watched_seconds = $watchSeconds;
@@ -51,6 +53,28 @@ class UpdateLessonProgressAction
                 'playback_speed' => $speed,
                 'device'         => $deviceId,
             ]);
+        }
+
+        // Increment daily watch time in LearningHistory
+        if ($watchSeconds > $oldWatchSeconds) {
+            $increment = $watchSeconds - $oldWatchSeconds;
+            if ($increment > 0 && $increment < 300) { // sanity check max 5 mins increment
+                $dailyHistory = LearningHistory::firstOrCreate(
+                    [
+                        'user_id' => $user->id,
+                        'action' => 'daily_watch_time',
+                        'created_at' => now()->startOfDay()
+                    ],
+                    [
+                        'course_id' => null,
+                        'lesson_id' => null,
+                        'watch_seconds' => 0,
+                        'playback_speed' => 1.0,
+                        'device' => 'system'
+                    ]
+                );
+                $dailyHistory->increment('watch_seconds', $increment);
+            }
         }
 
         $progress->save();

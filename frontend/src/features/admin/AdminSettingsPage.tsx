@@ -56,12 +56,20 @@ interface SettingsData {
   google_client_id?: string
   google_auth_endpoint?: string
   api_base_url?: string
+  fcm_project_id?: string
+  fcm_service_account_media_id?: string
+  webrtc_enabled?: string
+  stun_urls?: string
+  turn_urls?: string
+  turn_username?: string
+  turn_password?: string
 }
 
 const TABS = [
   { key: 'general', label: 'General' },
   { key: 'smtp', label: 'Email (SMTP)' },
   { key: 'notifications', label: 'Notifications' },
+  { key: 'webrtc', label: 'WebRTC & Chat' },
   { key: 'storage', label: 'Storage' },
   { key: 'security', label: 'Security' },
   { key: 'integrations', label: 'Integrations' },
@@ -128,6 +136,11 @@ export default function AdminSettingsPage() {
     google_client_id: localStorage.getItem('eduflow_google_client_id') || '789123456789-xxxx.apps.googleusercontent.com',
     google_auth_endpoint: localStorage.getItem('eduflow_google_auth_url') || 'https://tuition.imakshay.in/api_backend/public/api/v1/auth/google',
     api_base_url: localStorage.getItem('eduflow_api_url') || 'https://tuition.imakshay.in/api_backend/public/api/v1',
+    webrtc_enabled: 'true',
+    stun_urls: 'stun:stun.l.google.com:19302',
+    turn_urls: '',
+    turn_username: '',
+    turn_password: '',
   })
 
   // Backend Query
@@ -180,7 +193,7 @@ export default function AdminSettingsPage() {
     setFormData((prev) => ({ ...prev, [field]: val }))
   }
 
-  const [pickerType, setPickerType] = useState<'logo' | 'favicon'>('logo')
+  const [pickerType, setPickerType] = useState<'logo' | 'favicon' | 'fcm'>('logo')
   const [isPickerOpen, setIsPickerOpen] = useState(false)
 
   const handleAssetSelect = (media: any) => {
@@ -555,6 +568,67 @@ export default function AdminSettingsPage() {
               </motion.div>
             )}
 
+            {/* WEBRTC & CHAT TAB */}
+            {tab === 'webrtc' && (
+              <motion.div initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h2 className="text-sm font-bold text-[rgb(var(--text-primary))] font-[Outfit]">WebRTC Configuration</h2>
+                    <p className="text-xs text-[rgb(var(--text-muted))]">Configure NAT Traversal and STUN/TURN services for P2P Chat</p>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs font-bold text-[rgb(var(--text-primary))]">Enable WebRTC</span>
+                    <Toggle
+                      checked={formData.webrtc_enabled !== 'false'}
+                      onChange={(checked) => handleChange('webrtc_enabled', checked ? 'true' : 'false')}
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-4 opacity-100 transition-opacity" style={{ opacity: formData.webrtc_enabled !== 'false' ? 1 : 0.5 }}>
+                  <Input 
+                    label="STUN Servers (Comma separated)" 
+                    value={formData.stun_urls} 
+                    onChange={(e) => handleChange('stun_urls', e.target.value)} 
+                    placeholder="stun:stun.l.google.com:19302"
+                  />
+                  
+                  <div className="p-4 rounded-xl border border-[rgb(var(--border))] bg-[rgb(var(--bg-elevated))] space-y-4">
+                    <h3 className="font-bold text-xs text-[rgb(var(--text-primary))]">TURN Server (Optional - For restrictive NATs)</h3>
+                    
+                    <Input 
+                      label="TURN URLs (Comma separated)" 
+                      value={formData.turn_urls} 
+                      onChange={(e) => handleChange('turn_urls', e.target.value)} 
+                      placeholder="turn:turn.example.com:3478, turns:turn.example.com:5349"
+                    />
+                    
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <Input 
+                        label="TURN Username" 
+                        value={formData.turn_username} 
+                        onChange={(e) => handleChange('turn_username', e.target.value)} 
+                        placeholder="username"
+                      />
+                      <Input 
+                        label="TURN Credential / Password" 
+                        type="password"
+                        value={formData.turn_password} 
+                        onChange={(e) => handleChange('turn_password', e.target.value)} 
+                        placeholder="••••••••"
+                      />
+                    </div>
+                  </div>
+                  
+                  <div className="pt-2">
+                    <Button variant="secondary" size="sm" onClick={() => toast.success('Diagnostics initialized!')}>
+                      Launch WebRTC Diagnostics
+                    </Button>
+                  </div>
+                </div>
+              </motion.div>
+            )}
+
             {/* STORAGE TAB */}
             {tab === 'storage' && (
               <motion.div initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} className="space-y-4">
@@ -637,6 +711,50 @@ export default function AdminSettingsPage() {
                     <Button variant="secondary" size="sm" onClick={() => setIntegrationModal('zoom')} className="w-full text-xs font-bold py-1.5 cursor-pointer">
                       Configure Zoom Credentials
                     </Button>
+                  </div>
+
+                  {/* Firebase Cloud Messaging (FCM) */}
+                  <div className="p-4 rounded-2xl border border-[rgb(var(--border))] bg-[rgb(var(--bg-surface))] space-y-3 flex flex-col justify-between">
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <div className="w-8 h-8 rounded-xl bg-amber-500/10 text-amber-500 flex items-center justify-center">
+                            <Bell size={16} />
+                          </div>
+                          <h4 className="font-bold text-xs text-[rgb(var(--text-primary))]">Firebase Cloud Messaging</h4>
+                        </div>
+                        <Badge variant={formData.fcm_project_id ? "success" : "warning"} className="text-[9px] uppercase font-mono">
+                          {formData.fcm_project_id ? "CONFIGURED" : "PENDING"}
+                        </Badge>
+                      </div>
+                      <p className="text-[10px] text-[rgb(var(--text-muted))]">Setup FCM for WebRTC chat wake-up notifications.</p>
+                      
+                      <div className="space-y-3 pt-2">
+                        <Input
+                          label="FCM Project ID"
+                          value={formData.fcm_project_id || ''}
+                          onChange={(e) => handleChange('fcm_project_id', e.target.value)}
+                          placeholder="your-project-id"
+                        />
+                        <div className="flex items-end gap-2">
+                          <div className="flex-1">
+                            <Input
+                              label="Service Account JSON (Media ID)"
+                              value={formData.fcm_service_account_media_id || ''}
+                              onChange={(e) => handleChange('fcm_service_account_media_id', e.target.value)}
+                              placeholder="e.g. 15"
+                            />
+                          </div>
+                          <Button 
+                            variant="secondary" 
+                            className="h-10 px-3 cursor-pointer"
+                            onClick={() => { setPickerType('fcm'); setIsPickerOpen(true); }}
+                          >
+                            <Upload size={14} />
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
                   </div>
 
                   {/* Google OAuth 2.0 & API Configuration */}

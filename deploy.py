@@ -190,6 +190,7 @@ SESSION_DOMAIN=.imakshay.in
     print("\n[Cleaning old frontend assets and cache...]")
     ssh_exec(ssh, f"rm -rf {REMOTE_BASE}/assets", show=False)
     ssh_exec(ssh, f"rm -f {REMOTE_BASE}/index.html", show=False)
+    ssh_exec(ssh, f"rm -f {REMOTE_BASE}/favicon.* {REMOTE_BASE}/apple-touch-icon.png {REMOTE_BASE}/pwa-*.png", show=False)
     ssh_exec(ssh, f"rm -f {REMOTE_BASE}/sw.js {REMOTE_BASE}/registerSW.js {REMOTE_BASE}/workbox-*.js {REMOTE_BASE}/manifest.webmanifest", show=False)
     # We do NOT delete the entire api_backend directory because we want to preserve vendor (speeds up composer install) and storage.
     print("  Cleaned old static assets.")

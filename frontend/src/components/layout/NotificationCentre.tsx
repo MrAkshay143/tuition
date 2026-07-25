@@ -48,7 +48,7 @@ export default function NotificationCentre() {
     return cleanup
   }, [observe])
 
-  const allNotifications = data?.pages.flatMap((p) => p.data) ?? []
+  const allNotifications = data?.pages.flatMap((p) => p.data || []).filter(Boolean) ?? []
 
   const handleNotifClick = (id: string, read_at: string | null) => {
     if (!read_at) {

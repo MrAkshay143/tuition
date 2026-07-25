@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { api } from '@/api/client'
 import { Button, Card, Spinner, Textarea } from '@/components/ui'
-import { Clock, ArrowRight, ArrowLeft } from 'lucide-react'
+import { Clock, ArrowRight, ArrowLeft, AlertCircle } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { ConfirmModal } from '@/components/ui/overlays'
 import { useApiMutation } from '@/api/resources/hooks'
@@ -37,6 +37,42 @@ export const ExamTakingPage = () => {
   const [timeLeft, setTimeLeft] = useState<number | null>(null)
   const [isSubmitConfirmOpen, setIsSubmitConfirmOpen] = useState(false)
 
+  // Security Policy States
+  const [securityViolations, setSecurityViolations] = useState(0)
+  const [warningMessage, setWarningMessage] = useState<string | null>(null)
+  const [isLockedOut, setIsLockedOut] = useState(false)
+  const bcRef = useRef<BroadcastChannel | null>(null)
+
+  const logSecurityEvent = (eventType: string, severity: string = 'info', details: any = {}) => {
+    if (!id) return;
+    api.post(`/student/exams/${id}/security-log`, { event_type: eventType, severity, details }).catch(console.error)
+  }
+
+  const handleViolation = (type: string, message: string) => {
+    if (isLockedOut) return;
+    
+    logSecurityEvent(type, 'warning', { message })
+    
+    const policy = examData?.security_policy || {}
+    if (!policy.enable_anti_cheat) return;
+
+    const maxWarnings = policy.max_tab_switches || 3
+    const current = securityViolations + 1
+    setSecurityViolations(current)
+    
+    if (current > maxWarnings) {
+      setWarningMessage(`Maximum violations exceeded. ${policy.auto_submit_on_violations ? 'Submitting exam...' : 'Exam locked.'}`)
+      if (policy.auto_submit_on_violations) {
+        setTimeout(handleAutoSubmit, 2000)
+      } else {
+        setIsLockedOut(true)
+      }
+    } else {
+      setWarningMessage(`Warning ${current}/${maxWarnings}: ${message}`)
+      setTimeout(() => setWarningMessage(null), 5000)
+    }
+  }
+
   useEffect(() => {
     startExamMutation.mutateAsync({}).then(res => {
       const data = res.data?.data || res.data
@@ -65,8 +101,84 @@ export const ExamTakingPage = () => {
     })
   }, [id])
 
+  // --- Security Event Listeners ---
   useEffect(() => {
-    if (timeLeft === null) return
+    if (isLoading || !examData) return;
+    const policy = examData.security_policy || {}
+    if (!policy.enable_anti_cheat) return;
+
+    // 1. Tab Switching & Visibility
+    const handleVisibility = () => {
+      if (document.visibilityState === 'hidden') {
+        handleViolation('tab_switched', 'You left the exam window.')
+      }
+    }
+
+    // 2. Fullscreen Tracking
+    const handleFullscreen = () => {
+      if (!document.fullscreenElement && policy.require_fullscreen) {
+        handleViolation('fullscreen_exited', 'You exited full-screen mode.')
+      }
+    }
+
+    // 3. Clipboard & Context Menu
+    const handleCopyPaste = (e: ClipboardEvent) => {
+      if (policy.disable_copy_paste) {
+        e.preventDefault()
+        handleViolation('clipboard_used', 'Copy/Paste is disabled during this exam.')
+      }
+    }
+    const handleContextMenu = (e: MouseEvent) => {
+      if (policy.disable_copy_paste) {
+        e.preventDefault()
+        handleViolation('right_click', 'Right-click is disabled.')
+      }
+    }
+
+    // 4. Network Tracking
+    const handleOffline = () => logSecurityEvent('network_disconnected')
+    const handleOnline = () => logSecurityEvent('network_reconnected')
+
+    document.addEventListener('visibilitychange', handleVisibility)
+    document.addEventListener('fullscreenchange', handleFullscreen)
+    document.addEventListener('copy', handleCopyPaste as any)
+    document.addEventListener('paste', handleCopyPaste as any)
+    document.addEventListener('contextmenu', handleContextMenu)
+    window.addEventListener('offline', handleOffline)
+    window.addEventListener('online', handleOnline)
+
+    // Optional: Force fullscreen if required
+    if (policy.require_fullscreen && !document.fullscreenElement) {
+      document.documentElement.requestFullscreen().catch(() => {})
+    }
+
+    // 5. Multiple Session Detection (BroadcastChannel)
+    bcRef.current = new BroadcastChannel(`exam_session_${id}`)
+    bcRef.current.postMessage({ type: 'CHECK_SESSION' })
+    bcRef.current.onmessage = (e) => {
+      if (e.data.type === 'CHECK_SESSION') {
+        bcRef.current?.postMessage({ type: 'SESSION_ACTIVE' })
+      } else if (e.data.type === 'SESSION_ACTIVE') {
+        setIsLockedOut(true)
+        setWarningMessage('Your exam is already active on another device or tab.')
+        logSecurityEvent('multiple_sessions_detected')
+      }
+    }
+
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibility)
+      document.removeEventListener('fullscreenchange', handleFullscreen)
+      document.removeEventListener('copy', handleCopyPaste as any)
+      document.removeEventListener('paste', handleCopyPaste as any)
+      document.removeEventListener('contextmenu', handleContextMenu)
+      window.removeEventListener('offline', handleOffline)
+      window.removeEventListener('online', handleOnline)
+      bcRef.current?.close()
+    }
+  }, [isLoading, examData, securityViolations, isLockedOut])
+
+  useEffect(() => {
+    if (timeLeft === null || isLockedOut) return
     if (timeLeft <= 0) {
       handleAutoSubmit()
       return
@@ -77,7 +189,7 @@ export const ExamTakingPage = () => {
     }, 1000)
 
     return () => clearInterval(timer)
-  }, [timeLeft])
+  }, [timeLeft, isLockedOut])
 
   // Prevent leaving
   useEffect(() => {
@@ -105,7 +217,7 @@ export const ExamTakingPage = () => {
 
   const handleAutoSubmit = () => {
     if (submitExamMutation.isPending) return
-    toast.error('Time is up! Auto-submitting exam...')
+    toast.error('Exam submitting...')
     handleSubmit()
   }
 
@@ -121,7 +233,23 @@ export const ExamTakingPage = () => {
   }
 
   return (
-    <div className="min-h-[100dvh] bg-[rgb(var(--bg-body))] flex flex-col font-[Inter]">
+    <div className="min-h-[100dvh] bg-[rgb(var(--bg-body))] flex flex-col font-[Inter] relative">
+      {/* WARNING OVERLAY */}
+      {warningMessage && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-red-900/90 backdrop-blur-sm p-6 text-center animate-in fade-in duration-200">
+          <div className="bg-white dark:bg-[#1a1b3b] rounded-2xl p-8 max-w-lg shadow-2xl border border-red-500">
+            <AlertCircle size={64} className="text-red-500 mx-auto mb-4" />
+            <h2 className="text-2xl font-bold text-red-600 dark:text-red-400 mb-2 font-[Outfit]">Security Violation Detected</h2>
+            <p className="text-slate-700 dark:text-slate-300 text-lg mb-6">{warningMessage}</p>
+            {isLockedOut ? (
+              <p className="text-sm font-bold text-red-500">Please contact your administrator to unlock this exam.</p>
+            ) : (
+              <Button variant="outline" onClick={() => setWarningMessage(null)} className="w-full">Acknowledge</Button>
+            )}
+          </div>
+        </div>
+      )}
+
       {/* HEADER */}
       <header className="h-16 bg-[rgb(var(--bg-surface))] border-b border-[rgb(var(--border))] flex items-center justify-between px-6 shrink-0 sticky top-0 z-10 shadow-sm">
         <div className="font-bold font-[Outfit] text-lg text-[rgb(var(--text-primary))]">{examData?.title}</div>
@@ -248,4 +376,5 @@ export const ExamTakingPage = () => {
     </div>
   )
 }
+
 

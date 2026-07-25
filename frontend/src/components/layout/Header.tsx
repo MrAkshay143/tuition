@@ -353,9 +353,9 @@ export default function Header() {
           {user && (
             <Dropdown
               trigger={
-                <button className="flex items-center gap-2 p-1 rounded-[var(--radius-md)] hover:bg-[rgb(var(--border))] transition-colors">
-                  <Avatar src={user.avatar} name={user.name} size="sm" online />
-                  <span className="hidden md:block text-sm font-medium text-[rgb(var(--text-primary))] max-w-[120px] truncate">
+                <button className="flex items-center gap-1.5 pl-1.5 pr-2.5 py-1 rounded-full bg-[rgb(var(--bg-elevated))] border border-[rgb(var(--border))] hover:border-indigo-500/40 transition-all cursor-pointer shadow-2xs">
+                  <Avatar src={user.avatar} name={user.name} size="xs" online className="ring-1 ring-indigo-500/30" />
+                  <span className="hidden sm:block text-xs font-bold text-[rgb(var(--text-primary))] font-[Outfit] max-w-[100px] truncate">
                     {user.name.split(' ')[0]}
                   </span>
                 </button>

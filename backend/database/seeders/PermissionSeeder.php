@@ -53,10 +53,12 @@ class PermissionSeeder extends Seeder
             // Assignments
             'assignment.view',
             'assignment.manage',
+            'assignment.submit',
             
             // Exams
             'exam.view',
             'exam.manage',
+            'exam.attempt',
             
             // Students
             'student.view',
@@ -98,8 +100,8 @@ class PermissionSeeder extends Seeder
             'batch.view', 'batch.manage',
             'media.view', 'media.upload', 'media.delete',
             'live_class.view', 'live_class.manage',
-            'assignment.view', 'assignment.manage',
-            'exam.view', 'exam.manage',
+            'assignment.view', 'assignment.manage', 'assignment.submit',
+            'exam.view', 'exam.manage', 'exam.attempt',
             'student.view', 'student.manage',
             'certificate.generate',
             'dashboard.view'
@@ -111,8 +113,8 @@ class PermissionSeeder extends Seeder
             'course.view',
             'dashboard.view',
             'batch.view',
-            'assignment.view',
-            'exam.view',
+            'assignment.view', 'assignment.submit',
+            'exam.view', 'exam.attempt',
             'live_class.view'
         ]);
         

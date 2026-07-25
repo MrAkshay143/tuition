@@ -50,7 +50,7 @@ export default function NativePlayer({
 
   const resetControlsTimer = () => {
     setShowControls(true); clearTimeout(controlsTimerRef.current)
-    if (active) controlsTimerRef.current = setTimeout(() => setShowControls(false), 2500)
+    if (active) controlsTimerRef.current = setTimeout(() => setShowControls(false), 2000)
   }
   useEffect(() => {
     const h = () => setIsFullscreen(!!(document.fullscreenElement || (document as any).webkitFullscreenElement))

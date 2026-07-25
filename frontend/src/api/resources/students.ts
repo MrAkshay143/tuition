@@ -170,14 +170,15 @@ export function useForceLogoutStudent() {
 }
 
 // ── Student devices ────────────────────────────────────────────
-export function useStudentDevices(studentId: number) {
+export function useStudentDevices(studentId: number, enabled: boolean = true) {
   return useQuery({
     queryKey: ['students', studentId, 'devices'],
     queryFn: () =>
       api.get<ApiResponse<Array<{ id: number; device_name: string; ip_address: string; last_active_at: string; is_trusted: boolean }>>>(
         `/students/${studentId}/devices`,
       ).then((r) => r.data),
-    enabled: studentId > 0,
+    enabled: studentId > 0 && enabled,
+    retry: false,
   })
 }
 
@@ -194,7 +195,18 @@ export function useStudentBookmarks() {
   return useQuery({
     queryKey: ['student', 'bookmarks'],
     queryFn: () => api.get<any>('/student/bookmarks').then(r => r.data?.data || []),
-    staleTime: 1000 * 60 * 5,
+    staleTime: 5 * 60 * 1000,
+  })
+}
+
+export function useSaveBookmark() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: ({ lessonId, data }: { lessonId: number, data: { note?: string, video_timestamp_seconds?: number } }) => 
+      api.post(`/lessons/${lessonId}/bookmark`, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['student', 'bookmarks'] })
+    }
   })
 }
 

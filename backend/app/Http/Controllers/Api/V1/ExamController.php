@@ -226,6 +226,14 @@ class ExamController extends ApiController
             return $this->error('You are not assigned to this exam', 403);
         }
 
+        $now = now();
+        if ($exam->starts_at && $now->lt($exam->starts_at)) {
+            return $this->error('Exam has not started yet', 400);
+        }
+        if ($exam->ends_at && $now->gt($exam->ends_at)) {
+            return $this->error('Exam has expired', 400);
+        }
+
         $existingAttempt = ExamAttempt::firstOrCreate([
             'exam_id'    => $id,
             'student_id' => $user->id,
@@ -264,5 +272,40 @@ class ExamController extends ApiController
         } catch (\Exception $e) {
             return $this->error($e->getMessage(), $e->getCode() ?: 400);
         }
+    }
+
+    public function logSecurityEvent(
+        \Illuminate\Http\Request $request,
+        $id
+    ) {
+        $exam = Exam::findOrFail($id);
+        
+        $validated = $request->validate([
+            'event_type' => 'required|string',
+            'severity'   => 'nullable|string',
+            'details'    => 'nullable|array'
+        ]);
+
+        $attempt = ExamAttempt::where('exam_id', $id)
+            ->where('student_id', $request->user()->id)
+            ->latest('started_at')
+            ->first();
+
+        if (!$attempt) {
+            return $this->error('No active exam attempt found', 404);
+        }
+
+        \App\Domains\Assessment\Models\ExamSecurityLog::create([
+            'exam_attempt_id' => $attempt->id,
+            'user_id'         => $request->user()->id,
+            'exam_id'         => $id,
+            'event_type'      => $validated['event_type'],
+            'severity'        => $validated['severity'] ?? 'info',
+            'ip'              => $request->ip(),
+            'user_agent'      => $request->userAgent(),
+            'details'         => $validated['details'] ?? []
+        ]);
+
+        return $this->success(null, 'Security event logged');
     }
 }
