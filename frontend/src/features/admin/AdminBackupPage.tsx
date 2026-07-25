@@ -552,8 +552,8 @@ export default function AdminBackupPage() {
         </div>
 
         <div>
-          {/* 1. Mobile Cards List View (< sm) */}
-          <div className="block sm:hidden space-y-2.5">
+          {/* 1. Mobile & Tablet Cards List View (< lg) */}
+          <div className="block lg:hidden space-y-2.5">
             {backups.length === 0 ? (
               <div className="p-8 text-center text-xs text-[rgb(var(--text-muted))] bg-[rgb(var(--bg-elevated))] rounded-xl border border-[rgb(var(--border))]">
                 No backup snapshots found.
@@ -614,7 +614,7 @@ export default function AdminBackupPage() {
               ))
             )}
 
-            {/* Mobile Pagination */}
+            {/* Mobile/Tablet Pagination */}
             {backups.length > 0 && (
               <div className="pt-2">
                 <Pagination
@@ -632,8 +632,8 @@ export default function AdminBackupPage() {
             )}
           </div>
 
-          {/* 2. Desktop Table View (>= sm) */}
-          <div className="hidden sm:block">
+          {/* 2. Desktop Table View (>= lg) */}
+          <div className="hidden lg:block">
             <EnterpriseTable
               columns={[
                 {

@@ -592,44 +592,41 @@ export default function AdminSessionsPage() {
       </Card>
 
       {/* 5. Bottom Widget: Academic Sessions Guide */}
-      <Card className="p-4 border border-[rgb(var(--border))] flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-        <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-xl bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 flex items-center justify-center flex-shrink-0">
-            <Info size={18} />
+      <Card className="p-3.5 sm:p-4 border border-[rgb(var(--border))] flex flex-col md:flex-row items-start md:items-center justify-between gap-3 sm:gap-4">
+        <div className="flex items-center gap-2.5 min-w-0">
+          <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 flex items-center justify-center flex-shrink-0">
+            <Info size={16} />
           </div>
-          <div>
-            <h3 className="font-bold text-xs text-[rgb(var(--text-primary))] font-[Outfit]">
+          <div className="min-w-0">
+            <h3 className="font-bold text-xs text-[rgb(var(--text-primary))] font-[Outfit] truncate">
               Academic Sessions Guide
             </h3>
-            <p className="text-[11px] text-[rgb(var(--text-muted))]">
+            <p className="text-[10.5px] sm:text-[11px] text-[rgb(var(--text-muted))] truncate">
               Manage academic terms and link programs, courses, and batches.
             </p>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 w-full md:w-auto">
-          <div className="flex items-center gap-2 p-2.5 rounded-xl border border-[rgb(var(--border))] bg-[rgb(var(--bg-surface))]">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 w-full md:w-auto">
+          <div className="flex items-center gap-2 px-3 py-2 rounded-xl border border-[rgb(var(--border))] bg-[rgb(var(--bg-surface))] text-[11px] whitespace-nowrap min-w-0">
             <FolderPlus size={14} className="text-indigo-400 flex-shrink-0" />
-            <div>
-              <h4 className="font-bold text-[11px] text-[rgb(var(--text-primary))]">Organize</h4>
-              <p className="text-[10px] text-[rgb(var(--text-muted))]">Group programs</p>
-            </div>
+            <span className="truncate">
+              <strong className="text-[rgb(var(--text-primary))]">Organize:</strong> <span className="text-[rgb(var(--text-muted))]">Group programs</span>
+            </span>
           </div>
 
-          <div className="flex items-center gap-2 p-2.5 rounded-xl border border-[rgb(var(--border))] bg-[rgb(var(--bg-surface))]">
+          <div className="flex items-center gap-2 px-3 py-2 rounded-xl border border-[rgb(var(--border))] bg-[rgb(var(--bg-surface))] text-[11px] whitespace-nowrap min-w-0">
             <BarChart3 size={14} className="text-purple-400 flex-shrink-0" />
-            <div>
-              <h4 className="font-bold text-[11px] text-[rgb(var(--text-primary))]">Analytics</h4>
-              <p className="text-[10px] text-[rgb(var(--text-muted))]">Track per term</p>
-            </div>
+            <span className="truncate">
+              <strong className="text-[rgb(var(--text-primary))]">Analytics:</strong> <span className="text-[rgb(var(--text-muted))]">Track per term</span>
+            </span>
           </div>
 
-          <div className="flex items-center gap-2 p-2.5 rounded-xl border border-[rgb(var(--border))] bg-[rgb(var(--bg-surface))]">
+          <div className="flex items-center gap-2 px-3 py-2 rounded-xl border border-[rgb(var(--border))] bg-[rgb(var(--bg-surface))] text-[11px] whitespace-nowrap min-w-0">
             <Calendar size={14} className="text-teal-400 flex-shrink-0" />
-            <div>
-              <h4 className="font-bold text-[11px] text-[rgb(var(--text-primary))]">Planning</h4>
-              <p className="text-[10px] text-[rgb(var(--text-muted))]">Future terms</p>
-            </div>
+            <span className="truncate">
+              <strong className="text-[rgb(var(--text-primary))]">Planning:</strong> <span className="text-[rgb(var(--text-muted))]">Future terms</span>
+            </span>
           </div>
         </div>
       </Card>
