@@ -308,4 +308,34 @@ class ExamController extends ApiController
 
         return $this->success(null, 'Security event logged');
     }
+
+    public function studentResult(\Illuminate\Http\Request $request, $id)
+    {
+        $exam = Exam::with('questions')->findOrFail($id);
+        $attempt = ExamAttempt::where('exam_id', $id)
+            ->where('student_id', $request->user()->id)
+            ->whereNotNull('completed_at')
+            ->latest('completed_at')
+            ->first();
+
+        if (!$attempt) {
+            // Check if there is an attempt even if completed_at is null or latest attempt
+            $attempt = ExamAttempt::where('exam_id', $id)
+                ->where('student_id', $request->user()->id)
+                ->latest('started_at')
+                ->first();
+        }
+
+        if (!$attempt) {
+            return $this->error('No exam attempt found.', 404);
+        }
+
+        $questions = $exam->show_result_immediately ? $exam->questions : [];
+
+        return $this->success([
+            'exam' => $exam,
+            'attempt' => $attempt,
+            'questions' => $questions
+        ], 'Exam result retrieved successfully');
+    }
 }

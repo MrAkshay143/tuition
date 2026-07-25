@@ -43,6 +43,23 @@ class ChatSignalingController extends ApiController
         return $this->success(null, 'Signal posted');
     }
 
+    public function postSignalPartner(Request $request, \App\Services\FCMService $fcm, $partnerId)
+    {
+        $type = $request->input('type');
+        if ($type === 'candidate') {
+            $type = 'ice';
+        }
+
+        $payload = $request->except(['type', 'partner_id']);
+        $request->merge([
+            'partner_id' => $partnerId,
+            'type' => $type,
+            'payload' => $payload
+        ]);
+
+        return $this->postSignal($request, $fcm);
+    }
+
     public function getSignals(Request $request)
     {
         $userId = $request->user()->id;

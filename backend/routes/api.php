@@ -162,6 +162,7 @@ Route::middleware(['auth:sanctum', 'active', \App\Http\Middleware\ValidateSessio
         // Signaling & Config
         Route::get('webrtc-config', [\App\Http\Controllers\Api\V1\ChatSignalingController::class, 'getConfig']);
         Route::post('signal', [\App\Http\Controllers\Api\V1\ChatSignalingController::class, 'postSignal']);
+        Route::post('signal/{partnerId}', [\App\Http\Controllers\Api\V1\ChatSignalingController::class, 'postSignalPartner']);
         Route::get('signals', [\App\Http\Controllers\Api\V1\ChatSignalingController::class, 'getSignals']);
     });
 
@@ -180,6 +181,7 @@ Route::middleware(['auth:sanctum', 'active', \App\Http\Middleware\ValidateSessio
 
         // Exams (Student)
         Route::get('student/exams', [\App\Http\Controllers\Api\V1\ExamController::class, 'studentIndex'])->middleware('permission:exam.view');
+        Route::get('student/exams/{id}/result', [\App\Http\Controllers\Api\V1\ExamController::class, 'studentResult'])->middleware('permission:exam.attempt');
         Route::post('student/exams/{id}/start', [\App\Http\Controllers\Api\V1\ExamController::class, 'start'])->middleware('permission:exam.attempt');
         Route::post('student/exams/{id}/submit', [\App\Http\Controllers\Api\V1\ExamController::class, 'submit'])->middleware('permission:exam.attempt');
         Route::post('student/exams/{id}/security-log', [\App\Http\Controllers\Api\V1\ExamController::class, 'logSecurityEvent'])->middleware('permission:exam.attempt');
@@ -345,12 +347,15 @@ Route::middleware(['auth:sanctum', 'active', \App\Http\Middleware\ValidateSessio
 
         Route::get ('settings',                 [SettingsController::class, 'index']);
         Route::put ('settings',                 [SettingsController::class, 'update']);
+        Route::post('settings/test-email',      [SettingsController::class, 'testEmail']);
 
         Route::get ('security/session-policies',    [\App\Http\Controllers\Api\Admin\SessionPolicyController::class, 'show']);
         Route::put ('security/session-policies',    [\App\Http\Controllers\Api\Admin\SessionPolicyController::class, 'update']);
         Route::put ('security/user-override/{id}',  [\App\Http\Controllers\Api\Admin\SessionPolicyController::class, 'updateUserOverride']);
 
         Route::get ('activity-logs',            [ActivityLogController::class, 'index']);
+        Route::get ('activity-logs/stats',      [ActivityLogController::class, 'stats']);
+        Route::get ('logs/stats',               [ActivityLogController::class, 'stats']);
 
         Route::get ('device-sessions',          [DeviceSessionController::class, 'index']);
         Route::delete('device-sessions/{id}',   [DeviceSessionController::class, 'destroy']);

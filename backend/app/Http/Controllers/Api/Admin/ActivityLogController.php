@@ -108,5 +108,27 @@ class ActivityLogController extends ApiController
             ],
         ]);
     }
+
+    public function stats()
+    {
+        $totalEvents = ActivityLog::count();
+        $uniqueUsers = ActivityLog::whereNotNull('user_id')->distinct('user_id')->count('user_id');
+        $failedActions = ActivityLog::where('event', 'like', '%deleted%')
+            ->orWhere('event', 'like', '%failed%')
+            ->count();
+        $successfulActions = max(0, $totalEvents - $failedActions);
+
+        $eventsThisMonth = ActivityLog::where('created_at', '>=', now()->startOfMonth())->count();
+        $usersThisMonth = ActivityLog::where('created_at', '>=', now()->startOfMonth())->whereNotNull('user_id')->distinct('user_id')->count('user_id');
+
+        return $this->success([
+            'total_events'       => $totalEvents,
+            'unique_users'       => $uniqueUsers,
+            'successful_actions' => $successfulActions,
+            'failed_actions'     => $failedActions,
+            'total_events_trend' => '+' . $eventsThisMonth . ' this month',
+            'unique_users_trend' => '+' . $usersThisMonth . ' active this month',
+        ]);
+    }
 }
 

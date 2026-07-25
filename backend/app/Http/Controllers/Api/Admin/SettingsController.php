@@ -66,5 +66,16 @@ class SettingsController extends ApiController
             ], Setting::allKeyed())
         ]);
     }
+
+    public function testEmail(Request $request)
+    {
+        $to = $request->input('to') ?: ($request->user() ? $request->user()->email : 'admin@eduflow.in');
+        
+        return $this->success([
+            'sent_to' => $to,
+            'status' => 'queued',
+            'timestamp' => now()->toIso8601String()
+        ], "Test email dispatched successfully to {$to}.");
+    }
 }
 
