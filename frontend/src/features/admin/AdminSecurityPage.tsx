@@ -49,6 +49,10 @@ interface SecurityResponse {
     suspicious_ips_blocked: number
     password_strength: string
     maintenance_mode: string
+    active_sessions_trend?: string
+    failed_logins_trend?: string
+    security_score_trend?: string
+    two_fa_enabled_trend?: string
   }
   recent_events?: Array<{
     id: number
@@ -92,6 +96,10 @@ export default function AdminSecurityPage() {
     suspicious_ips_blocked: 0,
     password_strength: 'Strong',
     maintenance_mode: 'Off',
+    active_sessions_trend: '+0 new today',
+    failed_logins_trend: '0% vs yesterday',
+    security_score_trend: 'Excellent rating',
+    two_fa_enabled_trend: '+0% vs last week',
   }
 
   const recentEvents = responseData?.recent_events || []
@@ -201,7 +209,7 @@ export default function AdminSecurityPage() {
             <div className="min-w-0 flex-1">
               <p className="text-[10px] text-[rgb(var(--text-muted))] font-medium uppercase tracking-wider whitespace-nowrap">Active Sessions</p>
               <h3 className="text-xl font-extrabold text-[rgb(var(--text-primary))] font-[Outfit] leading-tight">{stats.active_sessions}</h3>
-              <p className="text-[10px] text-indigo-400 font-semibold whitespace-nowrap">+3 new today</p>
+              <p className="text-[10px] text-indigo-400 font-semibold whitespace-nowrap">{stats.active_sessions_trend || '+0 new today'}</p>
             </div>
           </div>
           <div className="w-10 h-5 text-indigo-500/40 flex-shrink-0">
@@ -220,7 +228,7 @@ export default function AdminSecurityPage() {
             <div className="min-w-0 flex-1">
               <p className="text-[10px] text-[rgb(var(--text-muted))] font-medium uppercase tracking-wider whitespace-nowrap">Failed Logins (24h)</p>
               <h3 className="text-xl font-extrabold text-[rgb(var(--text-primary))] font-[Outfit] leading-tight">{stats.failed_logins_24h}</h3>
-              <p className="text-[10px] text-rose-400 font-semibold whitespace-nowrap">-12% vs yesterday</p>
+              <p className="text-[10px] text-rose-400 font-semibold whitespace-nowrap">{stats.failed_logins_trend || '0% vs yesterday'}</p>
             </div>
           </div>
           <div className="w-10 h-5 text-rose-500/40 flex-shrink-0">
@@ -239,7 +247,7 @@ export default function AdminSecurityPage() {
             <div className="min-w-0 flex-1">
               <p className="text-[10px] text-[rgb(var(--text-muted))] font-medium uppercase tracking-wider whitespace-nowrap">Security Score</p>
               <h3 className="text-xl font-extrabold text-[rgb(var(--text-primary))] font-[Outfit] leading-tight">{stats.security_score}/100</h3>
-              <p className="text-[10px] text-slate-500 dark:text-emerald-400 font-semibold whitespace-nowrap">Excellent rating</p>
+              <p className="text-[10px] text-slate-500 dark:text-emerald-400 font-semibold whitespace-nowrap">{stats.security_score_trend || 'Excellent rating'}</p>
             </div>
           </div>
           <div className="w-10 h-5 text-slate-500 dark:text-emerald-500/40 flex-shrink-0">
@@ -258,7 +266,7 @@ export default function AdminSecurityPage() {
             <div className="min-w-0 flex-1">
               <p className="text-[10px] text-[rgb(var(--text-muted))] font-medium uppercase tracking-wider whitespace-nowrap">2FA Enabled Users</p>
               <h3 className="text-xl font-extrabold text-[rgb(var(--text-primary))] font-[Outfit] leading-tight">{stats.two_fa_enabled_pct}%</h3>
-              <p className="text-[10px] text-slate-500 dark:text-blue-400 font-semibold whitespace-nowrap">+8% vs last week</p>
+              <p className="text-[10px] text-slate-500 dark:text-blue-400 font-semibold whitespace-nowrap">{stats.two_fa_enabled_trend || '+0% vs last week'}</p>
             </div>
           </div>
           <div className="w-10 h-5 text-slate-500 dark:text-blue-500/40 flex-shrink-0">

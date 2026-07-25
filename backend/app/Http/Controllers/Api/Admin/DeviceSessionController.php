@@ -60,13 +60,40 @@ class DeviceSessionController extends ApiController
         });
 
         $activeCount = UserSession::active()->count();
-        $failedLogins = ActivityLog::where('event', 'like', '%failed%')->orWhere('event', 'like', '%deleted%')->count();
+        $newSessionsToday = UserSession::whereDate('created_at', today())->count();
+        $activeSessionsTrend = '+' . $newSessionsToday . ' new today';
+
+        $failedLogins = ActivityLog::where(function ($q) {
+            $q->where('event', 'like', '%failed%')->orWhere('event', 'like', '%deleted%');
+        })->where('created_at', '>=', now()->subDays(1))->count();
+
+        $failedLoginsYesterday = ActivityLog::where(function ($q) {
+            $q->where('event', 'like', '%failed%')->orWhere('event', 'like', '%deleted%');
+        })->whereBetween('created_at', [now()->subDays(2), now()->subDays(1)])->count();
+
+        if ($failedLoginsYesterday > 0) {
+            $diffPct = round((($failedLogins - $failedLoginsYesterday) / $failedLoginsYesterday) * 100);
+            $failedLoginsTrend = ($diffPct > 0 ? "+" : "") . $diffPct . "% vs yesterday";
+        } elseif ($failedLogins > 0) {
+            $failedLoginsTrend = "+" . ($failedLogins * 100) . "% vs yesterday";
+        } else {
+            $failedLoginsTrend = "0% vs yesterday";
+        }
+
         $suspiciousIpsBlocked = count(array_filter(explode(',', Setting::get('blocked_ips', ''))));
         
         $totalUsersCount = User::count() ?: 1;
         $activeUsersCount = User::where('active', 1)->count();
         $twoFaPct = min(100, max(0, round(($activeUsersCount / $totalUsersCount) * 100)));
+        
+        $activeUsers7DaysAgo = User::where('active', 1)->where('created_at', '<=', now()->subDays(7))->count();
+        $totalUsers7DaysAgo = User::where('created_at', '<=', now()->subDays(7))->count() ?: 1;
+        $twoFaPct7DaysAgo = min(100, max(0, round(($activeUsers7DaysAgo / $totalUsers7DaysAgo) * 100)));
+        $diffTwoFa = $twoFaPct - $twoFaPct7DaysAgo;
+        $twoFaTrend = ($diffTwoFa >= 0 ? "+" : "") . $diffTwoFa . "% vs last week";
+
         $securityScore = max(70, 100 - min(30, ($failedLogins * 2)));
+        $securityScoreTrend = $securityScore >= 90 ? 'Excellent rating' : ($securityScore >= 75 ? 'Good rating' : 'Needs attention');
 
         $latestLog = ActivityLog::latest()->first();
         $lastSecurityEventTime = $latestLog && $latestLog->created_at ? $latestLog->created_at->diffForHumans() : 'Just now';
@@ -97,9 +124,13 @@ class DeviceSessionController extends ApiController
             'data' => $sessions,
             'stats' => [
                 'active_sessions'        => $activeCount,
+                'active_sessions_trend'  => $activeSessionsTrend,
                 'failed_logins_24h'      => $failedLogins,
+                'failed_logins_trend'    => $failedLoginsTrend,
                 'security_score'         => $securityScore,
+                'security_score_trend'   => $securityScoreTrend,
                 'two_fa_enabled_pct'     => $twoFaPct,
+                'two_fa_enabled_trend'   => $twoFaTrend,
                 'last_security_event'    => $lastSecurityEventTime,
                 'suspicious_ips_blocked' => $suspiciousIpsBlocked,
                 'password_strength'      => 'Strong',
