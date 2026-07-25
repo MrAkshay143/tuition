@@ -478,7 +478,7 @@ npm run dev
 |------|-------|----------|
 | Admin | admin@eduflow.test | Admin@1234! |
 | Teacher | teacher@eduflow.test | Teacher@1234! |
-| Student | student@eduflow.test | Student@1234! |
+| Student | priya@test.com | Student@1234! |
 
 ---
 
