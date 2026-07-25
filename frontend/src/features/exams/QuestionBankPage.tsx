@@ -583,7 +583,10 @@ export default function QuestionBankPage() {
                     <Button size="sm" variant="outline" className="text-[11px] font-semibold py-1 px-2 rounded-xl cursor-pointer" onClick={() => handleOpenEdit(item)}>
                       <Pencil size={12} className="mr-1 text-indigo-400" /> Edit
                     </Button>
-                    <Button size="sm" variant="outline" className="text-[11px] font-semibold py-1 px-2 rounded-xl cursor-pointer" onClick={() => toast.success(`Copied question #${item.id}`)}>
+                    <Button size="sm" variant="outline" className="text-[11px] font-semibold py-1 px-2 rounded-xl cursor-pointer" onClick={() => {
+                      navigator.clipboard.writeText(item.question_text || '')
+                      toast.success(`Copied question #${item.id} to clipboard!`)
+                    }}>
                       <Copy size={12} className="mr-1" /> Copy
                     </Button>
                     <Button size="sm" variant="secondary" className="text-[11px] font-semibold py-1 px-2.5 rounded-xl cursor-pointer" onClick={() => toast.success('Question added to current exam draft')}>
@@ -615,7 +618,10 @@ export default function QuestionBankPage() {
                   <Button size="sm" variant="outline" className="text-[11px] font-semibold py-1 px-2 rounded-xl cursor-pointer" onClick={() => handleOpenEdit(item)}>
                     <Pencil size={12} className="mr-1 text-indigo-400" /> Edit
                   </Button>
-                  <Button size="sm" variant="outline" className="text-[11px] font-semibold py-1 px-2 rounded-xl cursor-pointer hidden sm:inline-flex" onClick={() => toast.success(`Copied question #${item.id}`)}>
+                  <Button size="sm" variant="outline" className="text-[11px] font-semibold py-1 px-2 rounded-xl cursor-pointer hidden sm:inline-flex" onClick={() => {
+                    navigator.clipboard.writeText(item.question_text || '')
+                    toast.success(`Copied question #${item.id} to clipboard!`)
+                  }}>
                     <Copy size={12} className="mr-1" /> Copy
                   </Button>
                   <Button size="sm" variant="secondary" className="text-[11px] font-semibold py-1 px-2.5 rounded-xl cursor-pointer" onClick={() => toast.success('Question added to exam')}>

@@ -71,6 +71,7 @@ export const ChatPage = () => {
   const [showSecurityModal, setShowSecurityModal] = useState(false)
 
   const messagesEndRef = useRef<HTMLDivElement>(null)
+  const fileInputRef = useRef<HTMLInputElement>(null)
   const webrtcManagerRef = useRef<WebRTCManager | null>(null)
   const observerRef = useRef<IntersectionObserver | null>(null)
   const heartbeatRef = useRef<any>(null)
@@ -759,10 +760,24 @@ export const ChatPage = () => {
 
               {/* Message Input Form */}
               <form onSubmit={handleSend} className="flex items-center gap-2 relative">
+                {/* Hidden File Attachment Input */}
+                <input 
+                  type="file" 
+                  ref={fileInputRef} 
+                  className="hidden" 
+                  onChange={(e) => {
+                    const file = e.target.files?.[0]
+                    if (file) {
+                      setMessage((prev) => (prev ? `${prev} [Attachment: ${file.name}]` : `[Attachment: ${file.name}]`))
+                      toast.success(`Attached: ${file.name}`)
+                    }
+                  }} 
+                />
+
                 {/* Plus (+) Action Button */}
                 <button
                   type="button"
-                  onClick={() => toast('Attach document or image', { icon: '➕' })}
+                  onClick={() => fileInputRef.current?.click()}
                   className="w-9 h-9 rounded-full bg-indigo-600/20 text-indigo-400 hover:bg-indigo-600 hover:text-white flex items-center justify-center font-extrabold transition-all cursor-pointer shrink-0"
                   title="Add attachment"
                 >
@@ -790,7 +805,7 @@ export const ChatPage = () => {
                     </button>
                     <button
                       type="button"
-                      onClick={() => toast('Attachments', { icon: '📎' })}
+                      onClick={() => fileInputRef.current?.click()}
                       className="p-1 text-slate-400 hover:text-indigo-400 transition-colors cursor-pointer"
                       title="Attach File"
                     >

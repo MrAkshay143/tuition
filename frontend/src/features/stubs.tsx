@@ -440,7 +440,10 @@ export function StudentProgressPage() {
                         size="sm" 
                         variant="primary"
                         className="font-bold flex items-center gap-1.5 flex-shrink-0"
-                        onClick={() => toast.success(`Certificate Ref: ${comp.certificate_id} - print-ready!`)}
+                        onClick={() => {
+                          toast.success(`Opening Certificate Ref: ${comp.certificate_id}`)
+                          window.print()
+                        }}
                       >
                         <Award size={14} /> Certificate
                       </Button>

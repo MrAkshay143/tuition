@@ -922,7 +922,7 @@ export default function AdminSettingsPage() {
                 <BookOpen size={13} className="text-indigo-400" /> Documentation
               </button>
               <button
-                onClick={() => toast.success('Redirecting to support desk...')}
+                onClick={() => window.open('mailto:support@eduflow.in', '_blank')}
                 className="flex-1 flex items-center justify-center gap-1.5 py-2 px-3 text-xs font-bold rounded-xl bg-[rgb(var(--bg-elevated))] border border-[rgb(var(--border))] text-[rgb(var(--text-primary))] hover:border-indigo-500/40 transition-all cursor-pointer"
               >
                 <Headphones size={13} className="text-slate-500 dark:text-blue-400" /> Contact Support
