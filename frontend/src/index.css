@@ -1193,19 +1193,21 @@ h1, h2, h3, h4, h5, h6 {
     left: 0 !important;
     bottom: 0 !important;
     z-index: 100 !important;
-    width: 260px !important;
-    max-width: 85vw !important;
+    width: 230px !important;
+    max-width: 75vw !important;
     background: rgb(var(--bg-surface)) !important;
     border-right: 1px solid rgba(var(--border), 0.5) !important;
+    box-shadow: 10px 0 30px rgba(0, 0, 0, 0.3) !important;
     transform: translateX(-100%) !important;
     transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
+    overflow-x: hidden !important;
   }
   .sidebar {
     padding-bottom: 80px !important;
   }
   .sidebar-wrapper.collapsed {
-    width: 260px !important;
-    max-width: 85vw !important;
+    width: 230px !important;
+    max-width: 75vw !important;
     transform: translateX(-100%) !important;
   }
   .sidebar-wrapper.mobile-open {
