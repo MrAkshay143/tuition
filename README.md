@@ -1,575 +1,478 @@
-﻿# EduFlow AI — Private Digital Classroom Platform
+# EduFlow — Private Digital Classroom
 
 [![Live](https://img.shields.io/badge/Live-tuition.imakshay.in-6C63FF?style=for-the-badge&logo=vercel)](https://tuition.imakshay.in)
-[![Laravel](https://img.shields.io/badge/Laravel-11-FF2D20?style=for-the-badge&logo=laravel&logoColor=white)](https://laravel.com)
-[![React](https://img.shields.io/badge/React-19-61DAFB?style=for-the-badge&logo=react&logoColor=black)](https://react.dev)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5.x-3178C6?style=for-the-badge&logo=typescript&logoColor=white)](https://typescriptlang.org)
-[![MySQL](https://img.shields.io/badge/MySQL-8.0-4479A1?style=for-the-badge&logo=mysql&logoColor=white)](https://mysql.com)
-[![PWA](https://img.shields.io/badge/PWA-Ready-5A0FC8?style=for-the-badge&logo=pwa&logoColor=white)](https://web.dev/progressive-web-apps/)
+[![PWA](https://img.shields.io/badge/Works_Offline-PWA_Ready-5A0FC8?style=for-the-badge&logo=pwa&logoColor=white)](https://tuition.imakshay.in)
+[![Secure](https://img.shields.io/badge/Security-Enterprise_Grade-22C55E?style=for-the-badge&logo=shield&logoColor=white)](https://tuition.imakshay.in)
 
-> **EduFlow AI** is a full-stack, enterprise-grade private digital classroom and learning management system (LMS). It serves three distinct user roles — **Admin**, **Teacher**, and **Student** — through dedicated portals with real-time communication, advanced security, video streaming, assessment tools, and a complete academic lifecycle.
+> **EduFlow** is a complete private digital classroom platform built for coaching institutes and tuition centers. It gives Admins full control, Teachers powerful teaching tools, and Students a smooth, app-like learning experience — all in one place, accessible on any device.
 
 ---
 
-## Live Application
+## 🌐 Live Platform
 
-| URL | Description |
-|-----|-------------|
-| [tuition.imakshay.in](https://tuition.imakshay.in) | Production frontend (React SPA + PWA) |
-| [tuition.imakshay.in/api_backend/public/api/v1](https://tuition.imakshay.in/api_backend/public/api/v1/health) | Laravel REST API |
-
----
-
-## System Architecture
-
-`mermaid
-flowchart TD
-    subgraph Public["Public Website"]
-        HOME[Home / Courses / Blog / Gallery]
-        AUTH[Login / Google OAuth / Reset Password]
-    end
-    subgraph Admin["Admin Portal /admin/*"]
-        AO[Overview Dashboard] --- AU[User Management]
-        AU --- AR[Roles & Permissions]
-        AR --- AS[Platform Settings]
-        AS --- AAnn[Announcements Blast]
-        AAnn --- ABK[Backup & Restore]
-        ABK --- ALG[Activity Logs]
-        ALG --- ASec[Security Center]
-        ASec --- ASess[Device Sessions]
-        ASess --- ATax[Academic Taxonomy]
-        ATax --- AMedia[Media Library]
-        AMedia --- ACrs[Courses & Builder]
-        ACrs --- AExam[Exams & Questions]
-        AExam --- AAssign[Assignments]
-        AAssign --- ALive[Live Classes]
-    end
-    subgraph Teacher["Teacher Portal /teacher/*"]
-        TD[Dashboard] --- TS[Students]
-        TS --- TB[Batches]
-        TB --- TC[Course Builder]
-        TC --- TM[Content Library]
-        TM --- TLive[Live Classes]
-        TLive --- TA[Assignments]
-        TA --- TE[Exams]
-        TE --- TQB[Question Bank]
-        TQB --- TCert[Certificates]
-        TCert --- TChat[Chat]
-        TChat --- TAnn[Announcements]
-        TAnn --- TCal[Calendar]
-        TCal --- TAnal[Analytics]
-    end
-    subgraph Student["Student Portal /student/*"]
-        SD[Dashboard] --- SC[My Courses]
-        SC --- SV[Lesson Viewer]
-        SV --- SLive[Live Classes]
-        SLive --- SA[Assignments]
-        SA --- SE[Exams]
-        SE --- SP[Progress Tracker]
-        SP --- SChat[Chat]
-        SChat --- SCal[Calendar]
-        SCal --- SCert[Certificates]
-    end
-    subgraph Backend["Laravel 11 API - auth:sanctum"]
-        API[REST API v1] --- RBAC[Spatie RBAC]
-        RBAC --- Session[Session Binding Middleware]
-        Session --- RateLimit[Rate Limiting]
-        RateLimit --- Queue[Jobs & Queues]
-        Queue --- Notif[Notification Engine]
-    end
-    subgraph Data["MySQL 8.0 - Hostinger"]
-        DB[(Database)] --- Storage[(File Storage)]
-    end
-    subgraph External["External Services"]
-        Google[Google OAuth 2.0]
-        Zoom[Zoom API]
-        SMTP[SMTP Mail]
-        FCM[FCM Push Notifications]
-        YouTube[YouTube Embed]
-        Vimeo[Vimeo Embed]
-    end
-    Public --> Backend
-    Admin --> Backend
-    Teacher --> Backend
-    Student --> Backend
-    Backend --> Data
-    Backend --> External
-`
+| Link | What It Does |
+|------|--------------|
+| [tuition.imakshay.in](https://tuition.imakshay.in) | Main student & teacher app |
+| [Admin Panel](https://tuition.imakshay.in/admin) | Full platform control centre |
 
 ---
 
-## User Roles
+## 🗺️ How It All Fits Together
 
-EduFlow AI has **three distinct user roles**, each with a completely separate portal:
+```mermaid
+flowchart LR
+    subgraph Users["Who Uses EduFlow"]
+        A["Admin - Platform Owner"]
+        B["Teacher - Educator"]
+        C["Student - Learner"]
+    end
 
-| Role | Portal | Access Level |
-|------|--------|-------------|
-| **Admin** | /admin/* | Full god-mode — all features, all data |
-| **Teacher** | /teacher/* | Academic operations — students, courses, assessments |
-| **Student** | /student/* | Learning — enrolled courses, exams, assignments |
+    subgraph Portals["Three Separate Portals"]
+        AP["Admin Portal"]
+        TP["Teacher Portal"]
+        SP["Student Portal"]
+    end
+
+    subgraph Core["Core Platform Services"]
+        AUTH["Login and Security"]
+        CONTENT["Courses and Lessons"]
+        ASSESS["Exams and Assignments"]
+        COMM["Chat and Announcements"]
+        LIVE["Live Classes via Zoom"]
+        MEDIA["Video and File Library"]
+        NOTIF["Push Notifications"]
+    end
+
+    subgraph Data["Data and Storage"]
+        DB[("MySQL Database")]
+        FILES[("File Storage")]
+    end
+
+    A --> AP
+    B --> TP
+    C --> SP
+    AP --> Core
+    TP --> Core
+    SP --> Core
+    Core --> Data
+```
 
 ---
 
-## Admin Portal — Complete Feature Reference
+## 👥 Three User Types
 
-The Admin is the platform owner with unrestricted access to all 15+ sub-sections.
+| User | Role | What They Can Do |
+|------|------|-----------------|
+| 🔐 **Admin** | Platform Owner | Manage everything — users, content, settings, security, backups |
+| 👨‍🏫 **Teacher** | Educator | Create courses, take live classes, set exams, manage students |
+| 🎓 **Student** | Learner | Watch lessons, attend live classes, submit assignments, take exams |
 
-### Overview Dashboard (/admin/overview)
-- KPI cards: total users, active students, published courses, revenue, live sessions today
-- Real-time charts: enrollment trends, completion rates, revenue graph
-- System health: API status, database connection, storage usage
-- Recent activity feed: latest logins, registrations, course activity
+---
 
-### User Management (/admin/users)
-- Create, edit, deactivate, and permanently delete users across all roles
-- Toggle active/inactive status per user
-- Force logout any user across all devices simultaneously
+## 🔐 Admin Panel — Everything Under One Roof
+
+The Admin is the platform owner. From the admin panel, everything can be configured and controlled without touching any code.
+
+### 📊 Overview Dashboard
+- See total students, teachers, courses, and live sessions at a glance
+- View charts: new enrollments over time, course completion rates
+- Monitor system health and recent platform activity
+
+### 👤 User Management
+- Add, edit, or remove admin accounts, teachers, and students
+- Enable or disable any account with one click
+- Force-logout a user from all their devices instantly
 - Reset passwords for any account
-- View role assignments, device count, last login timestamp
-- Bulk suspend / activate multiple users
 
-### Roles & Permissions (/admin/roles)
-- Full Spatie RBAC: view all roles with their permission sets
-- Edit permission assignments per role with live checkbox UI
-- Roles: dmin, 	eacher, student
-- Permission gates: dashboard.view, student.view, atch.view, course.view, system.manage, ssignment.submit, xam.attempt, live_class.view
+### 🔑 Roles & Permissions
+- Control exactly what each role (Admin, Teacher, Student) can access
+- Toggle permissions on or off for each role from a simple checklist UI
+- Ensure teachers only see what they need, students only see their content
 
-### Platform Settings (/admin/settings)
-| Tab | Configurable Fields |
-|-----|---------------------|
-| General | Platform name, logo, timezone, default language |
-| Branding | Theme colors, favicon, banner image |
-| Integrations | Google Client ID, Google OAuth URL, API base URL |
-| Mail | SMTP host, port, credentials, sender name & email |
-| Notifications | FCM API key, push notification toggles |
-| Security | Session TTL, max sessions per device, device trust policy |
-| Storage | Upload size limits, media storage path, CDN base URL |
+### ⚙️ Platform Settings
+| Section | What You Can Change |
+|---------|---------------------|
+| General | Platform name, logo, timezone |
+| Branding | Colors, favicon, banner |
+| Integrations | Google Login settings, API endpoints |
+| Email | SMTP mail server configuration |
+| Notifications | Push notification (FCM) settings |
+| Security | Session rules, device limits, auto-logout |
+| Storage | File upload limits, storage paths |
 
-### Announcement Blast (/admin/announcements)
-- Broadcast to: all users, specific roles, specific batches, or individual students
-- Rich text content with priority levels: Normal, Important, Urgent
-- Schedule future delivery
-- Track delivery status and read counts
-- Full CRUD for announcements
+### 📢 Announcement Blast
+- Send announcements to everyone, a specific role, a batch, or individual students
+- Set priority: Normal, Important, or Urgent
+- Schedule announcements in advance
+- See who has read your announcement
 
-### Academic Taxonomy
-Manage the educational hierarchy used across the platform:
-- **Education Types** (/admin/education-types): e.g., School, Undergraduate, Postgraduate — full CRUD + soft delete + restore
-- **Programs** (/admin/programs): Academic programs under education types — full CRUD + soft delete + restore
-- **Subjects** (/admin/subjects): Subjects mapped to programs — full CRUD + soft delete + restore
-- **Academic Sessions** (/admin/sessions): Academic year/term management — full CRUD + soft delete + restore
+### 🎓 Academic Taxonomy
+Manage the full educational structure of your institute:
+- **Education Types** — School, Undergraduate, Postgraduate, etc.
+- **Programs** — Courses of study under each education type
+- **Subjects** — Subjects linked to each program
+- **Academic Sessions** — Academic years and terms
 
-### Batch Management (/admin/batches)
-- Create, edit, archive batches
-- Bulk add/remove students from batches
-- Assign/unassign courses to a batch
-- Per-batch analytics: enrollment count, active students, completion rate
+All of these support create, edit, delete, and restore.
 
-### Courses & Course Builder (/admin/courses)
-- Full course lifecycle: create, edit, publish, archive, duplicate, restore
-- **Drag-and-drop Course Builder** with module/lesson hierarchy
-- Autosave on every change
-- Course versioning: create named snapshots, restore any version
-- Course import/export (JSON)
-- Lock/unlock courses to prevent concurrent edits
-- Per-course activity logs and publish history
-- Lesson dependency enforcement (prerequisite lessons)
+### 🏫 Batch Management
+- Create and manage student groups (batches)
+- Add or remove multiple students from a batch at once
+- Assign courses to a batch so all students get access together
+- See batch-level stats: enrollment count, completion rate
 
-### Media Content Library (/admin/media)
-- Upload videos (MP4 → HLS adaptive streaming), PDF notes, images, documents
-- Embed YouTube and Vimeo videos with metadata
-- Bulk: delete, publish, archive, categorize
-- Recycle bin with file restore
-- Per-file usage tracking across lessons
-- HLS stream URL generation
+### 📚 Courses & Content Builder
+- Create courses with thumbnails, descriptions, and subject tags
+- **Drag-and-drop Course Builder** — build modules and lessons visually
+- Lessons can have: video (self-hosted, YouTube, or Vimeo), PDF notes, free preview toggle
+- Publish, unpublish, archive, or duplicate any course
+- Save version snapshots — restore any older version of a course
 
-### Assignment Management (/admin/assignments)
-- Full CRUD for assignments
-- View all student submissions across the platform
-- Grade with score + written feedback
+### 🎬 Media Library
+- Upload and organise videos, PDFs, images, and documents
+- Embed YouTube and Vimeo videos
+- Bulk delete, publish, archive, or categorise files
+- Recycle bin — restore accidentally deleted files
+- Track which lessons are using each media file
+
+### 📝 Assignments
+- Create assignments with due dates, marks, and target batch or course
+- See all submissions from every student
+- Grade work with a score and written feedback
 - Download submitted files
 
-### Exams & Question Bank (/admin/exams, /admin/question-bank)
-- Create exams: duration, marks, pass mark, attempt limits, question shuffle
-- Global question bank: topics, difficulty (Easy/Medium/Hard), types (MCQ/True-False/Short Answer)
-- Add questions from the bank or create inline
-- View all student attempts with per-question analytics
+### 📋 Exams & Question Bank
+- Create exams with timer, total marks, pass mark, and attempt limits
+- Maintain a global question bank with topics, difficulty levels, and question types
+- Questions can be reused across multiple exams
+- View every student's attempt with a per-question breakdown
 
-### Live Classes (/admin/live-classes)
-- Schedule Zoom-integrated sessions (title, batch, date/time, duration, link)
-- Start and end sessions (status: scheduled → live → ended)
-- Record and view student attendance
-- View all historical sessions
+### 🎥 Live Classes
+- Schedule Zoom-powered live sessions linked to a batch
+- Start and end sessions from the admin panel
+- View who attended each session
 
-### Security Center (/admin/security)
-- Session policy management: max concurrent sessions, idle timeout, forced re-auth interval
-- Per-user session policy override
-- Block suspicious IPs, force global password resets, clear remember-me tokens
+### 🔒 Security Centre
+- Set rules: how many devices a user can be logged in on, idle logout time
+- Override security settings per individual user if needed
+- Block suspicious IP addresses
+- Force a password reset for all users at once
+- Clear "Remember Me" login tokens globally
 
-### Device Sessions (/admin/sessions)
-- View every active session across all users: device, IP, browser, OS, last activity
-- Revoke individual sessions or all sessions for a user
-- Trust/untrust specific devices
+### 📱 Device Sessions
+- See every active login across all users: device type, IP address, browser, last activity time
+- Revoke any session instantly
+- Mark devices as trusted or untrusted
 
-### Activity Logs (/admin/logs)
-- Full immutable audit trail: user, action type, model, old/new values diff, IP, User-Agent, timestamp
-- Filter by user, role, action, IP, date range
-- Export as CSV
+### 📋 Activity Logs
+- Full audit trail of every action on the platform
+- Filter by user, role, action type, date, and IP address
+- Export logs as a CSV file
 
-### Backup & Restore (/admin/backup)
-- On-demand database + media backup
-- Backup history with file size and timestamps
+### 💾 Backup & Restore
+- Create a full database + files backup with one click
+- View backup history with file size and date
 - Restore from any previous backup
 - Download backup archives
-- CSV export: students, batches, assignments, exams, logs
+- Export student, batch, exam, and assignment data as CSV
 
-### Platform Operations (/admin/operations)
-- System details: PHP version, Laravel version, DB connection, queue status
-- Clear: application, config, route, and view caches
-- Health check endpoints: /health/live, /health/ready
+### 🖥️ Platform Operations
+- View server health: PHP version, database status, queue status
+- Clear system caches from the panel (no server access needed)
 
 ---
 
-## Teacher Portal — Complete Feature Reference
+## 👨‍🏫 Teacher Portal — Full Feature Reference
 
-### Dashboard (/teacher/dashboard)
-- Stats: total students, active batches, published courses, pending assignments
+Teachers have a dedicated panel to run their teaching operations end-to-end.
+
+### Dashboard
+- Stats at a glance: total students, active batches, published courses, pending assignment submissions
 - Today's live class schedule
-- Recent student submissions and activity
+- Recent student activity (submissions, exam attempts)
 - Notification bell with unread count
 
-### Students (/teacher/students, /teacher/students/:id)
-- Paginated student list with search and batch/status filters
-- **Student profile** deep-dive: courses, progress, assignment grades, exam results, device sessions, attendance
+### Students
+- Searchable student list with filter by batch and status
+- **Student profile page**: view their courses, lesson progress, assignment grades, exam scores, device sessions, and attendance
 - Add new students, assign/remove from batches and courses
-- Suspend, activate, force-logout, reset passwords, send push notifications
+- Suspend, activate, force-logout, reset passwords
+- Send push notifications to individual students
 
-### Batches (/teacher/batches)
-- Create and manage study batches
-- Batch detail: student roster, assigned courses, bulk sync students
+### Batches
+- Create and manage study groups
+- Batch detail: student list, assigned courses, edit group info
+- Bulk-sync students in or out of a batch
 
-### Courses & Builder (/teacher/courses, /teacher/courses/:id/builder)
-- Create courses with description, subject, program, free/paid toggle
-- Drag-and-drop builder: add/reorder modules and lessons
-- Per-lesson: title, video (upload / YouTube / Vimeo), PDF notes, free preview toggle
-- Autosave, versioning, import/export, lesson prerequisites
+### Courses & Course Builder
+- Create courses with description, subject, and pricing (free or paid)
+- **Drag-and-drop builder**: add modules (chapters) and lessons in any order
+- Each lesson: add video (upload, YouTube, or Vimeo), PDF notes, free preview toggle
+- Autosaves on every change — no work is lost
+- Version history and course import/export
 
-### Content Library (/teacher/media, /teacher/videos, /teacher/notes)
-- Upload and manage all media assets
-- Separate views for Videos and Notes
-- Asset Picker Drawer for reusing assets across lessons
+### Content Library, Videos & Notes
+- Upload and manage all teaching materials in one place
+- Separate organised views for videos and PDF notes
+- Reuse any uploaded file across multiple lessons easily
 
-### Live Classes (/teacher/live-classes)
-- Schedule, start, and end Zoom sessions
+### Live Classes
+- Schedule live sessions (Zoom) linked to a specific batch
+- Start and end sessions with one click
 - View attendance records per session
 
-### Assignments (/teacher/assignments)
-- Create assignments with due dates, marks, target batch/course
-- Grade submissions with feedback and score
+### Assignments
+- Create tasks with due dates, mark allocations, and target batch or course
+- Grade student submissions with a score and feedback
+- Download submitted files
 
-### Exams (/teacher/exams, /teacher/question-bank)
-- Create and configure exams with timing and attempt rules
-- Manage global question bank
-- Review student attempts with full analytics
+### Exams
+- Create and configure exams with timing and rules
+- Manage the shared question bank
+- Review student attempts with detailed analytics
 
-### Certificates (/teacher/certificates)
-- View certificates auto-issued on course completion
+### Certificates
+- View certificates auto-issued when students complete a course
 
-### Announcements (/teacher/announcements)
-- Create targeted announcements; view read receipts
+### Announcements
+- Post announcements targeted to your students
+- See who has read them
 
-### Chat (/teacher/chat)
-- 1-on-1 messaging with students and admins
-- Real-time polling (new messages every 5s, unread count every 15s)
+### Chat
+- 1-on-1 messaging with any student or admin
+- Real-time message updates
+- Unread message badge counts
 
-### Calendar (/teacher/calendar)
-- Monthly/weekly/daily: live classes, assignment due dates, exam schedules
+### Calendar
+- See live classes, assignment due dates, and exam schedules in a calendar view
+- Monthly, weekly, and daily modes
 
-### Analytics (/teacher/analytics)
-- Course completion and drop-off analysis
-- Student engagement scores
-- Exam pass/fail and average score charts
-- Assignment submission rates and grade distributions
+### Analytics
+- Per-course completion and drop-off rates
+- Per-student engagement scores
+- Exam pass/fail ratios and average scores
+- Assignment submission and grade distribution charts
 
-### Settings & Profile (/teacher/settings, /teacher/profile)
-- Profile, password, multi-device session management
-- Theme (light/dark/system), notification preferences
+### Settings & Profile
+- Update profile picture, name, bio, and email
+- Change password and manage active devices
+- Switch theme (Light / Dark / System)
+- Set notification preferences
 
 ---
 
-## Student Portal — Complete Feature Reference
+## 🎓 Student Portal — Full Feature Reference
 
-### Dashboard (/student/dashboard)
-- Resume learning card (last lesson position)
-- Overall progress ring (completion %)
-- Today's live classes
+Students get a clean, app-like experience designed entirely around learning.
+
+### Dashboard
+- Resume where you left off (last lesson with saved position)
+- Overall course completion ring
+- Today's live class schedule
 - Pending assignments and upcoming exams
 - Recent announcements
 
-### My Courses (/student/courses)
-- Enrolled courses with per-course completion percentage
+### My Courses
+- All enrolled courses with per-course progress percentage
 - Filter: In Progress, Completed, Not Started
 
-### Lesson Viewer (/student/courses/:courseId/lessons/:lessonId)
-- Premium video player: HLS (self-hosted), YouTube API, Vimeo API
-- Playback position synced to server in real time
-- Offline-first: progress buffered in IndexedDB, synced on reconnect
-- Mark lesson complete, bookmark lessons
-- Module sidebar with completion indicators
-- Prerequisite enforcement (lesson locked until dependencies met)
+### Lesson Viewer
+- Watch videos: self-hosted (with adaptive streaming), YouTube, or Vimeo — all in one premium player
+- Progress is saved automatically every few seconds — resume exactly where you stopped
+- Works offline: progress is saved on your device and synced when back online
+- Mark lessons as complete
+- Bookmark any lesson for quick access later
+- Module sidebar shows which lessons you've completed
+- Locked lessons unlock automatically after you finish prerequisites
 
-### Live Classes (/student/live-classes)
+### Live Classes
 - View and join Zoom sessions for enrolled batches
-- Attendance auto-recorded on join
+- Attendance is recorded automatically when you join
 
-### Notes (/student/notes)
-- All PDF notes shared across enrolled courses and batches
+### Notes
+- Access all PDFs and study materials shared across your courses and batches
 
-### Assignments (/student/assignments)
-- View tasks with due dates and status
-- Submit with file upload
-- View grades and teacher feedback
+### Assignments
+- View all your tasks with due dates and current status
+- Submit work with file upload
+- See your grade and teacher's feedback once marked
 
-### Exams (/student/exams)
-- View upcoming and completed exams
-- **Exam-taking interface** (/student/exams/:id/take): countdown timer, auto-submit, MCQ/True-False/Short Answer, question flagging, question palette for navigation
-- **Results page** (/student/exams/:id/result): score, pass/fail, per-question breakdown with correct answers
+### Exams
+- View upcoming and past exams
+- **Exam-taking experience**: countdown timer, auto-submits when time's up, flag questions for review, jump to any question quickly
+- **Results page**: your score, pass/fail result, and correct answers for every question
 
-### Progress Tracker (/student/progress)
-- Visual activity timeline, per-course progress bars, continue-learning shortcut
+### Progress Tracker
+- Visual timeline of everything you've completed
+- Per-course progress bars
+- Quick shortcut to continue any course
 
-### Chat (/student/chat)
-- 1-on-1 messaging with teachers and admin
+### Chat
+- Message your teacher or admin directly
+- Real-time updates with unread count badge
 
-### Calendar (/student/calendar)
-- Live class schedule, assignment deadlines, exam dates
+### Calendar
+- View your live class schedule, assignment deadlines, and exam dates
 
-### Certificates (/student/certificates)
-- Download PDF certificates for completed courses
+### Certificates
+- Download your completion certificate (PDF) when you finish a course
 
-### Settings & Profile (/student/settings, /student/profile)
-- Profile, avatar, password change
-- Device session management (view/revoke active sessions)
-- Notification preferences, theme toggle
-
----
-
-## Public Website Pages
-
-| Route | Page |
-|-------|------|
-| / | Home — hero, features, course preview, testimonials |
-| /about | About the institution |
-| /courses | Public course listing with search/filter |
-| /courses/:id | Course detail with free lesson preview |
-| /live-classes | Upcoming live sessions |
-| /study-materials | Public study resources |
-| /results | Student results showcase |
-| /testimonials | Student testimonials |
-| /gallery | Photo gallery |
-| /blog | Blog listing |
-| /blog/:id | Blog detail |
-| /faq | Frequently asked questions |
-| /contact | Contact form |
-| /privacy | Privacy Policy |
-| /terms | Terms of Service |
-| /refund | Refund Policy |
+### Settings & Profile
+- Update your photo, name, and bio
+- Change password
+- See and revoke all your active device sessions
+- Toggle notification preferences
+- Switch between light and dark theme
 
 ---
 
-## Security Architecture
+## 🌍 Public Website
 
-### Authentication
-- **Laravel Sanctum** — token-based authentication for SPA and API
-- **Google OAuth 2.0** — social login (endpoint configurable in Admin Settings)
-- **Password hashing** — Hash::make() (bcrypt, cost factor 12) — no plaintext passwords
-- **Signed reset tokens** — time-limited (60-minute TTL), HMAC-based
+EduFlow also includes a full public-facing website — no login needed.
 
-### Session & Device Security
-- **Session Binding Middleware** — each token is bound to the creating device fingerprint; cross-device token reuse is rejected (HTTP 401)
-- **Device Fingerprinting** — composite hash of User-Agent, Accept-Language, IP, and client UUID stored per session
-- **Multi-device management** — users see all active sessions; can trust/revoke individually or all at once
-- **Session Policies** — configurable: max concurrent sessions, idle TTL, forced re-auth interval
-- **Remember-Me Token Rotation** — tokens rotate on every use (sliding expiry)
-- **Trusted Device Registry** — trusted devices bypass step-up re-authentication
-
-### Authorization (RBAC)
-- **Spatie Laravel Permission** — fine-grained permission gates per API route
-- Admin role bypasses all permission checks automatically
-- Full permission management UI in Admin → Roles page
-
-### Rate Limiting
-- Login: 60 req/min per IP
-- Forgot password: 5 req/min per IP
-
-### Audit & Compliance
-- Immutable activity log for every create/update/delete action
-- Logs include: user, action, model, value diff, IP, User-Agent, timestamp
-- Exportable as CSV from Admin Logs page
-
-### Other Security Measures
-- Eloquent ORM — parameterized queries prevent SQL injection
-- Laravel output escaping — prevents XSS
-- CORS restricted to production frontend domain
-- Security headers: HSTS, X-Frame-Options, X-Content-Type-Options
+| Page | What It Shows |
+|------|---------------|
+| Home | Platform overview, features, and course highlights |
+| About | Institution story and faculty |
+| Courses | Browse all available courses |
+| Course Detail | Course info with free lesson preview |
+| Live Classes | Upcoming public live sessions |
+| Study Materials | Publicly shared resources |
+| Results | Student result showcase |
+| Testimonials | Student reviews |
+| Gallery | Photo gallery |
+| Blog | Articles and updates |
+| FAQ | Common questions answered |
+| Contact | Contact form |
+| Privacy Policy | Data usage policy |
+| Terms of Service | Platform terms |
+| Refund Policy | Refund information |
 
 ---
 
-## Technical Stack
+## 🔒 Security — Built for Trust
 
-### Frontend
-| Technology | Version | Purpose |
-|-----------|---------|---------|
-| React | 19 | Core UI framework |
-| TypeScript | 5.x | Static typing |
-| Vite | 8.x | Build tool with HMR |
-| TanStack Query | 5.x | Server state, caching, background refetch |
-| React Router | 7.x | Client-side routing (3 independent portals) |
-| Framer Motion | 12.x | Animations & page transitions |
-| Zustand | 5.x | Global auth + theme state |
-| React Hook Form + Zod | latest | Forms with schema validation |
-| Recharts | 2.x | Analytics dashboards |
-| Lucide React | latest | Icon library |
-| vite-plugin-pwa | latest | PWA (offline, installable, service worker) |
+Every part of EduFlow is built with security as a first priority.
 
-### Backend
-| Technology | Version | Purpose |
-|-----------|---------|---------|
-| PHP | 8.2+ | Runtime |
-| Laravel | 11 | REST API framework |
-| Laravel Sanctum | 4.x | Token authentication |
-| Spatie Permission | 6.x | RBAC permission system |
-| MySQL | 8.0 | Relational database |
+| Protection | How It Works |
+|-----------|-------------|
+| **Secure Login** | Passwords are always stored encrypted — never in plain text |
+| **Google Login** | Sign in with Google via OAuth 2.0 (configurable from Admin Settings) |
+| **Password Reset** | Secure time-limited reset links sent to email |
+| **Device Binding** | Each login session is tied to the device that created it — sessions can't be shared |
+| **Device Management** | Users can see and revoke all their own active sessions |
+| **Admin Session Control** | Admins can view and kill any session across any user |
+| **Session Policies** | Set idle logout time, max devices per user — per role or per person |
+| **Rate Limiting** | Login attempts are rate-limited to prevent brute-force attacks |
+| **Permission Control** | Every page and API route is gated by role permissions |
+| **Audit Trail** | Every action is logged with user, time, IP, and what changed |
+| **Trusted Devices** | Devices can be marked as trusted to reduce repeated prompts |
 
-### Infrastructure
-| Component | Provider |
-|-----------|---------|
-| Hosting | Hostinger (Shared cPanel) |
-| Database | Hostinger MySQL 8.0 |
-| SSL | Let's Encrypt (auto-renew) |
-| File Storage | Local disk (/storage/app/public) |
+---
+
+## 🛠️ Built With
+
+### What Runs the App
+| Layer | Technology |
+|-------|-----------|
+| **Frontend App** | React 19 + TypeScript — fast, modern, app-like experience |
+| **Mobile-Ready** | PWA (Progressive Web App) — install on any phone or tablet |
+| **Animations** | Smooth transitions using Framer Motion |
+| **Charts** | Interactive data charts via Recharts |
+| **Backend API** | Laravel 11 (PHP) — robust, proven, enterprise-grade framework |
+| **Authentication** | Laravel Sanctum — secure token-based sessions |
+| **Permissions** | Spatie RBAC — fine-grained role and permission control |
+| **Database** | MySQL 8.0 — reliable relational database |
+
+### Hosting & Services
+| Component | Where / What |
+|-----------|-------------|
+| Hosting | Hostinger (cPanel Shared) |
+| Domain | tuition.imakshay.in |
+| SSL Certificate | Let's Encrypt (auto-renews) |
 | Email | SMTP (configurable) |
-| Push Notifications | Firebase Cloud Messaging (FCM) |
+| Push Notifications | Firebase Cloud Messaging |
 | Video Calls | Zoom Meeting API |
-| OAuth | Google OAuth 2.0 |
-| Video Embedding | YouTube + Vimeo Player APIs |
+| Google Login | Google OAuth 2.0 |
+| Video Playback | YouTube + Vimeo embed + Self-hosted HLS streaming |
 
 ---
 
-## Project Structure
+## 📁 Project Structure
 
-`
+```
 Online Tuition/
-├── backend/                          # Laravel 11 API
-│   ├── app/
-│   │   ├── Domains/                  # Domain-Driven Design modules
-│   │   │   ├── AI/                   # AI assistance utilities
-│   │   │   ├── Academic/             # Programs, subjects, taxonomy
-│   │   │   ├── Analytics/            # Reporting & charts
-│   │   │   ├── Assessment/           # Exams, questions, attempts
-│   │   │   ├── CMS/                  # Blogs, achievements
-│   │   │   ├── Certificate/          # Certificate generation
-│   │   │   ├── Chat/                 # 1-on-1 messaging
-│   │   │   ├── Communication/        # Announcements
-│   │   │   ├── Core/                 # Users, auth, sessions
-│   │   │   ├── Course/               # Courses, modules, lessons
-│   │   │   ├── Engagement/           # Bookmarks, activity tracking
-│   │   │   ├── Learning/             # Progress, history, resume
-│   │   │   ├── LiveClass/            # Live sessions + Zoom
-│   │   │   ├── Media/                # Uploads, HLS streaming
-│   │   │   ├── Notification/         # Push & in-app notifications
-│   │   │   ├── Search/               # Global full-text search
-│   │   │   ├── Settings/             # Platform configuration
-│   │   │   ├── Student/              # Student management
-│   │   │   └── Teacher/              # Teacher management
-│   │   ├── Http/Controllers/Api/     # REST controllers
-│   │   ├── Http/Middleware/          # Session binding, active check
-│   │   └── Http/Requests/            # Form request validation
-│   ├── database/
-│   │   ├── migrations/               # All schema migrations
-│   │   └── seeders/                  # DatabaseSeeder + domain seeders
-│   └── routes/api.php                # 100+ API route definitions
+├── backend/              # Laravel 11 API (server-side logic)
+│   ├── app/Domains/      # Feature modules: Auth, Courses, Exams, Chat, etc.
+│   ├── database/         # Database schema migrations and seed data
+│   └── routes/api.php    # All 100+ API routes
 │
-├── frontend/                         # React 19 + TypeScript SPA
-│   ├── src/
-│   │   ├── api/
-│   │   │   ├── bundles/              # Single-call page bundle endpoints
-│   │   │   ├── client.ts             # Axios instance + auth interceptors
-│   │   │   └── resources/            # TanStack Query hooks per domain
-│   │   ├── components/
-│   │   │   ├── layout/               # AppShell, AdminShell, sidebars
-│   │   │   ├── players/              # HLS, YouTube, Vimeo players
-│   │   │   ├── security/             # Device session UI components
-│   │   │   └── ui/                   # Button, Input, Table, Modal, etc.
-│   │   ├── features/
-│   │   │   ├── admin/                # 12 Admin portal pages
-│   │   │   ├── analytics/            # Teacher analytics dashboard
-│   │   │   ├── announcements/        # Announcement creation + feed
-│   │   │   ├── assignments/          # Teacher + student assignment pages
-│   │   │   ├── auth/                 # Login, forgot/reset password
-│   │   │   ├── batches/              # Batch management + detail
-│   │   │   ├── calendar/             # Teacher + student calendars
-│   │   │   ├── certificates/         # Certificate views
-│   │   │   ├── chat/                 # Real-time chat UI
-│   │   │   ├── courses/              # Course builder + student viewer
-│   │   │   ├── dashboard/            # Teacher + student dashboards
-│   │   │   ├── exams/                # Exam builder + taking + results
-│   │   │   ├── live-classes/         # Live class management
-│   │   │   ├── media/                # Content library + asset picker
-│   │   │   ├── notes/                # Student notes viewer
-│   │   │   ├── profile/              # User profile editor
-│   │   │   ├── settings/             # Preferences + security
-│   │   │   └── students/             # Student management + profile
-│   │   ├── lib/
-│   │   │   ├── PlaybackController    # Video playback orchestration
-│   │   │   ├── PlaybackEventBus      # Cross-component events
-│   │   │   ├── ProgressManager       # Lesson progress sync engine
-│   │   │   ├── SyncQueue             # Offline-first queue manager
-│   │   │   └── playbackDB            # IndexedDB for offline progress
-│   │   ├── pages/                    # Public website pages (17 pages)
-│   │   ├── router/index.tsx          # React Router (5 route groups)
-│   │   ├── store/                    # Zustand: auth + theme stores
-│   │   └── types/index.ts            # Shared TypeScript interfaces
-│   └── vite.config.ts
+├── frontend/             # React app (what users see in the browser)
+│   ├── src/features/     # All portal pages (admin, teacher, student)
+│   ├── src/components/   # Reusable UI components
+│   ├── src/pages/        # Public website pages
+│   └── src/router/       # Page routing for all three portals
 │
-├── deploy.py                         # Automated SSH/SFTP deploy script
-├── root.htaccess                     # Apache SPA rewrite rules
+├── deploy.py             # One-command deploy script to Hostinger
+├── root.htaccess         # Web server config for single-page app routing
 └── README.md
-`
+```
 
 ---
 
-## Local Development
+## 🚀 Deployment
+
+All deployments are handled with a single command:
+
+```bash
+python deploy.py
+```
+
+This automatically:
+1. Builds the latest frontend
+2. Packages everything into a zip file
+3. Uploads to Hostinger via SFTP
+4. Extracts files to the correct server location
+5. Runs database migrations and seeders
+6. Optimises the server for performance
+
+### Health Check After Deploy
+
+```bash
+curl https://tuition.imakshay.in/api_backend/public/api/v1/health
+# Returns: {"status":"ok"}
+```
+
+---
+
+## 🧑‍💻 Local Development Setup
 
 ### Prerequisites
 - Node.js 20+, PHP 8.2+, Composer 2+, MySQL 8.0, Python 3.9+
 
 ### Backend
 
-`ash
+```bash
 cd backend
 composer install
 cp .env.example .env
 php artisan key:generate
-# Configure DB_*, GOOGLE_*, MAIL_* in .env
+# Fill in DB_*, GOOGLE_*, MAIL_* in .env
 php artisan migrate --seed
-php artisan storage:link
 php artisan serve
-# API at http://localhost:8000/api/v1
-`
+```
 
 ### Frontend
 
-`ash
+```bash
 cd frontend
 npm install
 cp .env.example .env.local
 # Set VITE_BACKEND_URL=http://localhost:8000/api/v1
 npm run dev
-# App at http://localhost:5173
-`
+```
 
-### Default Seeded Accounts
+### Test Accounts (seeded)
 
 | Role | Email | Password |
 |------|-------|----------|
@@ -579,74 +482,7 @@ npm run dev
 
 ---
 
-## Environment Variables
+## 📄 License
 
-### Backend .env
-
-`nv
-APP_NAME="EduFlow AI"
-APP_URL=https://tuition.imakshay.in
-FRONTEND_URL=https://tuition.imakshay.in
-
-DB_CONNECTION=mysql
-DB_HOST=localhost
-DB_DATABASE=your_database
-DB_USERNAME=your_user
-DB_PASSWORD=your_password
-
-SANCTUM_STATEFUL_DOMAINS=tuition.imakshay.in
-
-GOOGLE_CLIENT_ID=your_google_client_id
-GOOGLE_CLIENT_SECRET=your_google_client_secret
-GOOGLE_REDIRECT_URI=https://tuition.imakshay.in/api_backend/public/api/v1/auth/google/callback
-
-MAIL_MAILER=smtp
-MAIL_HOST=your_smtp_host
-MAIL_PORT=587
-MAIL_USERNAME=your_email
-MAIL_PASSWORD=your_password
-MAIL_FROM_ADDRESS=no-reply@tuition.imakshay.in
-
-FIREBASE_FCM_KEY=your_fcm_key
-ZOOM_API_KEY=your_zoom_key
-ZOOM_API_SECRET=your_zoom_secret
-`
-
-### Frontend .env.local
-
-`nv
-VITE_BACKEND_URL=https://tuition.imakshay.in/api_backend/public/api/v1
-VITE_APP_NAME="EduFlow AI"
-`
-
----
-
-## Deploy to Hostinger
-
-`ash
-python deploy.py
-`
-
-The deploy script:
-1. Builds the frontend (
-pm run build)
-2. Zips backend + frontend dist
-3. Uploads via SFTP to Hostinger
-4. Extracts to public_html
-5. Runs composer install --no-dev
-6. Runs php artisan migrate --force
-7. Runs php artisan db:seed --class=DatabaseSeeder --force
-8. Runs php artisan optimize
-
-### Health Check
-
-`ash
-curl https://tuition.imakshay.in/api_backend/public/api/v1/health
-# {"status":"ok"}
-`
-
----
-
-## License
-
-Private repository — all rights reserved. Copyright 2024–2025 EduFlow AI / Mr. Akshay.
+Private repository — all rights reserved.
+Copyright © 2024–2025 EduFlow / Mr. Akshay.
