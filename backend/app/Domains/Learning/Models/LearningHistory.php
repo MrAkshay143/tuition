@@ -22,6 +22,7 @@ class LearningHistory extends Model
         'playback_speed',
         'device',
         'ip',
+        'created_at',
     ];
 
     protected $casts = [

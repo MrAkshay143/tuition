@@ -160,25 +160,25 @@ export default function AdminOverviewPage() {
       {/* 2. Admin Mode Active Banner Box */}
       <motion.div 
         variants={item} 
-        className="p-3.5 sm:p-4 rounded-xl sm:rounded-2xl border border-amber-500/30 bg-gradient-to-r from-amber-500/10 via-amber-500/5 to-transparent flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-xs"
+        className="p-3 sm:p-4 rounded-xl sm:rounded-2xl border border-amber-500/30 bg-gradient-to-r from-amber-500/10 via-amber-500/5 to-transparent flex items-center justify-between gap-2 shadow-xs"
       >
-        <div className="flex items-center gap-3">
-          <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-amber-500/20 text-amber-500 flex items-center justify-center flex-shrink-0">
-            <ShieldAlert size={18} />
+        <div className="flex items-center gap-2 sm:gap-3">
+          <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-amber-500/20 text-amber-500 flex items-center justify-center flex-shrink-0">
+            <ShieldAlert size={16} className="sm:w-[18px] sm:h-[18px]" />
           </div>
           <div className="min-w-0">
-            <h3 className="text-xs font-extrabold text-[rgb(var(--text-primary))] font-[Outfit]">Admin Mode Active</h3>
-            <p className="text-[11px] text-[rgb(var(--text-muted))]">
-              You have full platform access. Actions here affect all users.
+            <h3 className="text-xs sm:text-sm font-extrabold text-[rgb(var(--text-primary))] font-[Outfit]">Admin Mode Active</h3>
+            <p className="text-[10px] sm:text-[11px] text-[rgb(var(--text-muted))] truncate max-w-[150px] sm:max-w-none">
+              Full system access.
             </p>
           </div>
         </div>
 
         <button
           onClick={() => navigate('/admin/logs')}
-          className="w-full sm:w-auto flex items-center justify-center gap-1.5 px-3.5 py-1.5 rounded-lg sm:rounded-xl bg-[rgb(var(--bg-surface))] border border-[rgb(var(--border))] hover:border-amber-500/40 text-xs font-semibold text-[rgb(var(--text-primary))] transition-all cursor-pointer whitespace-nowrap shrink-0"
+          className="flex items-center justify-center gap-1 px-2.5 py-1.5 sm:px-3.5 sm:py-1.5 rounded-lg sm:rounded-xl bg-[rgb(var(--bg-surface))] border border-[rgb(var(--border))] hover:border-amber-500/40 text-[10px] sm:text-xs font-semibold text-[rgb(var(--text-primary))] transition-all cursor-pointer whitespace-nowrap shrink-0"
         >
-          View Audit Logs <ArrowRight size={13} />
+          View Logs <ArrowRight size={12} />
         </button>
       </motion.div>
 
