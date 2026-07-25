@@ -357,6 +357,7 @@ Route::middleware(['auth:sanctum', 'active', \App\Http\Middleware\ValidateSessio
         Route::delete('device-sessions/all',    [DeviceSessionController::class, 'destroyAll']);
         Route::post('security/clear-remember-me',    [DeviceSessionController::class, 'clearRememberTokens']);
         Route::post('security/force-password-reset', [DeviceSessionController::class, 'forcePasswordReset']);
+        Route::post('security/enforce-password-reset', [DeviceSessionController::class, 'forcePasswordReset']);
         Route::post('security/block-suspicious-ips', [DeviceSessionController::class, 'blockSuspiciousIps']);
 
         Route::post('announcement-blast',       [AnnouncementBlastController::class, 'send']);

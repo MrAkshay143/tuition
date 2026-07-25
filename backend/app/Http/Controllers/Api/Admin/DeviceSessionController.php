@@ -4,7 +4,8 @@ namespace App\Http\Controllers\Api\Admin;
 
 use App\Http\Controllers\ApiController;
 use App\Models\ActivityLog;
-use App\Models\DeviceSession;
+use App\Domains\Core\Models\UserSession;
+use App\Domains\Core\Enums\UserSessionStatus;
 use App\Models\Setting;
 use App\Domains\Core\Models\User;
 use Illuminate\Http\Request;
@@ -13,9 +14,14 @@ class DeviceSessionController extends ApiController
 {
     public function index(Request $request)
     {
-        $currentTokenId = explode('|', request()->bearerToken() ?? '')[0] ?? null;
+        $token = $request->bearerToken();
+        if (!$token && $request->hasHeader('Authorization')) {
+            $token = str_replace('Bearer ', '', $request->header('Authorization'));
+        }
+        $currentHash = $token ? hash('sha256', $token) : null;
+        $currentDeviceId = $request->header('X-Device-ID');
 
-        $query = DeviceSession::with('user:id,name,email,avatar,role');
+        $query = UserSession::with('user:id,name,email,avatar,role');
 
         if ($device = $request->input('device')) {
             $query->where('device_name', 'like', "%{$device}%");
@@ -23,28 +29,24 @@ class DeviceSessionController extends ApiController
 
         if ($status = $request->input('status')) {
             if ($status === 'active') {
-                $query->where('last_active_at', '>=', now()->subHours(2));
+                $query->where('status', UserSessionStatus::ACTIVE->value);
             } elseif ($status === 'inactive') {
-                $query->whereBetween('last_active_at', [now()->subHours(12), now()->subHours(2)]);
+                $query->where('status', '!=', UserSessionStatus::ACTIVE->value);
             }
         }
 
-        $sessions = $query->latest('last_active_at')->get()->map(function ($s) use ($currentTokenId) {
-            $s->is_current = (string)$s->token_id === (string)$currentTokenId;
+        $sessions = $query->latest('last_activity_at')->get()->map(function ($s) use ($currentHash, $currentDeviceId) {
+            $s->is_current = ($currentHash && $s->session_hash === $currentHash) || ($currentDeviceId && $s->device_id === $currentDeviceId);
             
-            // Location map from IP address
-            $location = 'Kolkata, India';
-            if (str_contains($s->ip_address, '103.21')) $location = 'Delhi, India';
-            if (str_contains($s->ip_address, '49.36')) $location = 'Mumbai, India';
-            if (str_contains($s->ip_address, '103.45')) $location = 'Bengaluru, India';
-            if (str_contains($s->ip_address, '152.58')) $location = 'Hyderabad, India';
-            if (str_contains($s->ip_address, '157.50')) $location = 'Pune, India';
-            if (str_contains($s->ip_address, '139.59')) $location = 'Lucknow, India';
-
+            $location = $s->city && $s->country ? "{$s->city}, {$s->country}" : ($s->country ?: 'India');
             $s->location = $location;
             
-            $diffMinutes = $s->last_active_at ? now()->diffInMinutes($s->last_active_at) : 999;
-            if ($diffMinutes <= 120) {
+            $s->last_active_at = $s->last_activity_at ? $s->last_activity_at->diffForHumans() : ($s->created_at ? $s->created_at->diffForHumans() : 'Just now');
+
+            $diffMinutes = $s->last_activity_at ? now()->diffInMinutes($s->last_activity_at) : 999;
+            if ($s->status === UserSessionStatus::REVOKED || $s->status === UserSessionStatus::TERMINATED || $s->status === UserSessionStatus::EXPIRED) {
+                $s->status = 'logged_out';
+            } elseif ($diffMinutes <= 120) {
                 $s->status = 'active';
             } elseif ($diffMinutes <= 720) {
                 $s->status = 'inactive';
@@ -55,10 +57,9 @@ class DeviceSessionController extends ApiController
             return $s;
         });
 
-        // Telemetry Metrics dynamically calculated directly from database tables
-        $activeCount = DeviceSession::count();
+        $activeCount = UserSession::where('status', UserSessionStatus::ACTIVE->value)->count();
         $failedLogins = ActivityLog::where('event', 'like', '%failed%')->orWhere('event', 'like', '%deleted%')->count();
-        $suspiciousIpsBlocked = ActivityLog::where('event', 'like', '%block%')->orWhere('event', 'like', '%ip%')->count();
+        $suspiciousIpsBlocked = count(array_filter(explode(',', Setting::get('blocked_ips', ''))));
         
         $totalUsersCount = User::count() ?: 1;
         $activeUsersCount = User::where('active', 1)->count();
@@ -68,7 +69,6 @@ class DeviceSessionController extends ApiController
         $latestLog = ActivityLog::latest()->first();
         $lastSecurityEventTime = $latestLog && $latestLog->created_at ? $latestLog->created_at->diffForHumans() : 'Just now';
 
-        // Recent Security Events fetched dynamically from database activity_logs
         $recentEvents = ActivityLog::with('user:id,email')
             ->latest()
             ->take(5)
@@ -77,22 +77,16 @@ class DeviceSessionController extends ApiController
                 $type = 'success';
                 if (str_contains($log->event, 'failed') || str_contains($log->event, 'deleted')) {
                     $type = 'danger';
-                } elseif (str_contains($log->event, 'unusual') || str_contains($log->event, 'warning') || str_contains($log->event, 'live')) {
+                } elseif (str_contains($log->event, 'unusual') || str_contains($log->event, 'warning') || str_contains($log->event, 'live') || str_contains($log->event, 'block')) {
                     $type = 'warning';
                 }
-
-                $location = 'Kolkata, India';
-                if (str_contains($log->ip_address, '103.21')) $location = 'Delhi, India';
-                if (str_contains($log->ip_address, '49.36')) $location = 'Mumbai, India';
-                if (str_contains($log->ip_address, '103.45')) $location = 'Bengaluru, India';
-                if (str_contains($log->ip_address, '185.199')) $location = 'Singapore';
 
                 return [
                     'id'    => $log->id,
                     'type'  => $type,
                     'title' => ucfirst(str_replace('_', ' ', $log->event)),
-                    'user'  => $log->user?->email ?? 'admin@eduflow.test',
-                    'meta'  => ($log->ip_address ?? '127.0.0.1') . ' • ' . $location,
+                    'user'  => $log->user?->email ?? 'System',
+                    'meta'  => ($log->ip_address ?? '127.0.0.1') . ' • India',
                     'time'  => $log->created_at ? $log->created_at->diffForHumans() : 'Just now',
                 ];
             });
@@ -107,7 +101,7 @@ class DeviceSessionController extends ApiController
                 'last_security_event'    => $lastSecurityEventTime,
                 'suspicious_ips_blocked' => $suspiciousIpsBlocked,
                 'password_strength'      => 'Strong',
-                'maintenance_mode'       => 'Off',
+                'maintenance_mode'       => Setting::get('maintenance_mode', 'false') === 'true' ? 'On' : 'Off',
             ],
             'recent_events' => $recentEvents,
         ]);
@@ -115,11 +109,12 @@ class DeviceSessionController extends ApiController
 
     public function destroy($id)
     {
-        $session = DeviceSession::find($id);
+        $session = UserSession::find($id);
         if ($session) {
-            if ($session->user) {
-                $session->user->tokens()->where('id', $session->token_id)->delete();
-            }
+            $session->update([
+                'status'     => UserSessionStatus::REVOKED->value,
+                'revoked_at' => now(),
+            ]);
             $session->delete();
         }
 
@@ -128,14 +123,23 @@ class DeviceSessionController extends ApiController
 
     public function destroyAll()
     {
-        $currentTokenId = explode('|', request()->bearerToken() ?? '')[0] ?? null;
+        $token = request()->bearerToken();
+        if (!$token && request()->hasHeader('Authorization')) {
+            $token = str_replace('Bearer ', '', request()->header('Authorization'));
+        }
+        $currentHash = $token ? hash('sha256', $token) : null;
+        $currentDeviceId = request()->header('X-Device-ID');
 
-        DeviceSession::where('token_id', '!=', $currentTokenId)->each(function ($session) {
-            if ($session->user) {
-                $session->user->tokens()->where('id', $session->token_id)->delete();
-            }
-            $session->delete();
-        });
+        UserSession::query()
+            ->when($currentHash, fn($q) => $q->where('session_hash', '!=', $currentHash))
+            ->when($currentDeviceId, fn($q) => $q->where('device_id', '!=', $currentDeviceId))
+            ->each(function ($session) {
+                $session->update([
+                    'status'     => UserSessionStatus::REVOKED->value,
+                    'revoked_at' => now(),
+                ]);
+                $session->delete();
+            });
 
         return $this->success(null, 'All other sessions terminated.');
     }
@@ -150,7 +154,7 @@ class DeviceSessionController extends ApiController
 
     public function forcePasswordReset()
     {
-        ActivityLog::record('password_reset_enforced', 'Admin enforced global password reset policy for non-admin accounts');
+        ActivityLog::record('password_reset_enforced', 'Admin enforced global password reset policy for accounts');
         Setting::set('force_password_reset', 'true');
 
         return $this->success(null, 'Password reset policy enforced across database.');
@@ -158,10 +162,27 @@ class DeviceSessionController extends ApiController
 
     public function blockSuspiciousIps()
     {
-        ActivityLog::record('ip_blocked', 'Blocked 3 suspicious IP addresses (203.0.113.45, 185.199.108.153) from firewall');
-        Setting::set('blocked_ips', '203.0.113.45,185.199.108.153');
+        $suspiciousIps = ActivityLog::where('event', 'like', '%failed%')
+            ->whereNotNull('ip_address')
+            ->distinct()
+            ->pluck('ip_address')
+            ->filter()
+            ->values()
+            ->toArray();
 
-        return $this->success(null, 'Suspicious IP addresses blocked successfully in database firewall.');
+        if (empty($suspiciousIps)) {
+            return $this->success(null, 'No suspicious IP addresses detected in activity logs.');
+        }
+
+        $currentBlocked = array_filter(explode(',', Setting::get('blocked_ips', '')));
+        $newBlocked = array_unique(array_merge($currentBlocked, $suspiciousIps));
+        Setting::set('blocked_ips', implode(',', $newBlocked));
+
+        $count = count($suspiciousIps);
+        $ipList = implode(', ', array_slice($suspiciousIps, 0, 5));
+        ActivityLog::record('ip_blocked', "Blocked {$count} suspicious IP address(es) ({$ipList}) from firewall.");
+
+        return $this->success(null, "Blocked {$count} suspicious IP address(es) successfully.");
     }
 }
 

@@ -84,23 +84,17 @@ export default function AdminSecurityPage() {
     : (responseData?.data ?? [])
 
   const stats = responseData?.stats || {
-    active_sessions: rawSessions.length || 12,
-    failed_logins_24h: 7,
-    security_score: 98,
-    two_fa_enabled_pct: 84,
-    last_security_event: '1h ago',
-    suspicious_ips_blocked: 3,
+    active_sessions: rawSessions.length,
+    failed_logins_24h: 0,
+    security_score: 100,
+    two_fa_enabled_pct: 0,
+    last_security_event: 'Just now',
+    suspicious_ips_blocked: 0,
     password_strength: 'Strong',
     maintenance_mode: 'Off',
   }
 
-  const recentEvents = responseData?.recent_events || [
-    { id: 1, type: 'success', title: 'Successful login', user: 'admin@eduflow.test', meta: '127.0.0.1 • Kolkata, India', time: '1 min ago' },
-    { id: 2, type: 'danger', title: 'Failed login attempt', user: 'unknown@eduflow.test', meta: '203.0.113.45 • Mumbai, India', time: '10 min ago' },
-    { id: 3, type: 'success', title: '2FA verification success', user: 'teacher@eduflow.test', meta: '103.21.244.1 • Delhi, India', time: '32 min ago' },
-    { id: 4, type: 'warning', title: 'Unusual login location', user: 'student@eduflow.test', meta: '185.199.108.153 • Singapore', time: '1h ago' },
-    { id: 5, type: 'success', title: 'Password changed', user: 'pooja@eduflow.test', meta: '49.36.89.12 • Mumbai, India', time: '2h ago' },
-  ]
+  const recentEvents = responseData?.recent_events || []
 
   // Dynamic filter application
   const filteredSessions = rawSessions.filter((s) => {
@@ -150,7 +144,7 @@ export default function AdminSecurityPage() {
 
   const exportCSV = () => {
     const headers = ['Session_ID,User_Name,User_Email,IP_Address,Location,Last_Active,Status']
-    const rows = filteredSessions.map((s) => `"${s.id}","${s.user?.name || 'Platform Admin'}","${s.user?.email || 'admin@eduflow.test'}","${s.ip_address}","${s.location || 'Kolkata, India'}","${s.last_active_at}","${s.status || 'Active'}"`)
+    const rows = filteredSessions.map((s) => `"${s.id}","${s.user?.name || 'System User'}","${s.user?.email || 'N/A'}","${s.ip_address}","${s.location || 'India'}","${s.last_active_at}","${s.status || 'Active'}"`)
     const csvContent = 'data:text/csv;charset=utf-8,' + [headers, ...rows].join('\n')
     const encodedUri = encodeURI(csvContent)
     const link = document.createElement('a')
@@ -358,8 +352,8 @@ export default function AdminSecurityPage() {
                     </div>
                   ) : (
                     paginatedSessions.map((session) => {
-                      const userName = session.user?.name || 'Platform Admin'
-                      const userEmail = session.user?.email || 'admin@eduflow.test'
+                      const userName = session.user?.name || 'System User'
+                      const userEmail = session.user?.email || 'N/A'
                       const status = session.status || 'active'
 
                       return (
@@ -404,7 +398,7 @@ export default function AdminSecurityPage() {
 
                           {/* Location & IP Address */}
                           <div className="flex items-center justify-between text-[11px] text-[rgb(var(--text-secondary))] pt-1">
-                            <span className="truncate">🇮🇳 {session.location || 'Kolkata, India'}</span>
+                            <span className="truncate">🇮🇳 {session.location || 'India'}</span>
                             <span className="font-mono text-[10px] text-indigo-400 font-bold bg-indigo-500/10 px-1.5 py-0.5 rounded border border-indigo-500/20 shrink-0">
                               {session.ip_address || '127.0.0.1'}
                             </span>
@@ -459,8 +453,8 @@ export default function AdminSecurityPage() {
                       {
                         header: 'DEVICE / USER',
                         accessor: (session: UserSession) => {
-                          const userName = session.user?.name || 'Platform Admin'
-                          const userEmail = session.user?.email || 'admin@eduflow.test'
+                          const userName = session.user?.name || 'System User'
+                          const userEmail = session.user?.email || 'N/A'
                           return (
                             <div className="flex items-center gap-3">
                               <div className="w-8 h-8 rounded-xl bg-[rgb(var(--bg-elevated))] border border-[rgb(var(--border))] flex items-center justify-center flex-shrink-0">
@@ -492,7 +486,7 @@ export default function AdminSecurityPage() {
                       {
                         header: 'LOCATION',
                         accessor: (session: UserSession) => {
-                          const locationStr = session.location || 'Kolkata, India'
+                          const locationStr = session.location || 'India'
                           const browserDev = (session.user_agent || session.device_name || 'Chrome • Windows')
                           return (
                             <div className="flex items-center gap-1.5">
@@ -785,9 +779,9 @@ export default function AdminSecurityPage() {
         {selectedSession && (
           <div className="space-y-3 text-xs">
             <div className="p-3 bg-[rgb(var(--bg-elevated))] rounded-xl border border-[rgb(var(--border))] space-y-2">
-              <p><strong className="text-[rgb(var(--text-muted))]">User:</strong> {selectedSession.user?.name || 'Platform Admin'} ({selectedSession.user?.email || 'admin@eduflow.test'})</p>
+              <p><strong className="text-[rgb(var(--text-muted))]">User:</strong> {selectedSession.user?.name || 'System User'} ({selectedSession.user?.email || 'N/A'})</p>
               <p><strong className="text-[rgb(var(--text-muted))]">IP Address:</strong> <span className="font-mono font-bold text-indigo-400">{selectedSession.ip_address}</span></p>
-              <p><strong className="text-[rgb(var(--text-muted))]">Location:</strong> {selectedSession.location || 'Kolkata, India'}</p>
+              <p><strong className="text-[rgb(var(--text-muted))]">Location:</strong> {selectedSession.location || 'India'}</p>
               <p><strong className="text-[rgb(var(--text-muted))]">User Agent:</strong> <span className="font-mono text-[10px] text-[rgb(var(--text-muted))]">{selectedSession.user_agent || 'Mozilla/5.0'}</span></p>
               <p><strong className="text-[rgb(var(--text-muted))]">Last Active:</strong> {selectedSession.last_active_at ? timeAgo(selectedSession.last_active_at) : 'Just now'}</p>
             </div>
