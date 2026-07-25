@@ -214,7 +214,7 @@ export default function CourseBuilderPage() {
   const videoLessons = allLessons.filter(l => l.type === 'video')
   const freePreviewLessons = allLessons.filter(l => l.is_free_preview)
   const totalDurationSeconds = allLessons.reduce((acc, l) => acc + (l.duration_seconds || 0), 0)
-  const totalDurationHours = Math.round(totalDurationSeconds / 3600) || 42
+  const totalDurationHours = Math.round(totalDurationSeconds / 3600)
 
   const selectedLesson = allLessons.find(l => l.id === selectedLessonId)
 

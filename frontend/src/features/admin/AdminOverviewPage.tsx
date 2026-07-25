@@ -104,10 +104,7 @@ export default function AdminOverviewPage() {
   // Dynamically calculated stats based on selected time range
   const stats = {
     total_users: rawStats.total_users,
-    active_students: timeRange === '7_days' ? Math.round((rawStats.active_students || 0) * 0.7) :
-                     timeRange === '90_days' ? Math.round((rawStats.active_students || 0) * 1.3) :
-                     timeRange === 'all_time' ? Math.round((rawStats.active_students || 0) * 1.8) :
-                     (rawStats.active_students || 0),
+    active_students: rawStats.active_students || 0,
     total_courses: rawStats.total_courses,
     storage_used_bytes: rawStats.storage_used_bytes,
     teacher: rawStats.teacher,

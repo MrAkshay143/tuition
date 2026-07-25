@@ -36,9 +36,9 @@ export const ExamsPage = () => {
 
   const list = exams?.data || exams || []
 
-  const activeCount = useMemo(() => list.filter((e: any) => e.is_active || e.status === 'published').length || 3, [list])
-  const upcomingCount = useMemo(() => list.filter((e: any) => e.starts_at && new Date(e.starts_at) > new Date()).length || 2, [list])
-  const completedCount = useMemo(() => list.filter((e: any) => e.ends_at && new Date(e.ends_at) < new Date()).length || 1, [list])
+  const activeCount = useMemo(() => list.filter((e: any) => e.is_active || e.status === 'published').length, [list])
+  const upcomingCount = useMemo(() => list.filter((e: any) => e.starts_at && new Date(e.starts_at) > new Date()).length, [list])
+  const completedCount = useMemo(() => list.filter((e: any) => e.ends_at && new Date(e.ends_at) < new Date()).length, [list])
 
   const filtered = useMemo(() => list.filter((e: any) => {
     const matchSearch = e.title.toLowerCase().includes(search.toLowerCase())

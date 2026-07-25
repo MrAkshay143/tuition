@@ -112,11 +112,13 @@ export default function AdminUsersPage() {
   })
 
   // Dynamic KPI counts computed from real database dataset
-  const totalUsers = meta.total || rawUsers.length
-  const studentsCount = rawUsers.filter((u) => u.role === 'student').length || Math.round(totalUsers * 0.7)
-  const teachersCount = rawUsers.filter((u) => u.role === 'teacher').length || Math.round(totalUsers * 0.25)
-  const adminsCount = rawUsers.filter((u) => u.role === 'admin').length || 1
-  const activeUsersCount = rawUsers.filter((u) => u.active !== false).length || totalUsers
+  const backendStats = (responseData as any)?.stats
+  const totalUsers = backendStats?.total_users ?? meta.total ?? rawUsers.length
+  const studentsCount = backendStats?.students_count ?? rawUsers.filter((u) => u.role === 'student').length
+  const teachersCount = backendStats?.teachers_count ?? rawUsers.filter((u) => u.role === 'teacher').length
+  const adminsCount = backendStats?.admins_count ?? rawUsers.filter((u) => u.role === 'admin').length
+  const activeUsersCount = backendStats?.active_users ?? rawUsers.filter((u) => u.active !== false).length
+  const usersTrend = backendStats?.users_trend ?? '+0 in last 30 days'
 
   const activePct = Math.round((activeUsersCount / (totalUsers || 1)) * 100)
   const studentPct = Math.round((studentsCount / (totalUsers || 1)) * 100)
@@ -200,10 +202,10 @@ export default function AdminUsersPage() {
           </div>
           <div>
             <h3 className="text-lg sm:text-xl font-extrabold text-[rgb(var(--text-primary))] font-[Outfit] leading-none">{totalUsers}</h3>
-            <p className="text-[10px] text-emerald-400 font-semibold mt-1">↑ 12.5% vs last 30 days</p>
+            <p className="text-[10px] text-emerald-400 font-semibold mt-1">{usersTrend}</p>
           </div>
           <div className="w-full bg-[rgb(var(--bg-elevated))] h-1 rounded-full overflow-hidden mt-2">
-            <div className="bg-purple-500 h-full w-[85%] rounded-full"></div>
+            <div className="bg-purple-500 h-full rounded-full transition-all duration-500" style={{ width: '100%' }}></div>
           </div>
         </Card>
 
@@ -220,7 +222,7 @@ export default function AdminUsersPage() {
             <p className="text-[10px] text-emerald-400 font-semibold mt-1">{activePct}% of total users</p>
           </div>
           <div className="w-full bg-[rgb(var(--bg-elevated))] h-1 rounded-full overflow-hidden mt-2">
-            <div className="bg-emerald-500 h-full w-[90%] rounded-full"></div>
+            <div className="bg-emerald-500 h-full rounded-full transition-all duration-500" style={{ width: `${activePct}%` }}></div>
           </div>
         </Card>
 
@@ -237,7 +239,7 @@ export default function AdminUsersPage() {
             <p className="text-[10px] text-amber-400 font-semibold mt-1">{studentPct}% of total users</p>
           </div>
           <div className="w-full bg-[rgb(var(--bg-elevated))] h-1 rounded-full overflow-hidden mt-2">
-            <div className="bg-amber-500 h-full w-[70%] rounded-full"></div>
+            <div className="bg-amber-500 h-full rounded-full transition-all duration-500" style={{ width: `${studentPct}%` }}></div>
           </div>
         </Card>
 
@@ -254,7 +256,7 @@ export default function AdminUsersPage() {
             <p className="text-[10px] text-cyan-400 font-semibold mt-1">{teacherPct}% of total users</p>
           </div>
           <div className="w-full bg-[rgb(var(--bg-elevated))] h-1 rounded-full overflow-hidden mt-2">
-            <div className="bg-cyan-500 h-full w-[25%] rounded-full"></div>
+            <div className="bg-cyan-500 h-full rounded-full transition-all duration-500" style={{ width: `${teacherPct}%` }}></div>
           </div>
         </Card>
       </div>

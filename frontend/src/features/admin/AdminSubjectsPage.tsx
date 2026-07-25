@@ -139,13 +139,13 @@ export default function AdminSubjectsPage() {
   const activeCount = useMemo(() => subjects.filter(s => s.is_active).length, [subjects])
 
   const totalCourses = useMemo(() => {
-    if (!Array.isArray(coursesData)) return 24
-    return coursesData.length || 24
+    if (!Array.isArray(coursesData)) return 0
+    return coursesData.length
   }, [coursesData])
 
   const totalStudents = useMemo(() => {
-    if (!Array.isArray(usersData)) return 14
-    return usersData.filter((u: any) => u.role === 'student').length || 14
+    if (!Array.isArray(usersData)) return 0
+    return usersData.filter((u: any) => u.role === 'student' || u.role_name === 'Student').length
   }, [usersData])
 
   const filteredSubjects = useMemo(() => {

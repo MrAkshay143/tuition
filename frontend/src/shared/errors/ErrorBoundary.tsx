@@ -1,6 +1,6 @@
 import React, { Component, ErrorInfo, ReactNode } from 'react'
 import { useRouteError, isRouteErrorResponse, useNavigate } from 'react-router-dom'
-import { AlertTriangle, RefreshCw, Home } from 'lucide-react'
+import { AlertTriangle, RefreshCw, Home, Sparkles } from 'lucide-react'
 import { Button } from '@/components/ui'
 
 interface Props {
@@ -11,6 +11,87 @@ interface Props {
 interface State {
   hasError: boolean
   error: Error | null
+}
+
+function checkIsChunkLoadError(err: any): boolean {
+  if (!err) return false
+  const msg = typeof err === 'string' ? err : err.message || ''
+  const stack = err.stack || ''
+  const str = typeof err.toString === 'function' ? err.toString() : ''
+  
+  const lower = `${msg} ${stack} ${str}`.toLowerCase()
+  return (
+    lower.includes('dynamically imported module') ||
+    lower.includes('failed to fetch') ||
+    lower.includes('importing a module script failed') ||
+    lower.includes('chunkloaderror') ||
+    lower.includes('loading chunk')
+  )
+}
+
+function UpdateOrErrorCard({ 
+  isChunkLoadError, 
+  errorMessage, 
+  onReload, 
+  onHome 
+}: { 
+  isChunkLoadError: boolean
+  errorMessage?: string
+  onReload: () => void
+  onHome?: () => void
+}) {
+  return (
+    <div className="min-h-[50vh] flex items-center justify-center p-4 sm:p-6 text-left animate-in fade-in duration-300">
+      <div className="w-full max-w-sm p-6 sm:p-7 rounded-2xl border border-slate-200/80 dark:border-[#1b1c3d] bg-white/95 dark:bg-[#0c0d24]/95 backdrop-blur-md shadow-2xl text-center space-y-5 transition-all">
+        {/* Sleek Icon Header */}
+        <div className={`w-12 h-12 sm:w-14 sm:h-14 rounded-2xl border flex items-center justify-center mx-auto transition-transform hover:scale-105 duration-300 ${
+          isChunkLoadError 
+            ? 'bg-gradient-to-br from-indigo-500/10 to-emerald-500/10 border-indigo-500/30 text-indigo-500 dark:text-indigo-400 shadow-sm shadow-indigo-500/10' 
+            : 'bg-gradient-to-br from-red-500/10 to-orange-500/10 border-red-500/30 text-red-500 dark:text-red-400 shadow-sm shadow-red-500/10'
+        }`}>
+          {isChunkLoadError ? (
+            <Sparkles size={26} className="animate-pulse" />
+          ) : (
+            <AlertTriangle size={26} />
+          )}
+        </div>
+        
+        {/* Compact Typography */}
+        <div className="space-y-1.5">
+          <h2 className="text-lg sm:text-xl font-extrabold text-slate-900 dark:text-white font-[Outfit] tracking-tight">
+            {isChunkLoadError ? 'Update available' : 'Application error'}
+          </h2>
+          <p className="text-xs text-slate-600 dark:text-[#8e91b5] leading-relaxed max-w-[260px] mx-auto">
+            {isChunkLoadError 
+              ? 'A new version is available. Reload to update.'
+              : (errorMessage || 'An unexpected rendering error occurred.')
+            }
+          </p>
+        </div>
+
+        {/* Responsive Action Buttons */}
+        <div className="flex flex-col sm:flex-row gap-2.5 justify-center pt-2">
+          <Button 
+            variant="primary" 
+            className="w-full sm:w-auto flex-1 justify-center gap-2 text-xs font-bold py-2.5 px-4 rounded-xl shadow-md transition-all active:scale-95 hover:shadow-lg hover:shadow-indigo-500/20" 
+            onClick={onReload}
+          >
+            <RefreshCw size={14} className={isChunkLoadError ? 'animate-spin' : ''} /> 
+            {isChunkLoadError ? 'Reload to update' : 'Reload page'}
+          </Button>
+          {onHome && (
+            <Button 
+              variant="secondary" 
+              className="w-full sm:w-auto flex-1 justify-center gap-2 text-xs font-bold py-2.5 px-4 rounded-xl transition-all active:scale-95 border-slate-200 dark:border-[#2a2b50] hover:bg-slate-100 dark:hover:bg-[#151636]" 
+              onClick={onHome}
+            >
+              <Home size={14} /> Go Home
+            </Button>
+          )}
+        </div>
+      </div>
+    </div>
+  )
 }
 
 export class ErrorBoundary extends Component<Props, State> {
@@ -33,21 +114,21 @@ export class ErrorBoundary extends Component<Props, State> {
         return this.props.fallback
       }
 
+      const isChunk = checkIsChunkLoadError(this.state.error)
+
       return (
-        <div className="p-8 my-12 mx-auto max-w-xl text-slate-500 dark:text-slate-400 text-center glass border border-red-500/30 rounded-2xl bg-red-500/5 space-y-4">
-          <h2 className="text-xl font-bold text-red-600 dark:text-red-400 font-[Outfit]">
-            Something went wrong
-          </h2>
-          <p className="text-xs text-[rgb(var(--text-secondary))] leading-relaxed">
-            {this.state.error?.message || 'An unexpected rendering error occurred.'}
-          </p>
-          <button
-            onClick={() => this.setState({ hasError: false, error: null })}
-            className="px-4 py-2 text-xs font-bold text-white bg-[rgb(var(--primary))] hover:opacity-90 rounded-lg shadow transition-opacity"
-          >
-            Try Again
-          </button>
-        </div>
+        <UpdateOrErrorCard
+          isChunkLoadError={isChunk}
+          errorMessage={this.state.error?.message}
+          onReload={() => {
+            this.setState({ hasError: false, error: null })
+            window.location.reload()
+          }}
+          onHome={() => {
+            this.setState({ hasError: false, error: null })
+            window.location.href = '/'
+          }}
+        />
       )
     }
 
@@ -68,12 +149,7 @@ export function RouteErrorBoundary() {
           ? error
           : 'An unexpected application error occurred.'
 
-  const isChunkLoadError = 
-    error?.message?.toLowerCase().includes('dynamically imported module') ||
-    error?.message?.toLowerCase().includes('failed to fetch') ||
-    error?.message?.toLowerCase().includes('importing a module script failed') ||
-    error?.stack?.toLowerCase().includes('dynamically imported module') ||
-    (error && typeof error.toString === 'function' && error.toString().toLowerCase().includes('dynamically imported module'))
+  const isChunkLoadError = checkIsChunkLoadError(error)
 
   React.useEffect(() => {
     if (isChunkLoadError) {
@@ -87,41 +163,11 @@ export function RouteErrorBoundary() {
   }, [isChunkLoadError])
 
   return (
-    <div className="min-h-[60vh] flex items-center justify-center p-6 text-left">
-      <div className="w-full max-w-md p-8 rounded-2xl border border-slate-200 dark:border-[#1b1c3d] bg-white dark:bg-[#0c0d24] shadow-2xl text-slate-500 dark:text-slate-400 text-center space-y-6">
-        <div className="w-14 h-14 rounded-2xl bg-indigo-500/10 border border-indigo-500/30 flex items-center justify-center mx-auto text-indigo-400">
-          <AlertTriangle size={28} />
-        </div>
-        
-        <div className="space-y-2">
-          <h2 className="text-xl font-extrabold text-white font-[Outfit]">
-            {isChunkLoadError ? 'Update Available' : 'Application Error'}
-          </h2>
-          <p className="text-xs text-slate-500 dark:text-[#8e91b5] leading-relaxed max-w-sm mx-auto">
-            {isChunkLoadError 
-              ? 'A new version of the application was deployed. Reloading latest version...'
-              : errorMessage
-            }
-          </p>
-        </div>
-
-        <div className="flex flex-col sm:flex-row gap-3 justify-center pt-2">
-          <Button 
-            variant="primary" 
-            className="gap-2 text-xs font-bold" 
-            onClick={() => window.location.reload()}
-          >
-            <RefreshCw size={14} /> Reload Page
-          </Button>
-          <Button 
-            variant="secondary" 
-            className="gap-2 text-xs font-bold" 
-            onClick={() => navigate('/')}
-          >
-            <Home size={14} /> Go Home
-          </Button>
-        </div>
-      </div>
-    </div>
+    <UpdateOrErrorCard
+      isChunkLoadError={isChunkLoadError}
+      errorMessage={errorMessage}
+      onReload={() => window.location.reload()}
+      onHome={() => navigate('/')}
+    />
   )
 }

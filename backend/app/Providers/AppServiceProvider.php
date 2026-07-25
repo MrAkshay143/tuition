@@ -64,7 +64,7 @@ class AppServiceProvider extends ServiceProvider
         );
 
         RateLimiter::for('auth-login', function (Request $request) {
-            return Limit::perMinute(60)->by($request->ip());
+            return Limit::perMinute(5)->by($request->ip());
         });
 
         RateLimiter::for('auth-forgot-password', function (Request $request) {

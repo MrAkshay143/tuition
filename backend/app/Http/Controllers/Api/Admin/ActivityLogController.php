@@ -48,11 +48,16 @@ class ActivityLogController extends ApiController
 
         // Aggregated telemetry statistics
         $totalEvents = ActivityLog::count();
-        $uniqueUsers = ActivityLog::whereNotNull('user_id')->distinct('user_id')->count('user_id') ?: 18;
+        $uniqueUsers = ActivityLog::whereNotNull('user_id')->distinct('user_id')->count('user_id');
         $failedActions = ActivityLog::where('event', 'like', '%deleted%')
             ->orWhere('event', 'like', '%failed%')
             ->count();
         $successfulActions = max(0, $totalEvents - $failedActions);
+
+        $eventsThisMonth = ActivityLog::where('created_at', '>=', now()->startOfMonth())->count();
+        $usersThisMonth = ActivityLog::where('created_at', '>=', now()->startOfMonth())->whereNotNull('user_id')->distinct('user_id')->count('user_id');
+        $totalEventsTrend = '+' . $eventsThisMonth . ' this month';
+        $uniqueUsersTrend = '+' . $usersThisMonth . ' active this month';
 
         // Top users by activity count
         $topUsers = ActivityLog::select('user_id', DB::raw('count(*) as count'))
@@ -93,7 +98,9 @@ class ActivityLogController extends ApiController
             ],
             'stats' => [
                 'total_events'       => $totalEvents,
+                'total_events_trend' => $totalEventsTrend,
                 'unique_users'       => $uniqueUsers,
+                'unique_users_trend' => $uniqueUsersTrend,
                 'successful_actions' => $successfulActions,
                 'failed_actions'     => $failedActions,
                 'top_users'          => $topUsers,

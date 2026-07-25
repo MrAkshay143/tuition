@@ -42,13 +42,13 @@ export const AssignmentsPage = () => {
   
   const activeCount = useMemo(() => list.filter((a: any) => {
     return !a.due_at || new Date(a.due_at) > new Date()
-  }).length || 9, [list])
+  }).length, [list])
 
   const overdueCount = useMemo(() => list.filter((a: any) => {
     return a.due_at && new Date(a.due_at) < new Date()
-  }).length || 2, [list])
+  }).length, [list])
 
-  const totalSubmissions = useMemo(() => list.reduce((acc: number, item: any) => acc + (item.submissions_count || 0), 0) || 24, [list])
+  const totalSubmissions = useMemo(() => list.reduce((acc: number, item: any) => acc + (item.submissions_count || 0), 0), [list])
 
   const filtered = useMemo(() => list.filter((a: any) => {
     const matchSearch = a.title.toLowerCase().includes(search.toLowerCase())

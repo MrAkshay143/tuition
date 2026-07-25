@@ -15,7 +15,20 @@ class AcademicSessionController extends ApiController
             ->withTrashed()
             ->latest()
             ->get();
-        return $this->success($sessions, 'Academic sessions retrieved.');
+        
+        $stats = [
+            'total_sessions' => $sessions->count(),
+            'current_session'=> $sessions->where('is_current', true)->first()?->name ?? 'None',
+            'total_programs' => \App\Domains\Academic\Models\Program::count(),
+            'total_students' => \App\Domains\Core\Models\User::students()->active()->count(),
+        ];
+
+        return response()->json([
+            'status'  => 'success',
+            'message' => 'Academic sessions retrieved.',
+            'data'    => $sessions,
+            'stats'   => $stats,
+        ]);
     }
 
     public function store(Request $request): JsonResponse

@@ -30,7 +30,7 @@ export const TeacherAnnouncementsPage = () => {
 
   if (isLoading) return <div className="flex justify-center p-12"><Spinner /></div>
 
-  const announcements = announcementsData || []
+  const announcements: any[] = Array.isArray(announcementsData) ? announcementsData : (announcementsData?.data || [])
 
   const totalCount = announcements.length
   const broadcastAllCount = announcements.filter((a: any) => a.is_all).length

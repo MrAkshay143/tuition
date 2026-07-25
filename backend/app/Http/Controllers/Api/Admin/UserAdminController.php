@@ -15,6 +15,14 @@ class UserAdminController extends \App\Http\Controllers\ApiController
         \App\Domains\Core\Actions\Admin\GetAdminUsersAction $action
     ) {
         $users = $action->execute($request->all());
+        $totalUsers = User::count();
+        $activeUsers = User::active()->count();
+        $studentsCount = User::students()->count();
+        $teachersCount = User::teachers()->count();
+        $adminsCount = User::where('role', 'admin')->count();
+        $newLast30Days = User::where('created_at', '>=', now()->subDays(30))->count();
+        $usersTrend = '+' . $newLast30Days . ' in last 30 days';
+
         return response()->json([
             'data' => $users->items(),
             'meta' => [
@@ -22,6 +30,14 @@ class UserAdminController extends \App\Http\Controllers\ApiController
                 'current_page' => $users->currentPage(),
                 'last_page' => $users->lastPage(),
                 'per_page' => $users->perPage(),
+            ],
+            'stats' => [
+                'total_users'    => $totalUsers,
+                'active_users'   => $activeUsers,
+                'students_count' => $studentsCount,
+                'teachers_count' => $teachersCount,
+                'admins_count'   => $adminsCount,
+                'users_trend'    => $usersTrend,
             ],
         ]);
     }

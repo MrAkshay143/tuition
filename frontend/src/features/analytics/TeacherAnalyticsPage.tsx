@@ -31,12 +31,12 @@ export const TeacherAnalyticsPage = () => {
   }, [stats])
 
   const avgAssignmentScore = useMemo(() => {
-    return Number(stats.avg_assignment_score) || (totalCompletedLessons > 0 ? 88 : 0)
-  }, [stats, totalCompletedLessons])
+    return Number(stats.avg_assignment_score) || 0
+  }, [stats])
 
   const completedReviews = useMemo(() => {
-    return Number(stats.pending_assignments) ? Number(stats.pending_assignments) * 2 : totalCompletedLessons
-  }, [stats, totalCompletedLessons])
+    return Number(stats.completed_reviews) || Number(stats.pending_assignments) || 0
+  }, [stats])
 
   const attendanceRate = useMemo(() => {
     return totalActiveStudents > 0 ? Math.min(100, Math.round((totalActiveStudents / Math.max(1, Number(stats.total_students) || totalActiveStudents)) * 100)) : 0
@@ -61,24 +61,13 @@ export const TeacherAnalyticsPage = () => {
         email: t.email,
         avatar: t.avatar,
         specialization: t.specialization || 'Senior Educator',
-        courses_count: totalCourses > 0 ? Math.ceil(totalCourses / teachers.length) : 3,
+        courses_count: totalCourses > 0 ? Math.ceil(totalCourses / teachers.length) : 0,
         attendance: `${attendanceRate}%`,
         turnaround: '2.8 hrs',
       }))
     }
-    return [
-      {
-        id: 1,
-        name: stats.teacher?.name || 'Arjun Kumar',
-        email: stats.teacher?.email || 'teacher@eduflow.test',
-        avatar: '',
-        specialization: 'Physics & Mathematics',
-        courses_count: totalCourses || 4,
-        attendance: `${attendanceRate}%`,
-        turnaround: '2.5 hrs',
-      }
-    ]
-  }, [usersData, stats, totalCourses, attendanceRate])
+    return []
+  }, [usersData, totalCourses, attendanceRate])
 
   const { data: studentsData } = useApiQuery(
     ['admin-analytics-students'],
@@ -89,8 +78,8 @@ export const TeacherAnalyticsPage = () => {
     const rawStudents = Array.isArray(studentsData) ? studentsData : studentsData?.data || []
     if (rawStudents.length > 0) {
       return rawStudents.map((s: any, idx: number) => {
-        const completed = s.lessons_completed || Math.max(5, (10 - idx) * 3)
-        const quizScore = Math.min(99, Math.max(70, 96 - idx * 2))
+        const completed = s.lessons_completed || 0
+        const quizScore = s.quiz_score || 0
         return {
           id: s.id || idx,
           name: s.name,
@@ -98,8 +87,8 @@ export const TeacherAnalyticsPage = () => {
           avatar: s.avatar,
           lessons_completed: completed,
           quiz_score: `${quizScore}%`,
-          watch_hours: `${Math.round(completed * 1.2)} hrs`,
-          streak: `${Math.max(1, 7 - (idx % 5))} days`,
+          watch_hours: `${s.watch_hours || Math.round(completed * 1.2)} hrs`,
+          streak: `${s.streak || 0} days`,
           status: quizScore >= 90 ? 'Top Scholar' : quizScore >= 80 ? 'Consistent' : 'On Track'
         }
       })
@@ -108,12 +97,12 @@ export const TeacherAnalyticsPage = () => {
       return topStudents.map((s: any, idx: number) => ({
         id: s.user_id || idx,
         name: s.name,
-        email: `student.${idx + 1}@eduflow.test`,
+        email: s.email || `student.${idx + 1}@eduflow.test`,
         avatar: s.avatar,
-        lessons_completed: s.lessons_completed || 12,
-        quiz_score: `${Math.min(98, 92 - idx * 3)}%`,
-        watch_hours: `${Math.round((s.lessons_completed || 12) * 1.1)} hrs`,
-        streak: `${Math.max(2, 6 - idx)} days`,
+        lessons_completed: s.lessons_completed || 0,
+        quiz_score: `${s.quiz_score || 0}%`,
+        watch_hours: `${s.watch_hours || Math.round((s.lessons_completed || 0) * 1.1)} hrs`,
+        streak: `${s.streak || 0} days`,
         status: idx === 0 ? 'Top Scholar' : 'Consistent'
       }))
     }
@@ -121,43 +110,14 @@ export const TeacherAnalyticsPage = () => {
   }, [studentsData, topStudents])
 
   const chartData = useMemo(() => {
-    if (timeRange === '7_days') {
-      const source = weeklyActivity.length > 0 ? weeklyActivity : [
-        { date: '2026-07-17', students_active: 14, lessons_completed: 6 },
-        { date: '2026-07-18', students_active: 18, lessons_completed: 9 },
-        { date: '2026-07-19', students_active: 22, lessons_completed: 14 },
-        { date: '2026-07-20', students_active: 16, lessons_completed: 8 },
-        { date: '2026-07-21', students_active: 25, lessons_completed: 18 },
-        { date: '2026-07-22', students_active: 30, lessons_completed: 24 },
-        { date: '2026-07-23', students_active: 20, lessons_completed: 12 },
-      ]
-      return source.map((day: any) => ({
-        name: day.name || new Date(day.date).toLocaleDateString('en-US', { weekday: 'short' }),
+    if (weeklyActivity.length > 0) {
+      return weeklyActivity.map((day: any) => ({
+        name: day.name || (day.date ? new Date(day.date).toLocaleDateString('en-US', { weekday: 'short' }) : 'Day'),
         'Active Students': Number(day.students_active || day['Active Students']) || 0,
         'Lessons Completed': Number(day.lessons_completed || day['Lessons Completed']) || 0
       }))
     }
-    if (timeRange === '30_days') {
-      return [
-        { name: 'Week 1', 'Active Students': 42, 'Lessons Completed': 28 },
-        { name: 'Week 2', 'Active Students': 58, 'Lessons Completed': 45 },
-        { name: 'Week 3', 'Active Students': 64, 'Lessons Completed': 52 },
-        { name: 'Week 4', 'Active Students': 78, 'Lessons Completed': 68 },
-      ]
-    }
-    if (timeRange === '90_days') {
-      return [
-        { name: 'Month 1', 'Active Students': 120, 'Lessons Completed': 95 },
-        { name: 'Month 2', 'Active Students': 185, 'Lessons Completed': 140 },
-        { name: 'Month 3', 'Active Students': 240, 'Lessons Completed': 190 },
-      ]
-    }
-    return [
-      { name: 'Q1', 'Active Students': 310, 'Lessons Completed': 280 },
-      { name: 'Q2', 'Active Students': 450, 'Lessons Completed': 390 },
-      { name: 'Q3', 'Active Students': 620, 'Lessons Completed': 510 },
-      { name: 'Q4', 'Active Students': 890, 'Lessons Completed': 760 },
-    ]
+    return []
   }, [weeklyActivity, timeRange])
 
   if (isLoading) return <div className="flex justify-center py-12"><Spinner /></div>

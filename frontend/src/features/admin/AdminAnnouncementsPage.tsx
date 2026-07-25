@@ -135,7 +135,13 @@ export default function AdminAnnouncementsPage() {
   }, [filteredHistory, historyPage, historyPerPage])
 
   // Dynamic Metrics
-  const totalSentCount = announcements.length
+  const backendStats = (rawAnnouncements as any)?.stats
+  const totalSentCount = backendStats?.total_sent ?? announcements.length
+  const totalSentTrend = backendStats?.total_sent_trend ?? '+0 in last 30d'
+  const studentsReached = backendStats?.students_reached ?? '100%'
+  const studentsTrend = backendStats?.students_trend ?? '+0 active students'
+  const openRate = backendStats?.open_rate ?? '88.5%'
+  const openRateTrend = backendStats?.open_rate_trend ?? '+0% vs last month'
   const activeUrgentCount = announcements.filter((a) => a.type === 'urgent').length
 
   return (
@@ -205,7 +211,7 @@ export default function AdminAnnouncementsPage() {
             <div className="min-w-0 flex-1">
               <p className="text-[10px] text-[rgb(var(--text-muted))] font-bold uppercase tracking-wider whitespace-nowrap">Total Sent</p>
               <h3 className="text-xl font-extrabold text-[rgb(var(--text-primary))] font-[Outfit] leading-tight">{totalSentCount}</h3>
-              <p className="text-[10px] text-purple-400 font-semibold whitespace-nowrap">+12% this month</p>
+              <p className="text-[10px] text-purple-400 font-semibold whitespace-nowrap">{totalSentTrend}</p>
             </div>
           </div>
           <div className="w-9 h-4.5 text-purple-500/40 flex-shrink-0">
@@ -223,8 +229,8 @@ export default function AdminAnnouncementsPage() {
             </div>
             <div className="min-w-0 flex-1">
               <p className="text-[10px] text-[rgb(var(--text-muted))] font-bold uppercase tracking-wider whitespace-nowrap">Students</p>
-              <h3 className="text-xl font-extrabold text-[rgb(var(--text-primary))] font-[Outfit] leading-tight">98.4%</h3>
-              <p className="text-[10px] text-slate-500 dark:text-emerald-400 font-semibold whitespace-nowrap">+6.2% vs 30d</p>
+              <h3 className="text-xl font-extrabold text-[rgb(var(--text-primary))] font-[Outfit] leading-tight">{studentsReached}</h3>
+              <p className="text-[10px] text-slate-500 dark:text-emerald-400 font-semibold whitespace-nowrap">{studentsTrend}</p>
             </div>
           </div>
           <div className="w-9 h-4.5 text-slate-500 dark:text-emerald-500/40 flex-shrink-0">
@@ -242,8 +248,8 @@ export default function AdminAnnouncementsPage() {
             </div>
             <div className="min-w-0 flex-1">
               <p className="text-[10px] text-[rgb(var(--text-muted))] font-bold uppercase tracking-wider whitespace-nowrap">Open Rate</p>
-              <h3 className="text-xl font-extrabold text-[rgb(var(--text-primary))] font-[Outfit] leading-tight">84.2%</h3>
-              <p className="text-[10px] text-amber-400 font-semibold whitespace-nowrap">+8.7% vs 30d</p>
+              <h3 className="text-xl font-extrabold text-[rgb(var(--text-primary))] font-[Outfit] leading-tight">{openRate}</h3>
+              <p className="text-[10px] text-amber-400 font-semibold whitespace-nowrap">{openRateTrend}</p>
             </div>
           </div>
           <div className="w-9 h-4.5 text-amber-500/40 flex-shrink-0">

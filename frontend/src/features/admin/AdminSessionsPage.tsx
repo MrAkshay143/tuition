@@ -129,13 +129,13 @@ export default function AdminSessionsPage() {
   const currentCount = useMemo(() => sessions.filter(s => s.is_current).length, [sessions])
 
   const totalPrograms = useMemo(() => {
-    if (!Array.isArray(programsData)) return 6
-    return programsData.length || 6
+    if (!Array.isArray(programsData)) return 0
+    return programsData.length
   }, [programsData])
 
   const totalStudents = useMemo(() => {
-    if (!Array.isArray(usersData)) return 14
-    return usersData.filter((u: any) => u.role === 'student').length || 14
+    if (!Array.isArray(usersData)) return 0
+    return usersData.filter((u: any) => u.role === 'student' || u.role_name === 'Student').length
   }, [usersData])
 
   const filteredSessions = useMemo(() => {

@@ -630,7 +630,7 @@ export function TeacherCoursesPage() {
             <p className="text-[10px] text-purple-400 font-semibold mt-1">↑ 3 this month</p>
           </div>
           <div className="w-full bg-[rgb(var(--bg-elevated))] h-1 rounded-full overflow-hidden mt-2">
-            <div className="bg-purple-500 h-full w-[85%] rounded-full"></div>
+            <div className="bg-purple-500 h-full rounded-full" style={{ width: '100%' }}></div>
           </div>
         </Card>
 
@@ -647,7 +647,7 @@ export function TeacherCoursesPage() {
             <p className="text-[10px] text-emerald-400 font-semibold mt-1">{pubPct}% of total</p>
           </div>
           <div className="w-full bg-[rgb(var(--bg-elevated))] h-1 rounded-full overflow-hidden mt-2">
-            <div className="bg-emerald-500 h-full w-[90%] rounded-full"></div>
+            <div className="bg-emerald-500 h-full rounded-full" style={{ width: `${pubPct}%` }}></div>
           </div>
         </Card>
 
@@ -664,7 +664,7 @@ export function TeacherCoursesPage() {
             <p className="text-[10px] text-amber-400 font-semibold mt-1">{draftPct}% of total</p>
           </div>
           <div className="w-full bg-[rgb(var(--bg-elevated))] h-1 rounded-full overflow-hidden mt-2">
-            <div className="bg-amber-500 h-full w-[70%] rounded-full"></div>
+            <div className="bg-amber-500 h-full rounded-full" style={{ width: `${draftPct}%` }}></div>
           </div>
         </Card>
 
@@ -677,11 +677,11 @@ export function TeacherCoursesPage() {
             <span className="text-[10px] text-[rgb(var(--text-muted))] font-medium truncate">Teachers Assigned</span>
           </div>
           <div>
-            <h3 className="text-lg sm:text-xl font-extrabold text-[rgb(var(--text-primary))] font-[Outfit] leading-none">{teachers?.length || 5}</h3>
+            <h3 className="text-lg sm:text-xl font-extrabold text-[rgb(var(--text-primary))] font-[Outfit] leading-none">{teachers?.length || 0}</h3>
             <p className="text-[10px] text-blue-400 font-semibold mt-1">Assigned teachers</p>
           </div>
           <div className="w-full bg-[rgb(var(--bg-elevated))] h-1 rounded-full overflow-hidden mt-2">
-            <div className="bg-blue-500 h-full w-[80%] rounded-full"></div>
+            <div className="bg-blue-500 h-full rounded-full" style={{ width: `${teachers?.length ? '100%' : '0%'}` }}></div>
           </div>
         </Card>
       </div>

@@ -16,7 +16,20 @@ class SubjectController extends ApiController
             ->withTrashed()
             ->orderBy('order_index')
             ->get();
-        return $this->success($subjects, 'Subjects retrieved.');
+        
+        $stats = [
+            'total_subjects' => $subjects->count(),
+            'active_subjects'=> $subjects->where('is_active', true)->count(),
+            'total_courses'  => \App\Models\Course::count(),
+            'total_students' => \App\Models\User::students()->active()->count(),
+        ];
+
+        return response()->json([
+            'status'  => 'success',
+            'message' => 'Subjects retrieved.',
+            'data'    => $subjects,
+            'stats'   => $stats,
+        ]);
     }
 
     public function store(Request $request): JsonResponse

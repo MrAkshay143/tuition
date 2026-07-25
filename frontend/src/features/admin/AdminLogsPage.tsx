@@ -84,6 +84,8 @@ export default function AdminLogsPage() {
   const successEventsCount = backendStats?.successful_actions ?? (totalEvents - failedEventsCount)
   const successRate = Math.round((successEventsCount / (totalEvents || 1)) * 100)
   const failureRate = (100 - successRate).toFixed(1)
+  const totalEventsTrend = backendStats?.total_events_trend || '+0 this month'
+  const uniqueUsersTrend = backendStats?.unique_users_trend || '+0 active this month'
 
   const topUsersList = backendStats?.top_users || []
   const topEventsList = backendStats?.top_events || []
@@ -154,7 +156,7 @@ export default function AdminLogsPage() {
             <div className="min-w-0 flex-1">
               <p className="text-[10px] text-[rgb(var(--text-muted))] font-medium uppercase tracking-wider whitespace-nowrap">Total Events</p>
               <h3 className="text-xl font-extrabold text-[rgb(var(--text-primary))] font-[Outfit] leading-tight">{totalEvents}</h3>
-              <p className="text-[10px] text-purple-400 font-semibold whitespace-nowrap">+18.4% this month</p>
+              <p className="text-[10px] text-purple-400 font-semibold whitespace-nowrap">{totalEventsTrend}</p>
             </div>
           </div>
           <div className="w-10 h-5 text-purple-500/40 flex-shrink-0">
@@ -173,7 +175,7 @@ export default function AdminLogsPage() {
             <div className="min-w-0 flex-1">
               <p className="text-[10px] text-[rgb(var(--text-muted))] font-medium uppercase tracking-wider whitespace-nowrap">Unique Users</p>
               <h3 className="text-xl font-extrabold text-[rgb(var(--text-primary))] font-[Outfit] leading-tight">{uniqueUsersCount}</h3>
-              <p className="text-[10px] text-slate-500 dark:text-blue-400 font-semibold whitespace-nowrap">+12.5% this month</p>
+              <p className="text-[10px] text-slate-500 dark:text-blue-400 font-semibold whitespace-nowrap">{uniqueUsersTrend}</p>
             </div>
           </div>
           <div className="w-10 h-5 text-slate-500 dark:text-blue-500/40 flex-shrink-0">
