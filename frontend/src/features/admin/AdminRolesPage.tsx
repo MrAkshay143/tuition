@@ -624,18 +624,7 @@ export default function AdminRolesPage() {
               })}
             </div>
 
-            {/* Custom Role CTA Box */}
-            <div className="p-3.5 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 text-xs flex flex-col gap-2">
-              <p className="text-[11px] text-indigo-400 font-semibold leading-snug">
-                Create custom roles tailored to your needs.
-              </p>
-              <button
-                onClick={() => setAddModalOpen(true)}
-                className="w-full py-1.5 text-xs font-bold bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 transition-colors shadow-xs cursor-pointer"
-              >
-                Create Role
-              </button>
-            </div>
+
           </Card>
         </div>
 

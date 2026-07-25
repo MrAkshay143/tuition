@@ -12,12 +12,27 @@ interface CreateCourseModalProps {
   onClose: () => void
   onSubmit: (title: string, description: string, teacherId: number | null) => void
   isPending: boolean
+  initial?: { title: string; description: string; teacher_id?: number | null } | null
 }
 
-export const CreateCourseModal = ({ open, onClose, onSubmit, isPending }: CreateCourseModalProps) => {
-  const [title, setTitle] = useState('')
-  const [description, setDescription] = useState('')
-  const [teacherId, setTeacherId] = useState<number | null>(null)
+export const CreateCourseModal = ({ open, onClose, onSubmit, isPending, initial }: CreateCourseModalProps) => {
+  const [title, setTitle] = React.useState('')
+  const [description, setDescription] = React.useState('')
+  const [teacherId, setTeacherId] = React.useState<number | null>(null)
+
+  React.useEffect(() => {
+    if (open) {
+      if (initial) {
+        setTitle(initial.title)
+        setDescription(initial.description || '')
+        setTeacherId(initial.teacher_id || null)
+      } else {
+        setTitle('')
+        setDescription('')
+        setTeacherId(null)
+      }
+    }
+  }, [open, initial])
 
   const { user } = useAuthStore()
   const { can } = usePermission()
@@ -47,7 +62,7 @@ export const CreateCourseModal = ({ open, onClose, onSubmit, isPending }: Create
     <Modal
       open={open}
       onClose={handleClose}
-      title="Create New Course"
+      title={initial ? "Edit Course" : "Create New Course"}
       size="md"
       footer={
         <>

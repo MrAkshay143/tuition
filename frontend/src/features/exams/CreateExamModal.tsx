@@ -1,13 +1,14 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { Modal } from '@/components/ui/overlays'
 import { Input, Textarea, Select, Button } from '@/components/ui'
-import { useCreateExam } from '@/api/resources/exams'
+import { useCreateExam, useUpdateExam } from '@/api/resources/exams'
 import { useApiQuery } from '@/api/resources/hooks'
 import toast from 'react-hot-toast'
 
-export const CreateExamModal = ({ open, isOpen, onClose }: { open?: boolean, isOpen?: boolean, onClose: () => void }) => {
+export const CreateExamModal = ({ open, isOpen, onClose, initial }: { open?: boolean, isOpen?: boolean, onClose: () => void, initial?: any }) => {
   const isModalOpen = !!(open ?? isOpen)
   const createMutation = useCreateExam()
+  const updateMutation = useUpdateExam(initial?.id || 0)
   const { data: batches } = useApiQuery(
     ['batches'],
     '/batches'
@@ -25,11 +26,30 @@ export const CreateExamModal = ({ open, isOpen, onClose }: { open?: boolean, isO
   const [shuffleQuestions, setShuffleQuestions] = React.useState(false)
   const [showResultImmediately, setShowResultImmediately] = React.useState(true)
 
+  useEffect(() => {
+    if (isModalOpen) {
+      if (initial) {
+        setTitle(initial.title || '')
+        setDescription(initial.description || '')
+        setType(initial.type || 'mcq')
+        setDuration(initial.duration_minutes || 60)
+        setTotalMarks(initial.total_marks || 100)
+        setPassMarks(initial.pass_marks || 50)
+        setStartsAt(initial.starts_at ? new Date(initial.starts_at).toISOString().slice(0, 16) : '')
+        setEndsAt(initial.ends_at ? new Date(initial.ends_at).toISOString().slice(0, 16) : '')
+        setSelectedBatch(initial.batches?.[0]?.id?.toString() || initial.batch_ids?.[0]?.toString() || '')
+        setShuffleQuestions(initial.shuffle_questions ?? false)
+        setShowResultImmediately(initial.show_result_immediately ?? true)
+      } else {
+        setTitle(''); setDescription(''); setType('mcq')
+        setDuration(60); setTotalMarks(100); setPassMarks(50)
+        setStartsAt(''); setEndsAt(''); setSelectedBatch('')
+        setShuffleQuestions(false); setShowResultImmediately(true)
+      }
+    }
+  }, [isModalOpen, initial])
+
   const handleClose = () => {
-    setTitle(''); setDescription(''); setType('mcq')
-    setDuration(60); setTotalMarks(100); setPassMarks(50)
-    setStartsAt(''); setEndsAt(''); setSelectedBatch('')
-    setShuffleQuestions(false); setShowResultImmediately(true)
     onClose()
   }
 
@@ -43,7 +63,8 @@ export const CreateExamModal = ({ open, isOpen, onClose }: { open?: boolean, isO
       toast.error('Pass marks cannot be greater than total marks')
       return
     }
-    createMutation.mutate({
+    
+    const payload = {
       title, description, type,
       duration_minutes: Number(duration),
       total_marks: Number(totalMarks),
@@ -53,7 +74,13 @@ export const CreateExamModal = ({ open, isOpen, onClose }: { open?: boolean, isO
       batch_ids: [Number(selectedBatch)],
       shuffle_questions: shuffleQuestions,
       show_result_immediately: showResultImmediately
-    }, { onSuccess: handleClose })
+    }
+
+    if (initial?.id) {
+      updateMutation.mutate(payload, { onSuccess: handleClose })
+    } else {
+      createMutation.mutate(payload, { onSuccess: handleClose })
+    }
   }
 
   return (

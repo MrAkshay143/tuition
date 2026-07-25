@@ -28,6 +28,7 @@ export const ExamsPage = () => {
 
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
   const [deleteTargetId, setDeleteTargetId] = useState<number | null>(null)
+  const [editTarget, setEditTarget] = useState<any>(null)
   const [search, setSearch] = useState('')
   const [typeFilter, setTypeFilter] = useState<string>('all')
   const [statusFilter, setStatusFilter] = useState<string>('all')
@@ -300,14 +301,6 @@ export const ExamsPage = () => {
                         </span>
                       )}
                     </div>
-
-                    <button
-                      onClick={() => setDeleteTargetId(exam.id)}
-                      className="p-1 rounded-lg hover:text-rose-400 text-[rgb(var(--text-muted))] transition-all cursor-pointer shrink-0"
-                      title="Delete Exam"
-                    >
-                      <Trash2 size={13} />
-                    </button>
                   </div>
 
                   {/* Title & Tag */}
@@ -330,7 +323,14 @@ export const ExamsPage = () => {
                   </div>
 
                   {/* Bottom Actions Bar */}
-                  <div className="flex items-center gap-1.5 pt-2 border-t border-[rgb(var(--border))]">
+                  <div className="flex items-center gap-1.5 pt-2 border-t border-[rgb(var(--border))] mt-1 sm:mt-2">
+                    <button
+                      onClick={() => setEditTarget(exam)}
+                      className="p-1.5 sm:p-2 rounded-xl border border-[rgb(var(--border))] text-[rgb(var(--text-muted))] hover:text-indigo-400 hover:bg-indigo-500/10 transition-all cursor-pointer shrink-0"
+                      title="Edit Exam"
+                    >
+                      <Edit3 size={12} className="sm:w-3.5 sm:h-3.5" />
+                    </button>
                     <Button
                       size="sm"
                       variant="primary"
@@ -350,6 +350,13 @@ export const ExamsPage = () => {
                     >
                       Attempts ({exam.attempts_count || 0})
                     </Button>
+                    <button
+                      onClick={() => setDeleteTargetId(exam.id)}
+                      className="p-1.5 sm:p-2 rounded-xl border border-[rgb(var(--border))] text-[rgb(var(--text-muted))] hover:text-rose-400 hover:bg-rose-500/10 transition-all cursor-pointer shrink-0"
+                      title="Delete Exam"
+                    >
+                      <Trash2 size={12} className="sm:w-3.5 sm:h-3.5" />
+                    </button>
                   </div>
                 </Card>
               </motion.div>
@@ -412,6 +419,13 @@ export const ExamsPage = () => {
                       Attempts ({exam.attempts_count || 0})
                     </Button>
                     <button
+                      onClick={() => setEditTarget(exam)}
+                      className="p-2 rounded-xl text-[rgb(var(--text-muted))] hover:text-indigo-400 transition-all cursor-pointer"
+                      title="Edit Exam"
+                    >
+                      <Edit3 size={14} />
+                    </button>
+                    <button
                       onClick={() => setDeleteTargetId(exam.id)}
                       className="p-2 rounded-xl text-[rgb(var(--text-muted))] hover:text-rose-400 transition-all cursor-pointer"
                       title="Delete Exam"
@@ -446,7 +460,11 @@ export const ExamsPage = () => {
       </div>
 
       {/* Modals */}
-      <CreateExamModal open={isCreateModalOpen} onClose={() => setIsCreateModalOpen(false)} />
+      <CreateExamModal 
+        open={isCreateModalOpen || !!editTarget} 
+        onClose={() => { setIsCreateModalOpen(false); setEditTarget(null) }} 
+        initial={editTarget} 
+      />
 
       <ConfirmModal
         open={!!deleteTargetId}

@@ -365,28 +365,36 @@ export default function AdminSettingsPage() {
                   <label className="text-xs font-semibold text-[rgb(var(--text-primary))] flex items-center gap-1">
                     Favicon <Info size={12} className="text-[rgb(var(--text-muted))]" />
                   </label>
-                  <div className="p-3 rounded-2xl border-2 border-dashed border-[rgb(var(--border))] bg-[rgb(var(--bg-surface))] flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                    <div className="flex items-center gap-3 min-w-0">
-                      <div className="w-8 h-8 rounded-xl bg-indigo-600 flex items-center justify-center text-white text-xs font-bold overflow-hidden flex-shrink-0">
-                        {formData.favicon_url ? (
-                          <img src={formData.favicon_url} alt="Favicon" className="w-full h-full object-cover" />
-                        ) : (
-                          <GraduationCap size={16} className="text-white" />
-                        )}
+                  <div className="p-3 rounded-2xl border-2 border-dashed border-[rgb(var(--border))] bg-[rgb(var(--bg-surface))] flex flex-col gap-3">
+                    <div className="flex sm:items-center justify-between gap-3">
+                      <div className="flex items-center gap-3 min-w-0">
+                        <div className="w-8 h-8 rounded-xl bg-indigo-600 flex items-center justify-center text-white text-xs font-bold overflow-hidden flex-shrink-0">
+                          {formData.favicon_url ? (
+                            <img src={formData.favicon_url} alt="Favicon" className="w-full h-full object-cover" />
+                          ) : (
+                            <GraduationCap size={16} className="text-white" />
+                          )}
+                        </div>
+                        <button
+                          onClick={() => { setPickerType('favicon'); setIsPickerOpen(true); }}
+                          className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold bg-indigo-600/15 text-indigo-400 hover:bg-indigo-600 hover:text-white rounded-xl transition-all cursor-pointer whitespace-nowrap"
+                        >
+                          <Upload size={13} /> Upload Favicon
+                        </button>
+                        <span className="text-[10px] text-[rgb(var(--text-muted))] hidden sm:inline">ICO, PNG or SVG. Max 1MB.</span>
                       </div>
-                      <button
-                        onClick={() => { setPickerType('favicon'); setIsPickerOpen(true); }}
-                        className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold bg-indigo-600/15 text-indigo-400 hover:bg-indigo-600 hover:text-white rounded-xl transition-all cursor-pointer whitespace-nowrap"
-                      >
-                        <Upload size={13} /> Upload Favicon
-                      </button>
-                      <span className="text-[10px] text-[rgb(var(--text-muted))] hidden sm:inline">ICO, PNG or SVG. Max 1MB.</span>
+                      {formData.favicon_url && (
+                        <button onClick={() => handleChange('favicon_url', '')} className="p-1 text-[rgb(var(--text-muted))] hover:text-rose-500 cursor-pointer self-end sm:self-auto">
+                          <X size={14} />
+                        </button>
+                      )}
                     </div>
-                    {formData.favicon_url && (
-                      <button onClick={() => handleChange('favicon_url', '')} className="p-1 text-[rgb(var(--text-muted))] hover:text-rose-500 cursor-pointer self-end sm:self-auto">
-                        <X size={14} />
-                      </button>
-                    )}
+                    <Input 
+                      value={formData.favicon_url || ''} 
+                      onChange={(e) => handleChange('favicon_url', e.target.value)} 
+                      placeholder="https://... or click upload"
+                      className="text-xs w-full"
+                    />
                   </div>
                 </div>
 

@@ -310,7 +310,7 @@ export const AdminOperationsPage: React.FC = () => {
         {/* Deployment Diagnostics Pill Chips */}
         <div className="pt-2 border-t border-[rgb(var(--border))]/40">
           <p className="text-[10px] text-[rgb(var(--text-muted))] font-semibold mb-2 uppercase tracking-wider">Deployment Diagnostics</p>
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             {[
               { label: 'Config Cached', ok: diagnostics.config_cached },
               { label: 'Routes Cached', ok: diagnostics.routes_cached },
@@ -318,60 +318,60 @@ export const AdminOperationsPage: React.FC = () => {
               { label: 'Queue Running', ok: diagnostics.queue_running },
               { label: 'Scheduler Running', ok: diagnostics.scheduler_running },
             ].map((diag, i) => (
-              <div key={i} className="flex items-center gap-2 p-2 rounded-xl bg-emerald-500/10 border border-emerald-500/25 text-emerald-400">
-                <CheckCircle2 size={13} className="shrink-0 text-emerald-400" />
-                <span className="text-[11px] font-bold truncate">{diag.label}</span>
+              <div key={i} className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-emerald-500/10 border border-emerald-500/25 text-emerald-400 w-auto">
+                <CheckCircle2 size={12} className="shrink-0 text-emerald-400" />
+                <span className="text-[10px] font-bold truncate">{diag.label}</span>
               </div>
             ))}
           </div>
         </div>
       </Card>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <Card className="p-5 border border-[rgb(var(--border))] flex flex-col justify-between space-y-4">
-          <div className="space-y-3">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-3 lg:gap-6">
+        <Card className="p-5 md:p-3 lg:p-5 border border-[rgb(var(--border))] flex flex-col justify-between space-y-4 md:space-y-2 lg:space-y-4">
+          <div className="space-y-3 md:space-y-1.5 lg:space-y-3">
             <div className="flex items-center justify-between border-b border-[rgb(var(--border))] pb-2">
-              <h4 className="text-xs font-bold text-[rgb(var(--text-primary))] uppercase tracking-wider flex items-center gap-1.5">
+              <h4 className="text-xs md:text-[10px] lg:text-xs font-bold text-[rgb(var(--text-primary))] uppercase tracking-wider flex items-center gap-1.5">
                 <Database size={15} className="text-purple-400" /> Queue Telemetry
               </h4>
-              <button onClick={() => setDetailModal('queue')} className="text-[10px] font-bold text-indigo-400 hover:underline cursor-pointer">
+              <button onClick={() => setDetailModal('queue')} className="text-[10px] md:text-[9px] lg:text-[10px] font-bold text-indigo-400 hover:underline cursor-pointer">
                 View Details
               </button>
             </div>
 
-            <div className="flex items-center justify-around gap-4 py-2">
-              <div className="relative w-24 h-24 flex items-center justify-center">
+            <div className="flex items-center justify-around gap-4 md:gap-2 lg:gap-4 py-2">
+              <div className="relative w-24 h-24 md:w-16 md:h-16 lg:w-24 lg:h-24 flex items-center justify-center">
                 <svg className="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
                   <path className="text-slate-800" strokeWidth="3.5" stroke="currentColor" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
                   <path className="text-indigo-500" strokeDasharray="80, 100" strokeWidth="3.5" strokeLinecap="round" stroke="currentColor" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
                 </svg>
                 <div className="absolute inset-0 flex flex-col items-center justify-center text-slate-500 dark:text-slate-400 text-center">
-                  <Database size={16} className="text-indigo-400" />
+                  <Database size={16} className="text-indigo-400 md:w-3 md:h-3 lg:w-4 lg:h-4" />
                 </div>
               </div>
 
-              <div className="space-y-1 text-xs">
-                <div className="flex items-center justify-between gap-4">
-                  <span className="text-[rgb(var(--text-muted))] flex items-center gap-1.5">
-                    <span className="w-2 h-2 rounded-full bg-purple-500"></span> Pending Jobs
+              <div className="space-y-1 text-xs md:text-[9px] lg:text-xs">
+                <div className="flex items-center justify-between gap-4 md:gap-2 lg:gap-4">
+                  <span className="text-[rgb(var(--text-muted))] flex items-center gap-1.5 md:gap-1 lg:gap-1.5">
+                    <span className="w-2 h-2 md:w-1.5 md:h-1.5 lg:w-2 lg:h-2 rounded-full bg-purple-500"></span> Pending
                   </span>
                   <span className="font-mono font-bold text-[rgb(var(--text-primary))]">{queue.pending_jobs}</span>
                 </div>
-                <div className="flex items-center justify-between gap-4">
-                  <span className="text-[rgb(var(--text-muted))] flex items-center gap-1.5">
-                    <span className="w-2 h-2 rounded-full bg-rose-500"></span> Failed Jobs
+                <div className="flex items-center justify-between gap-4 md:gap-2 lg:gap-4">
+                  <span className="text-[rgb(var(--text-muted))] flex items-center gap-1.5 md:gap-1 lg:gap-1.5">
+                    <span className="w-2 h-2 md:w-1.5 md:h-1.5 lg:w-2 lg:h-2 rounded-full bg-rose-500"></span> Failed
                   </span>
                   <span className="font-mono font-bold text-[rgb(var(--text-primary))]">{queue.failed_jobs}</span>
                 </div>
-                <div className="flex items-center justify-between gap-4">
-                  <span className="text-[rgb(var(--text-muted))] flex items-center gap-1.5">
-                    <span className="w-2 h-2 rounded-full bg-amber-500"></span> Delayed Jobs
+                <div className="flex items-center justify-between gap-4 md:gap-2 lg:gap-4">
+                  <span className="text-[rgb(var(--text-muted))] flex items-center gap-1.5 md:gap-1 lg:gap-1.5">
+                    <span className="w-2 h-2 md:w-1.5 md:h-1.5 lg:w-2 lg:h-2 rounded-full bg-amber-500"></span> Delayed
                   </span>
                   <span className="font-mono font-bold text-[rgb(var(--text-primary))]">{queue.delayed_jobs}</span>
                 </div>
-                <div className="flex items-center justify-between gap-4">
-                  <span className="text-[rgb(var(--text-muted))] flex items-center gap-1.5">
-                    <span className="w-2 h-2 rounded-full bg-emerald-500"></span> Completed (24h)
+                <div className="flex items-center justify-between gap-4 md:gap-2 lg:gap-4">
+                  <span className="text-[rgb(var(--text-muted))] flex items-center gap-1.5 md:gap-1 lg:gap-1.5">
+                    <span className="w-2 h-2 md:w-1.5 md:h-1.5 lg:w-2 lg:h-2 rounded-full bg-emerald-500"></span> Completed
                   </span>
                   <span className="font-mono font-bold text-slate-500 dark:text-emerald-400">{queue.completed_24h}</span>
                 </div>
@@ -379,7 +379,7 @@ export const AdminOperationsPage: React.FC = () => {
             </div>
           </div>
 
-          <div className="flex items-center justify-between pt-2 border-t border-[rgb(var(--border))] text-[10px]">
+          <div className="flex items-center justify-between pt-2 border-t border-[rgb(var(--border))] text-[10px] md:text-[8px] lg:text-[10px]">
             <span className="text-[rgb(var(--text-muted))] font-medium">Queue Engine</span>
             <span className="font-mono font-bold bg-purple-500/10 text-purple-400 border border-purple-500/20 px-2 py-0.5 rounded-md uppercase">
               {queue.queue_engine}
@@ -387,57 +387,57 @@ export const AdminOperationsPage: React.FC = () => {
           </div>
         </Card>
 
-        <Card className="p-5 border border-[rgb(var(--border))] flex flex-col justify-between space-y-4">
-          <div className="space-y-3">
+        <Card className="p-5 md:p-3 lg:p-5 border border-[rgb(var(--border))] flex flex-col justify-between space-y-4 md:space-y-2 lg:space-y-4">
+          <div className="space-y-3 md:space-y-1.5 lg:space-y-3">
             <div className="flex items-center justify-between border-b border-[rgb(var(--border))] pb-2">
-              <h4 className="text-xs font-bold text-[rgb(var(--text-primary))] uppercase tracking-wider flex items-center gap-1.5">
-                <Clock size={15} className="text-slate-500 dark:text-blue-400" /> Scheduler History
+              <h4 className="text-xs md:text-[10px] lg:text-xs font-bold text-[rgb(var(--text-primary))] uppercase tracking-wider flex items-center gap-1.5">
+                <Clock size={15} className="text-slate-500 dark:text-blue-400" /> Scheduler
               </h4>
-              <button onClick={() => setDetailModal('scheduler')} className="text-[10px] font-bold text-indigo-400 hover:underline cursor-pointer">
-                View History
+              <button onClick={() => setDetailModal('scheduler')} className="text-[10px] md:text-[9px] lg:text-[10px] font-bold text-indigo-400 hover:underline cursor-pointer">
+                History
               </button>
             </div>
 
-            <div className="space-y-3 text-xs">
+            <div className="space-y-3 md:space-y-1 lg:space-y-3 text-xs md:text-[9px] lg:text-xs">
               <div className="flex items-center justify-between">
-                <span className="text-[rgb(var(--text-muted))]">Last Successful Run</span>
+                <span className="text-[rgb(var(--text-muted))]">Last Success</span>
                 <span className="font-mono font-bold text-slate-500 dark:text-emerald-400 flex items-center gap-1">
-                  {scheduler.last_successful_run} <CheckCircle2 size={12} />
+                  {scheduler.last_successful_run} <CheckCircle2 size={12} className="md:w-2.5 md:h-2.5 lg:w-3 lg:h-3" />
                 </span>
               </div>
 
               <div className="flex items-center justify-between">
-                <span className="text-[rgb(var(--text-muted))]">Last Failed Run</span>
+                <span className="text-[rgb(var(--text-muted))]">Last Failed</span>
                 <span className="font-mono font-bold text-slate-500 dark:text-emerald-400 flex items-center gap-1">
-                  {scheduler.last_failed_run} <CheckCircle2 size={12} />
+                  {scheduler.last_failed_run} <CheckCircle2 size={12} className="md:w-2.5 md:h-2.5 lg:w-3 lg:h-3" />
                 </span>
               </div>
 
               <div className="flex items-center justify-between">
-                <span className="text-[rgb(var(--text-muted))]">Next Scheduled Run</span>
+                <span className="text-[rgb(var(--text-muted))]">Next Run</span>
                 <span className="font-mono font-bold text-indigo-400">{scheduler.next_scheduled_run}</span>
               </div>
 
               <div className="flex items-center justify-between">
-                <span className="text-[rgb(var(--text-muted))]">Average Runtime</span>
+                <span className="text-[rgb(var(--text-muted))]">Avg Runtime</span>
                 <span className="font-mono font-bold text-[rgb(var(--text-primary))]">{scheduler.average_runtime}</span>
               </div>
             </div>
           </div>
 
-          <div className="pt-2 border-t border-[rgb(var(--border))] flex items-center justify-between text-[10px]">
-            <span className="text-[rgb(var(--text-muted))]">Cron Pulse Status</span>
+          <div className="pt-2 border-t border-[rgb(var(--border))] flex items-center justify-between text-[10px] md:text-[8px] lg:text-[10px]">
+            <span className="text-[rgb(var(--text-muted))]">Cron Pulse</span>
             <span className="font-mono font-bold text-slate-500 dark:text-emerald-400">ACTIVE</span>
           </div>
         </Card>
 
-        <Card className="p-5 border border-[rgb(var(--border))] flex flex-col justify-between space-y-4">
-          <div className="space-y-3">
+        <Card className="p-5 md:p-3 lg:p-5 border border-[rgb(var(--border))] flex flex-col justify-between space-y-4 md:space-y-2 lg:space-y-4">
+          <div className="space-y-3 md:space-y-1.5 lg:space-y-3">
             <div className="flex items-center justify-between border-b border-[rgb(var(--border))] pb-2">
-              <h4 className="text-xs font-bold text-[rgb(var(--text-primary))] uppercase tracking-wider flex items-center gap-1.5">
+              <h4 className="text-xs md:text-[10px] lg:text-xs font-bold text-[rgb(var(--text-primary))] uppercase tracking-wider flex items-center gap-1.5">
                 <Cpu size={15} className="text-amber-400" /> System Resources
               </h4>
-              <button onClick={() => setDetailModal('resources')} className="text-[10px] font-bold text-indigo-400 hover:underline cursor-pointer">
+              <button onClick={() => setDetailModal('resources')} className="text-[10px] md:text-[9px] lg:text-[10px] font-bold text-indigo-400 hover:underline cursor-pointer">
                 View Metrics
               </button>
             </div>

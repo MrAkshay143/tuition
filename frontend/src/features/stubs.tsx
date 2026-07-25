@@ -1,14 +1,14 @@
 import React, { useState } from 'react'
 import { useTheme } from '@/design-system/hooks/useTheme'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom'
 import { api } from '@/api/client'
 import { useStudentDashboard, useStudentBookmarks, useStudentProgress } from '@/api/resources/students'
 import { getAdminUsers } from '@/api/resources/admin'
 import {
   BookOpen, Video, FileText, Radio, ClipboardList, BookOpenCheck, Award,
   BarChart3, MessageSquare, Bell, Calendar, Settings, Plus, Download, Send, Trash2,
-  Flame, Clock, Bookmark, ChevronRight, Search, ArrowUpDown, History, Copy, GraduationCap, SlidersHorizontal, ChevronDown, UserCheck
+  Flame, Clock, Bookmark, ChevronRight, Search, ArrowUpDown, History, Copy, GraduationCap, SlidersHorizontal, ChevronDown, UserCheck, Edit3
 } from 'lucide-react'
 import { Button, Card, Badge, Spinner, Input } from '@/components/ui'
 
@@ -462,6 +462,8 @@ export function StudentProgressPage() {
 export function TeacherCoursesPage() {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
+  const location = useLocation();
+  const rolePrefix = location.pathname.startsWith('/admin') ? '/admin' : '/teacher';
   const { user } = useAuthStore()
   const { can } = usePermission()
   const isAdmin = can('module.settings') // Proxy for admin capabilities
@@ -473,6 +475,7 @@ export function TeacherCoursesPage() {
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid')
   const [transferTarget, setTransferTarget] = useState<{ courseId: number; teacherId: number } | null>(null)
   const [deleteTargetId, setDeleteTargetId] = useState<number | null>(null)
+  const [editTarget, setEditTarget] = useState<any>(null)
 
   const { data: teachers } = useQuery({
     queryKey: ['admin', 'teachers'],
@@ -503,6 +506,19 @@ export function TeacherCoursesPage() {
       queryClient.invalidateQueries({ queryKey: ['teacher', 'courses'] })
       setShowCreateModal(false)
       toast.success('Course created successfully!')
+    }
+  })
+
+  const updateMutation = useMutation({
+    mutationFn: (data: { id: number, title: string, description?: string, teacher_id?: number | null }) => {
+      const payload: any = { title: data.title, description: data.description }
+      if (data.teacher_id) payload.teacher_id = data.teacher_id
+      return api.put(`/courses/${data.id}`, payload)
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['teacher', 'courses'] })
+      setEditTarget(null)
+      toast.success('Course updated successfully!')
     }
   })
 
@@ -861,6 +877,14 @@ export function TeacherCoursesPage() {
                 {/* Bottom Action Bar */}
                 <div className="flex items-center gap-1.5 sm:gap-2 pt-2 sm:pt-3 border-t border-[rgb(var(--border))] mt-1 sm:mt-2">
                   <button
+                    onClick={() => setEditTarget(course)}
+                    className="p-1.5 sm:p-2 rounded-xl border border-[rgb(var(--border))] text-[rgb(var(--text-muted))] hover:text-indigo-400 hover:bg-indigo-500/10 transition-all cursor-pointer"
+                    title="Edit Course"
+                  >
+                    <Edit3 size={12} className="sm:w-3.5 sm:h-3.5" />
+                  </button>
+
+                  <button
                     onClick={() => duplicateMutation.mutate(course.id)}
                     className="p-1.5 sm:p-2 rounded-xl border border-[rgb(var(--border))] text-[rgb(var(--text-muted))] hover:text-indigo-400 hover:bg-indigo-500/10 transition-all cursor-pointer"
                     title="Duplicate Course"
@@ -872,7 +896,7 @@ export function TeacherCoursesPage() {
                     size="sm"
                     variant="primary"
                     className="flex-1 font-bold text-[10px] sm:text-xs bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl py-1 sm:py-1.5 px-1.5 sm:px-3 shadow-md shadow-indigo-600/20 cursor-pointer truncate"
-                    onClick={() => navigate(`/teacher/courses/${course.id}/builder`)}
+                    onClick={() => navigate(`${rolePrefix}/courses/${course.id}/builder`)}
                   >
                     <span className="hidden sm:inline">Build Syllabus</span>
                     <span className="inline sm:hidden">Build</span>
@@ -893,12 +917,17 @@ export function TeacherCoursesPage() {
       )}
 
       <CreateCourseModal
-        open={showCreateModal}
-        onClose={() => setShowCreateModal(false)}
+        open={showCreateModal || !!editTarget}
+        onClose={() => { setShowCreateModal(false); setEditTarget(null); }}
+        initial={editTarget ? { title: editTarget.title, description: editTarget.description, teacher_id: editTarget.teacher?.id } : null}
         onSubmit={(title, description, teacherId) => {
-          createMutation.mutate({ title, description, teacher_id: teacherId })
+          if (editTarget) {
+            updateMutation.mutate({ id: editTarget.id, title, description, teacher_id: teacherId })
+          } else {
+            createMutation.mutate({ title, description, teacher_id: teacherId })
+          }
         }}
-        isPending={createMutation.isPending}
+        isPending={createMutation.isPending || updateMutation.isPending}
       />
 
       <ConfirmModal
