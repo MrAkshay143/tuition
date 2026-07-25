@@ -8,7 +8,7 @@ import { getAdminUsers } from '@/api/resources/admin'
 import {
   BookOpen, Video, FileText, Radio, ClipboardList, BookOpenCheck, Award,
   BarChart3, MessageSquare, Bell, Calendar, Settings, Plus, Download, Send, Trash2,
-  Flame, Clock, Bookmark, ChevronRight, Search, ArrowUpDown, History, Copy, GraduationCap, SlidersHorizontal, ChevronDown, UserCheck, Edit3
+  Flame, Clock, Bookmark, ChevronRight, Search, ArrowUpDown, History, Copy, GraduationCap, SlidersHorizontal, ChevronDown, UserCheck, Pencil
 } from 'lucide-react'
 import { Button, Card, Badge, Spinner, Input } from '@/components/ui'
 
@@ -881,7 +881,7 @@ export function TeacherCoursesPage() {
                     className="p-1.5 sm:p-2 rounded-xl border border-[rgb(var(--border))] text-[rgb(var(--text-muted))] hover:text-indigo-400 hover:bg-indigo-500/10 transition-all cursor-pointer"
                     title="Edit Course"
                   >
-                    <Edit3 size={12} className="sm:w-3.5 sm:h-3.5" />
+                    <Pencil size={12} className="sm:w-3.5 sm:h-3.5" />
                   </button>
 
                   <button

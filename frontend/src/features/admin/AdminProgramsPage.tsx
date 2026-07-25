@@ -527,33 +527,9 @@ export default function AdminProgramsPage() {
                                     </p>
                                   </div>
                                 </div>
-
-                                <div className="flex items-center gap-1 flex-shrink-0 opacity-80 group-hover:opacity-100">
-                                  <button
-                                    onClick={() => setAnalyticsModal({ open: true, title: prog.name, count: 1 })}
-                                    className="p-1 rounded-md text-[rgb(var(--text-muted))] hover:text-indigo-400 hover:bg-indigo-500/10 transition-all cursor-pointer"
-                                    title="View Program Analytics"
-                                  >
-                                    <BarChart2 size={12} />
-                                  </button>
-                                  <button
-                                    onClick={() => openEditModal(prog)}
-                                    className="p-1 rounded-md text-[rgb(var(--text-muted))] hover:text-indigo-400 hover:bg-indigo-500/10 transition-all cursor-pointer"
-                                    title="Edit Program"
-                                  >
-                                    <Pencil size={12} />
-                                  </button>
-                                  <button
-                                    onClick={() => setDeleteTarget(prog)}
-                                    className="p-1 rounded-md text-[rgb(var(--text-muted))] hover:text-rose-400 hover:bg-rose-500/10 transition-all cursor-pointer"
-                                    title="Delete Program"
-                                  >
-                                    <Trash2 size={12} />
-                                  </button>
-                                </div>
                               </div>
 
-                              <div className="flex items-center justify-between pt-1 border-t border-[rgb(var(--border))] text-[10px]">
+                              <div className="flex items-center justify-between pt-1 text-[10px]">
                                 {prog.is_active ? (
                                   <Badge variant="success" className="text-[8px] uppercase font-mono bg-emerald-500/10 text-slate-500 dark:text-emerald-400 border border-emerald-500/20 px-1.5 py-0.2">
                                     ACTIVE
@@ -567,6 +543,31 @@ export default function AdminProgramsPage() {
                                 <span className="text-[9px] font-semibold text-[rgb(var(--text-muted))] bg-[rgb(var(--bg-elevated))] px-2 py-0.5 rounded-md border border-[rgb(var(--border))] font-mono">
                                   Class {prog.order_index || 1}
                                 </span>
+                              </div>
+
+                              {/* Bottom Action Bar */}
+                              <div className="flex items-center gap-1.5 sm:gap-2 pt-2 border-t border-[rgb(var(--border))] mt-1">
+                                <button
+                                  onClick={() => openEditModal(prog)}
+                                  className="flex-1 flex items-center justify-center gap-1 p-1.5 rounded-xl border border-[rgb(var(--border))] text-[rgb(var(--text-muted))] hover:text-indigo-400 hover:bg-indigo-500/10 transition-all cursor-pointer"
+                                  title="Edit Program"
+                                >
+                                  <Pencil size={12} className="sm:w-3.5 sm:h-3.5" />
+                                </button>
+                                <button
+                                  onClick={() => setAnalyticsModal({ open: true, title: prog.name, count: 1 })}
+                                  className="flex-1 flex items-center justify-center gap-1 p-1.5 rounded-xl border border-[rgb(var(--border))] text-[rgb(var(--text-muted))] hover:text-indigo-400 hover:bg-indigo-500/10 transition-all cursor-pointer"
+                                  title="View Program Analytics"
+                                >
+                                  <BarChart2 size={12} className="sm:w-3.5 sm:h-3.5" />
+                                </button>
+                                <button
+                                  onClick={() => setDeleteTarget(prog)}
+                                  className="flex-1 flex items-center justify-center gap-1 p-1.5 rounded-xl border border-[rgb(var(--border))] text-[rgb(var(--text-muted))] hover:text-rose-400 hover:bg-rose-500/10 transition-all cursor-pointer"
+                                  title="Delete Program"
+                                >
+                                  <Trash2 size={12} className="sm:w-3.5 sm:h-3.5" />
+                                </button>
                               </div>
                             </div>
                           ))}

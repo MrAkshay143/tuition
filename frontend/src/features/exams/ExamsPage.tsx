@@ -6,7 +6,7 @@ import {
   Plus, Trash2, Users, Clock, Settings, FileText, GraduationCap, 
   Search, ChevronDown, Bookmark, MoreVertical, LayoutGrid, List, 
   ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Calendar, Briefcase,
-  Sparkles, CheckCircle2, AlertCircle, Folder, Copy, Edit3, SlidersHorizontal
+  Sparkles, CheckCircle2, AlertCircle, Folder, Copy, Pencil, SlidersHorizontal
 } from 'lucide-react'
 import { CreateExamModal } from './CreateExamModal'
 import { useNavigate } from 'react-router-dom'
@@ -329,7 +329,7 @@ export const ExamsPage = () => {
                       className="p-1.5 sm:p-2 rounded-xl border border-[rgb(var(--border))] text-[rgb(var(--text-muted))] hover:text-indigo-400 hover:bg-indigo-500/10 transition-all cursor-pointer shrink-0"
                       title="Edit Exam"
                     >
-                      <Edit3 size={12} className="sm:w-3.5 sm:h-3.5" />
+                      <Pencil size={12} className="sm:w-3.5 sm:h-3.5" />
                     </button>
                     <Button
                       size="sm"
@@ -423,7 +423,7 @@ export const ExamsPage = () => {
                       className="p-2 rounded-xl text-[rgb(var(--text-muted))] hover:text-indigo-400 transition-all cursor-pointer"
                       title="Edit Exam"
                     >
-                      <Edit3 size={14} />
+                      <Pencil size={14} />
                     </button>
                     <button
                       onClick={() => setDeleteTargetId(exam.id)}
