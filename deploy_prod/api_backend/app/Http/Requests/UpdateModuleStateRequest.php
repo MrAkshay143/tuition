@@ -1,1 +1,0 @@
-<?php namespace App\Http\Requests; class UpdateModuleStateRequest extends ApiFormRequest { public function authorize(): bool { return true; } public function rules(): array { return ["collapsed" => "required|boolean"]; } }

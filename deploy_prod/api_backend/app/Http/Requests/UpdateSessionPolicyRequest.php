@@ -1,1 +1,0 @@
-<?php namespace App\Http\Requests; class UpdateSessionPolicyRequest extends ApiFormRequest { public function authorize(): bool { return true; } public function rules(): array { return ["max_sessions" => "required|integer"]; } }

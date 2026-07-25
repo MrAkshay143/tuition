@@ -1,1 +1,0 @@
-<?php namespace App\Domains\Core\Requests\Auth; use App\Http\Requests\ApiFormRequest; class UpdateProfileRequest extends ApiFormRequest { public function authorize(): bool { return true; } public function rules(): array { return ["first_name" => "sometimes|required|string|max:50", "last_name" => "sometimes|required|string|max:50", "phone" => "nullable|string|max:20"]; } }

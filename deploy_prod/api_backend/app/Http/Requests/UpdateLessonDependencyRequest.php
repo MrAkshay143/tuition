@@ -1,1 +1,0 @@
-<?php namespace App\Http\Requests; class UpdateLessonDependencyRequest extends ApiFormRequest { public function authorize(): bool { return true; } public function rules(): array { return ["depends_on" => "required|array", "depends_on.*" => "integer"]; } }

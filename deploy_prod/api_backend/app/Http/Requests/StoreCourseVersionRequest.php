@@ -1,1 +1,0 @@
-<?php namespace App\Http\Requests; class StoreCourseVersionRequest extends ApiFormRequest { public function authorize(): bool { return true; } public function rules(): array { return ["change_summary" => "nullable|string|max:250"]; } }

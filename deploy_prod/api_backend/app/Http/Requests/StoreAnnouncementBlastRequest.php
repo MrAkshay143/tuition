@@ -1,1 +1,0 @@
-<?php namespace App\Http\Requests; class StoreAnnouncementBlastRequest extends ApiFormRequest { public function authorize(): bool { return true; } public function rules(): array { return ["title" => "required|string", "body" => "required|string", "target_roles" => "required|array"]; } }

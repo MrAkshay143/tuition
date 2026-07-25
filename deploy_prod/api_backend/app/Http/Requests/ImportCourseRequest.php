@@ -1,1 +1,0 @@
-<?php namespace App\Http\Requests; class ImportCourseRequest extends ApiFormRequest { public function authorize(): bool { return true; } public function rules(): array { return ["file" => "required|file|mimes:zip,json", "format" => "required|in:standard,scorm"]; } }

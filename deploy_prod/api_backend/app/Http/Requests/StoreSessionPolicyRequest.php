@@ -1,1 +1,0 @@
-<?php namespace App\Http\Requests; class StoreSessionPolicyRequest extends ApiFormRequest { public function authorize(): bool { return true; } public function rules(): array { return ["role" => "required|string", "max_sessions" => "required|integer"]; } }
