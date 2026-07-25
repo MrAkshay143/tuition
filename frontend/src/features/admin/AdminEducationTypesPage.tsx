@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { 
   Plus, Pencil, Trash2, GraduationCap, ChevronDown, ChevronUp, 
@@ -42,6 +42,14 @@ function EducationTypeModal({
   const [name, setName] = useState(initial?.name ?? '')
   const [description, setDescription] = useState(initial?.description ?? '')
   const [orderIndex, setOrderIndex] = useState(String(initial?.order_index ?? ''))
+
+  useEffect(() => {
+    if (open) {
+      setName(initial?.name ?? '')
+      setDescription(initial?.description ?? '')
+      setOrderIndex(String(initial?.order_index ?? ''))
+    }
+  }, [open, initial])
 
   const create = useCreateEducationType()
   const update = useUpdateEducationType()
@@ -107,6 +115,16 @@ function ProgramModal({
   const [eduTypeId, setEduTypeId] = useState(String(initial?.education_type_id ?? educationTypeId ?? ''))
   const [sessionId, setSessionId] = useState(String(initial?.academic_session_id ?? ''))
   const [orderIndex, setOrderIndex] = useState(String(initial?.order_index ?? ''))
+
+  useEffect(() => {
+    if (open) {
+      setName(initial?.name ?? '')
+      setDescription(initial?.description ?? '')
+      setEduTypeId(String(initial?.education_type_id ?? educationTypeId ?? ''))
+      setSessionId(String(initial?.academic_session_id ?? ''))
+      setOrderIndex(String(initial?.order_index ?? ''))
+    }
+  }, [open, initial, educationTypeId])
 
   const create = useCreateProgram()
   const update = useUpdateProgram()

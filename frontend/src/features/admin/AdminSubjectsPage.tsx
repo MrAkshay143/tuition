@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react'
+import React, { useState, useMemo, useEffect } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { api } from '@/api/client'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -39,6 +39,15 @@ function SubjectModal({ open, onClose, initial }: { open: boolean; onClose: () =
   const [code, setCode] = useState(initial?.code ?? '')
   const [color, setColor] = useState(initial?.color ?? '#6366f1')
   const [orderIndex, setOrderIndex] = useState(String(initial?.order_index ?? ''))
+
+  useEffect(() => {
+    if (open) {
+      setName(initial?.name ?? '')
+      setCode(initial?.code ?? '')
+      setColor(initial?.color ?? '#6366f1')
+      setOrderIndex(String(initial?.order_index ?? ''))
+    }
+  }, [open, initial])
 
   const create = useCreateSubject()
   const update = useUpdateSubject()

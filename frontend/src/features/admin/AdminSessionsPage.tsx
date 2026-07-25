@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react'
+import React, { useState, useMemo, useEffect } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { api } from '@/api/client'
 import { getAdminPrograms, getAdminUsers } from '@/api/resources/admin'
@@ -30,6 +30,15 @@ function SessionModal({ open, onClose, initial }: { open: boolean; onClose: () =
   const [startDate, setStartDate] = useState(initial?.start_date?.slice(0, 10) ?? '')
   const [endDate, setEndDate] = useState(initial?.end_date?.slice(0, 10) ?? '')
   const [isCurrent, setIsCurrent] = useState(initial?.is_current ?? false)
+
+  useEffect(() => {
+    if (open) {
+      setName(initial?.name ?? '')
+      setStartDate(initial?.start_date?.slice(0, 10) ?? '')
+      setEndDate(initial?.end_date?.slice(0, 10) ?? '')
+      setIsCurrent(initial?.is_current ?? false)
+    }
+  }, [open, initial])
 
   const create = useCreateSession()
   const update = useUpdateSession()
