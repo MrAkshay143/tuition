@@ -98,23 +98,9 @@ class BackupController extends ApiController
             }
 
             $path = "{$backupDir}/{$filename}";
-            $db       = config('database.connections.mysql.database');
-            $user     = config('database.connections.mysql.username');
-            $password = config('database.connections.mysql.password');
-            $host     = config('database.connections.mysql.host');
-            $port     = config('database.connections.mysql.port');
 
-            // Construct mysqldump command
-            $passwordArg = !empty($password) ? "-p\"{$password}\"" : "";
-            $command = "mysqldump -h {$host} -P {$port} -u {$user} {$passwordArg} {$db} > \"{$path}\" 2>&1";
-
-            // Execute dump
-            exec($command, $output, $returnVar);
-
-            if ($returnVar !== 0) {
-                // If mysqldump fails, throw error
-                throw new \Exception("mysqldump failed: " . implode("\n", $output));
-            }
+            // Generate snapshot using pure PHP PDO connection (no shell exec or mysqldump dependency)
+            $this->generateSqlDump($path);
 
             $sizeBytes = filesize($path) ?: 0;
 
@@ -136,6 +122,70 @@ class BackupController extends ApiController
         } catch (\Exception $e) {
             return response()->json(['message' => 'Backup failed: ' . $e->getMessage()], 500);
         }
+    }
+
+    private function generateSqlDump(string $path): void
+    {
+        $tablesObj = DB::select('SHOW TABLES');
+        $fp = fopen($path, 'w');
+        if (!$fp) {
+            throw new \Exception("Cannot open backup file for writing: {$path}");
+        }
+
+        fwrite($fp, "-- EduFlow Enterprise Database Snapshot\n");
+        fwrite($fp, "-- Generated: " . now()->toIso8601String() . "\n");
+        fwrite($fp, "-- Host: " . config('app.url') . "\n\n");
+        fwrite($fp, "SET FOREIGN_KEY_CHECKS=0;\n");
+        fwrite($fp, "SET SQL_MODE='NO_AUTO_VALUE_ON_ZERO';\n\n");
+
+        foreach ($tablesObj as $tableObj) {
+            $tableArray = (array)$tableObj;
+            $tableName = reset($tableArray);
+
+            $createObj = DB::select("SHOW CREATE TABLE `{$tableName}`");
+            if (!empty($createObj)) {
+                $createRow = (array)$createObj[0];
+                $createSql = $createRow['Create Table'] ?? $createRow['Create View'] ?? null;
+                if ($createSql) {
+                    fwrite($fp, "-- --------------------------------------------------------\n");
+                    fwrite($fp, "-- Table structure for `{$tableName}`\n");
+                    fwrite($fp, "-- --------------------------------------------------------\n\n");
+                    fwrite($fp, "DROP TABLE IF EXISTS `{$tableName}`;\n");
+                    fwrite($fp, $createSql . ";\n\n");
+                }
+            }
+
+            $count = DB::table($tableName)->count();
+            if ($count > 0 && !in_array($tableName, ['migrations'])) {
+                fwrite($fp, "-- Dumping data for `{$tableName}` ({$count} rows)\n");
+                fwrite($fp, "LOCK TABLES `{$tableName}` WRITE;\n");
+
+                foreach (DB::table($tableName)->cursor() as $row) {
+                    $rowArray = (array)$row;
+                    $cols = array_map(function ($col) {
+                        return '`' . $col . '`';
+                    }, array_keys($rowArray));
+
+                    $vals = array_map(function ($val) {
+                        if (is_null($val)) return 'NULL';
+                        $escaped = str_replace(
+                            ['\\', "\0", "\n", "\r", "'", '"', "\x1a"],
+                            ['\\\\', '\\0', '\\n', '\\r', "\\'", '\\"', '\\Z'],
+                            (string)$val
+                        );
+                        return "'" . $escaped . "'";
+                    }, array_values($rowArray));
+
+                    $sql = "INSERT INTO `{$tableName}` (" . implode(', ', $cols) . ") VALUES (" . implode(', ', $vals) . ");\n";
+                    fwrite($fp, $sql);
+                }
+
+                fwrite($fp, "UNLOCK TABLES;\n\n");
+            }
+        }
+
+        fwrite($fp, "SET FOREIGN_KEY_CHECKS=1;\n");
+        fclose($fp);
     }
 
     // Restore database state from snapshot
