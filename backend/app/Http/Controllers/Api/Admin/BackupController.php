@@ -126,7 +126,7 @@ class BackupController extends ApiController
 
     private function generateSqlDump(string $path): void
     {
-        $tablesObj = DB::select('SHOW TABLES');
+        $driver = DB::connection()->getDriverName();
         $fp = fopen($path, 'w');
         if (!$fp) {
             throw new \Exception("Cannot open backup file for writing: {$path}");
@@ -134,31 +134,49 @@ class BackupController extends ApiController
 
         fwrite($fp, "-- EduFlow Enterprise Database Snapshot\n");
         fwrite($fp, "-- Generated: " . now()->toIso8601String() . "\n");
-        fwrite($fp, "-- Host: " . config('app.url') . "\n\n");
-        fwrite($fp, "SET FOREIGN_KEY_CHECKS=0;\n");
-        fwrite($fp, "SET SQL_MODE='NO_AUTO_VALUE_ON_ZERO';\n\n");
+        fwrite($fp, "-- Host: " . config('app.url') . "\n");
+        fwrite($fp, "-- Driver: " . strtoupper($driver) . "\n\n");
+
+        if ($driver === 'mysql') {
+            fwrite($fp, "SET FOREIGN_KEY_CHECKS=0;\n");
+            fwrite($fp, "SET SQL_MODE='NO_AUTO_VALUE_ON_ZERO';\n\n");
+            $tablesObj = DB::select('SHOW TABLES');
+        } else {
+            $tablesObj = DB::select("SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%'");
+        }
 
         foreach ($tablesObj as $tableObj) {
             $tableArray = (array)$tableObj;
             $tableName = reset($tableArray);
 
-            $createObj = DB::select("SHOW CREATE TABLE `{$tableName}`");
-            if (!empty($createObj)) {
-                $createRow = (array)$createObj[0];
-                $createSql = $createRow['Create Table'] ?? $createRow['Create View'] ?? null;
-                if ($createSql) {
-                    fwrite($fp, "-- --------------------------------------------------------\n");
+            if ($driver === 'mysql') {
+                $createObj = DB::select("SHOW CREATE TABLE `{$tableName}`");
+                if (!empty($createObj)) {
+                    $createRow = (array)$createObj[0];
+                    $createSql = $createRow['Create Table'] ?? $createRow['Create View'] ?? null;
+                    if ($createSql) {
+                        fwrite($fp, "-- --------------------------------------------------------\n");
+                        fwrite($fp, "-- Table structure for `{$tableName}`\n");
+                        fwrite($fp, "-- --------------------------------------------------------\n\n");
+                        fwrite($fp, "DROP TABLE IF EXISTS `{$tableName}`;\n");
+                        fwrite($fp, $createSql . ";\n\n");
+                    }
+                }
+            } else {
+                $createObj = DB::select("SELECT sql FROM sqlite_master WHERE type='table' AND name = ?", [$tableName]);
+                if (!empty($createObj) && !empty($createObj[0]->sql)) {
                     fwrite($fp, "-- Table structure for `{$tableName}`\n");
-                    fwrite($fp, "-- --------------------------------------------------------\n\n");
                     fwrite($fp, "DROP TABLE IF EXISTS `{$tableName}`;\n");
-                    fwrite($fp, $createSql . ";\n\n");
+                    fwrite($fp, $createObj[0]->sql . ";\n\n");
                 }
             }
 
             $count = DB::table($tableName)->count();
             if ($count > 0 && !in_array($tableName, ['migrations'])) {
                 fwrite($fp, "-- Dumping data for `{$tableName}` ({$count} rows)\n");
-                fwrite($fp, "LOCK TABLES `{$tableName}` WRITE;\n");
+                if ($driver === 'mysql') {
+                    fwrite($fp, "LOCK TABLES `{$tableName}` WRITE;\n");
+                }
 
                 foreach (DB::table($tableName)->cursor() as $row) {
                     $rowArray = (array)$row;
@@ -180,11 +198,17 @@ class BackupController extends ApiController
                     fwrite($fp, $sql);
                 }
 
-                fwrite($fp, "UNLOCK TABLES;\n\n");
+                if ($driver === 'mysql') {
+                    fwrite($fp, "UNLOCK TABLES;\n\n");
+                } else {
+                    fwrite($fp, "\n");
+                }
             }
         }
 
-        fwrite($fp, "SET FOREIGN_KEY_CHECKS=1;\n");
+        if ($driver === 'mysql') {
+            fwrite($fp, "SET FOREIGN_KEY_CHECKS=1;\n");
+        }
         fclose($fp);
     }
 

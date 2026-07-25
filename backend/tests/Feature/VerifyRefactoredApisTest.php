@@ -50,4 +50,29 @@ class VerifyRefactoredApisTest extends TestCase
             echo "\n[PASS] {$name} ({$uri}) HTTP 200 OK. Stats: " . json_encode($json['stats'] ?? $json['data']['stats'] ?? 'Present in data');
         }
     }
+
+    public function test_backup_endpoints_work_cleanly()
+    {
+        $admin = User::create([
+            'name' => 'Backup Admin',
+            'email' => 'backup_admin@eduflow.test',
+            'password' => bcrypt('password'),
+            'role' => 'admin',
+            'active' => true,
+        ]);
+
+        Sanctum::actingAs($admin, ['*']);
+
+        // Test SQL generator backup endpoint
+        $res1 = $this->postJson('/api/v1/admin/backup');
+        $this->assertEquals(200, $res1->status(), "RES1 FAILED: " . $res1->content());
+        $this->assertArrayHasKey('id', $res1->json());
+
+        // Test Operations encrypted backup archive endpoint
+        $res2 = $this->postJson('/api/v1/admin/operations/backup');
+        $this->assertEquals(200, $res2->status(), "RES2 FAILED: " . $res2->content());
+        $this->assertArrayHasKey('backup', $res2->json());
+
+        echo "\n[PASS] Both Backup SQL and Operations Archive endpoints generated successfully!";
+    }
 }

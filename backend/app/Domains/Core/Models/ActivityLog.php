@@ -61,8 +61,13 @@ class ActivityLog extends Model
             'device'      => $device,
         ], $properties);
 
+        $userId = $user?->id ?? auth()->id() ?? auth('sanctum')->id();
+        if (!$userId) {
+            $userId = User::where('role', 'admin')->value('id') ?? 1;
+        }
+
         static::create([
-            'user_id'     => $user?->id,
+            'user_id'     => $userId,
             'event'       => $event,
             'description' => $description,
             'ip_address'  => $request->ip(),

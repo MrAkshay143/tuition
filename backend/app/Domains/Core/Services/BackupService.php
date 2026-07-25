@@ -3,8 +3,12 @@
 namespace App\Domains\Core\Services;
 
 use Illuminate\Support\Facades\Crypt;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use App\Models\ActivityLog;
+use App\Models\User;
+use App\Models\Course;
+use App\Models\Batch;
 
 class BackupService
 {
@@ -14,9 +18,9 @@ class BackupService
         $backupName = 'backup_' . now()->format('Y_m_d_His') . '_' . Str::random(6) . '.enc';
         $path = "backups/{$backupName}";
 
-        $usersCount = \App\Domains\Core\Models\User::count();
-        $coursesCount = \App\Domains\Course\Models\Course::count();
-        $batchesCount = \App\Domains\Core\Models\Batch::count();
+        $usersCount = User::count();
+        $coursesCount = Course::count();
+        $batchesCount = Batch::count();
 
         $snapshotData = [
             'version'       => '1.0',
