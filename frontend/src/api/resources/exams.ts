@@ -112,13 +112,13 @@ export const useAddQuestion = (examId: string | number) => {
 export const useAttachQuestion = (examId: string | number) => {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: (data: { question_id: number, marks: number, sort_order?: number }) => api.post(`/exams/${examId}/questions/attach`, data),
+    mutationFn: (data: { question_ids: number[], marks: number, sort_order?: number }) => api.post(`/exams/${examId}/questions/attach`, data),
     onSuccess: () => {
-      toast.success('Question added from bank successfully')
+      toast.success('Questions added from bank successfully')
       queryClient.invalidateQueries({ queryKey: ['exams', examId, 'questions'] })
     },
     onError: (err: any) => {
-      toast.error(err.response?.data?.message || 'Failed to add question from bank')
+      toast.error(err.response?.data?.message || 'Failed to add questions from bank')
     }
   })
 }

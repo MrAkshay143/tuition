@@ -142,20 +142,25 @@ class ExamController extends ApiController
     ) {
         $exam = Exam::findOrFail($id);
         $validated = $request->validate([
-            'question_id' => 'required|exists:questions,id',
-            'marks'       => 'required|numeric|min:1',
-            'sort_order'  => 'nullable|integer',
+            'question_ids'   => 'required|array',
+            'question_ids.*' => 'exists:questions,id',
+            'marks'          => 'required|numeric|min:1',
+            'sort_order'     => 'nullable|integer',
         ]);
 
-        $sortOrder = $validated['sort_order'] ?? ($exam->questions()->count() + 1);
-        $exam->questions()->syncWithoutDetaching([
-            $validated['question_id'] => [
+        $startOrder = $validated['sort_order'] ?? ($exam->questions()->count() + 1);
+        
+        $syncData = [];
+        foreach ($validated['question_ids'] as $index => $qId) {
+            $syncData[$qId] = [
                 'marks'      => $validated['marks'],
-                'sort_order' => $sortOrder,
-            ]
-        ]);
+                'sort_order' => $startOrder + $index,
+            ];
+        }
 
-        return $this->success(null, 'Question attached to exam successfully');
+        $exam->questions()->syncWithoutDetaching($syncData);
+
+        return $this->success(null, 'Questions attached to exam successfully');
     }
 
     public function updateQuestion(

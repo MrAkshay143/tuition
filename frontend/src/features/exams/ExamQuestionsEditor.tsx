@@ -1,9 +1,9 @@
 import React, { useState, useMemo } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-import { useExam, useExamQuestions, useAddQuestion, useRemoveQuestion, useAttachQuestion } from '@/api/resources/exams'
+import { useExam, useExamQuestions, useAddQuestion, useRemoveQuestion, useAttachQuestion, useUpdateQuestion } from '@/api/resources/exams'
 import { useApiQuery } from '@/api/resources/hooks'
 import { Button, Card, Badge, Spinner, Input, Select, Modal } from '@/components/ui'
-import { ArrowLeft, Trash2, Plus, GripVertical, CheckCircle2, HelpCircle, Award, Sparkles, FileText, Library, Search } from 'lucide-react'
+import { ArrowLeft, Trash2, Plus, CheckSquare, Square, CheckCircle2, HelpCircle, Award, Eye, EyeOff, Library, Search, Pencil } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { motion, AnimatePresence } from 'framer-motion'
 import { cn } from '@/lib/utils'
@@ -17,6 +17,7 @@ export const ExamQuestionsEditor = () => {
   const addMutation = useAddQuestion(id || '')
   const attachMutation = useAttachQuestion(id || '')
   const removeMutation = useRemoveQuestion(id || '')
+  const updateMutation = useUpdateQuestion(id || '')
 
   const [isAdding, setIsAdding] = useState(false)
   const [addMode, setAddMode] = useState<'create' | 'bank'>('create')
@@ -30,7 +31,13 @@ export const ExamQuestionsEditor = () => {
 
   // Bank Question State
   const [bankSearch, setBankSearch] = useState('')
+  const [selectedBankIds, setSelectedBankIds] = useState<number[]>([])
   
+  // UI State
+  const [expandedQs, setExpandedQs] = useState<Record<string, boolean>>({})
+  const [editingMarksId, setEditingMarksId] = useState<number | null>(null)
+  const [editingMarksValue, setEditingMarksValue] = useState<number>(0)
+
   const { data: bankQuestions = [], isLoading: isBankLoading } = useApiQuery(
     ['admin', 'question-bank'],
     '/questions?per_page=100',
@@ -97,22 +104,35 @@ export const ExamQuestionsEditor = () => {
     })
   }
 
-  const handleAttachQuestion = (bankQ: any) => {
-    const isAlreadyAttached = questions?.some((q: any) => q.id === bankQ.id)
-    if (isAlreadyAttached) {
-      toast.error('Question is already in this exam')
-      return
-    }
+  const handleToggleBankSelection = (id: number) => {
+    setSelectedBankIds(prev => 
+      prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]
+    )
+  }
 
+  const handleAttachBulk = () => {
+    if (selectedBankIds.length === 0) return
     attachMutation.mutate({
-      question_id: bankQ.id,
-      marks: bankQ.marks,
+      question_ids: selectedBankIds,
+      marks: 4, // Default marks for bulk attach
       sort_order: (questions?.length || 0) + 1
     }, {
       onSuccess: () => {
         setIsAdding(false)
+        setSelectedBankIds([])
       }
     })
+  }
+
+  const handleSaveMarks = (qId: number) => {
+    if (editingMarksId === qId) {
+      updateMutation.mutate({ qId, data: { marks: editingMarksValue } })
+      setEditingMarksId(null)
+    }
+  }
+
+  const toggleOptions = (qId: string) => {
+    setExpandedQs(prev => ({ ...prev, [qId]: !prev[qId] }))
   }
 
   const totalMarks = (questions || []).reduce((acc: number, q: any) => acc + (q.marks || 0), 0)
@@ -182,12 +202,35 @@ export const ExamQuestionsEditor = () => {
                   </div>
 
                   <div className="flex items-center gap-1.5 shrink-0">
-                    <span className="text-[9px] font-extrabold uppercase font-mono px-2 py-0.5 rounded-full bg-purple-500/10 text-purple-400 border border-purple-500/20">
+                    <span className="text-[9px] font-extrabold uppercase font-mono px-2 py-0.5 rounded-full bg-purple-500/10 text-purple-400 border border-purple-500/20 hidden sm:inline-block">
                       {q.type}
                     </span>
-                    <span className="text-[9px] font-extrabold uppercase font-mono px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-                      {q.marks} {q.marks === 1 ? 'Mark' : 'Marks'}
-                    </span>
+                    
+                    {/* Editable Marks */}
+                    {editingMarksId === q.id ? (
+                      <div className="flex items-center gap-1">
+                        <input 
+                          type="number" 
+                          min={1} 
+                          value={editingMarksValue} 
+                          onChange={(e) => setEditingMarksValue(Number(e.target.value))}
+                          onBlur={() => handleSaveMarks(q.id)}
+                          onKeyDown={(e) => e.key === 'Enter' && handleSaveMarks(q.id)}
+                          className="w-12 px-1 py-0.5 text-[10px] font-bold text-center bg-[rgb(var(--bg-elevated))] border border-indigo-500 rounded outline-none"
+                          autoFocus
+                        />
+                      </div>
+                    ) : (
+                      <button 
+                        onClick={() => { setEditingMarksId(q.id); setEditingMarksValue(q.marks || 1); }}
+                        className="text-[9px] font-extrabold uppercase font-mono px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 hover:bg-emerald-500/20 transition-all cursor-pointer flex items-center gap-1"
+                        title="Edit Marks"
+                      >
+                        {q.marks} {q.marks === 1 ? 'Mark' : 'Marks'}
+                        <Pencil size={8} />
+                      </button>
+                    )}
+
                     <button
                       onClick={() => removeMutation.mutate(q.id)}
                       disabled={removeMutation.isPending}
@@ -199,31 +242,50 @@ export const ExamQuestionsEditor = () => {
                   </div>
                 </div>
 
-                {/* MCQ Options Display */}
+                {/* Collapsible Options */}
                 {q.type === 'mcq' && q.options && (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1">
-                    {q.options.map((opt: string, i: number) => {
-                      const isCorrect = q.correct_answer === opt
-                      return (
-                        <div
-                          key={i}
-                          className={`p-2 sm:p-2.5 rounded-xl text-xs flex items-center justify-between border transition-all ${
-                            isCorrect
-                              ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400 font-bold'
-                              : 'bg-[rgb(var(--bg-elevated))] border-[rgb(var(--border))] text-[rgb(var(--text-muted))]'
-                          }`}
+                  <div className="pt-1">
+                    {!expandedQs[q.id] ? (
+                      <button 
+                        onClick={() => toggleOptions(q.id)}
+                        className="text-[10px] font-bold text-indigo-400 hover:text-indigo-300 flex items-center gap-1 cursor-pointer transition-all bg-indigo-500/5 hover:bg-indigo-500/10 px-3 py-1.5 rounded-lg border border-indigo-500/10"
+                      >
+                        <Eye size={12} /> View {q.options.length} Options
+                      </button>
+                    ) : (
+                      <div className="space-y-2">
+                        <button 
+                          onClick={() => toggleOptions(q.id)}
+                          className="text-[10px] font-bold text-[rgb(var(--text-muted))] hover:text-[rgb(var(--text-primary))] flex items-center gap-1 cursor-pointer transition-all"
                         >
-                          <span className="truncate pr-2">
-                            <strong className="mr-1.5 font-mono">{String.fromCharCode(65 + i)}.</strong> {opt}
-                          </span>
-                          {isCorrect && (
-                            <span className="inline-flex items-center gap-1 text-[8px] font-black uppercase text-emerald-400 bg-emerald-500/20 px-1.5 py-0.5 rounded-md shrink-0">
-                              <CheckCircle2 size={10} /> Correct
-                            </span>
-                          )}
+                          <EyeOff size={12} /> Hide Options
+                        </button>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                          {q.options.map((opt: string, i: number) => {
+                            const isCorrect = q.correct_answer === opt
+                            return (
+                              <div
+                                key={i}
+                                className={`p-2 sm:p-2.5 rounded-xl text-xs flex items-center justify-between border transition-all ${
+                                  isCorrect
+                                    ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400 font-bold'
+                                    : 'bg-[rgb(var(--bg-elevated))] border-[rgb(var(--border))] text-[rgb(var(--text-muted))]'
+                                }`}
+                              >
+                                <span className="truncate pr-2">
+                                  <strong className="mr-1.5 font-mono">{String.fromCharCode(65 + i)}.</strong> {opt}
+                                </span>
+                                {isCorrect && (
+                                  <span className="inline-flex items-center gap-1 text-[8px] font-black uppercase text-emerald-400 bg-emerald-500/20 px-1.5 py-0.5 rounded-md shrink-0">
+                                    <CheckCircle2 size={10} /> Correct
+                                  </span>
+                                )}
+                              </div>
+                            )
+                          })}
                         </div>
-                      )
-                    })}
+                      </div>
+                    )}
                   </div>
                 )}
               </Card>
@@ -269,85 +331,86 @@ export const ExamQuestionsEditor = () => {
         )}
       </div>
 
-      {/* Dynamic Add/Pick Question Modal */}
+      {/* Dynamic Add/Pick Question Modal - Compact for Mobile */}
       <Modal
         open={isAdding}
         onClose={() => setIsAdding(false)}
-        title={addMode === 'create' ? `Create Question #${(questions?.length || 0) + 1}` : 'Pick from Question Bank'}
+        title={addMode === 'create' ? `Create Question #${(questions?.length || 0) + 1}` : 'Question Bank'}
         size="lg"
+        className="!p-3 sm:!p-5"
       >
-        <div className="space-y-4 py-1">
+        <div className="space-y-3 sm:space-y-4">
           
           {/* Mode Switcher */}
-          <div className="flex p-1 bg-[rgb(var(--bg-elevated))] border border-[rgb(var(--border))] rounded-xl">
+          <div className="flex p-1 bg-[rgb(var(--bg-elevated))] border border-[rgb(var(--border))] rounded-lg">
             <button 
               onClick={() => setAddMode('create')}
-              className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all flex items-center justify-center gap-2 cursor-pointer ${addMode === 'create' ? 'bg-[rgb(var(--bg-surface))] text-[rgb(var(--text-primary))] shadow-sm border border-[rgb(var(--border))]' : 'text-[rgb(var(--text-muted))] hover:text-[rgb(var(--text-primary))]'}`}
+              className={`flex-1 py-1.5 sm:py-2 text-[10px] sm:text-xs font-bold rounded-md transition-all flex items-center justify-center gap-1.5 cursor-pointer ${addMode === 'create' ? 'bg-[rgb(var(--bg-surface))] text-[rgb(var(--text-primary))] shadow-sm border border-[rgb(var(--border))]' : 'text-[rgb(var(--text-muted))] hover:text-[rgb(var(--text-primary))]'}`}
             >
-              <Plus size={14} /> Create New
+              <Plus size={12} /> Create New
             </button>
             <button 
               onClick={() => setAddMode('bank')}
-              className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all flex items-center justify-center gap-2 cursor-pointer ${addMode === 'bank' ? 'bg-[rgb(var(--bg-surface))] text-[rgb(var(--text-primary))] shadow-sm border border-[rgb(var(--border))]' : 'text-[rgb(var(--text-muted))] hover:text-[rgb(var(--text-primary))]'}`}
+              className={`flex-1 py-1.5 sm:py-2 text-[10px] sm:text-xs font-bold rounded-md transition-all flex items-center justify-center gap-1.5 cursor-pointer ${addMode === 'bank' ? 'bg-[rgb(var(--bg-surface))] text-[rgb(var(--text-primary))] shadow-sm border border-[rgb(var(--border))]' : 'text-[rgb(var(--text-muted))] hover:text-[rgb(var(--text-primary))]'}`}
             >
-              <Library size={14} /> Question Bank
+              <Library size={12} /> Bank
             </button>
           </div>
 
           {addMode === 'create' ? (
-            <div className="space-y-4">
-              <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
+            <div className="space-y-3 sm:space-y-4">
+              <div className="grid grid-cols-1 sm:grid-cols-4 gap-2 sm:gap-3">
                 <div className="sm:col-span-3">
                   <Input
                     label="Question Statement"
                     value={qText}
                     onChange={e => setQText(e.target.value)}
-                    placeholder="Type question prompt here..."
+                    placeholder="Type question prompt..."
                   />
                 </div>
-                <div>
-                  <Input
-                    label="Marks"
-                    type="number"
-                    min={1}
-                    value={qMarks}
-                    onChange={e => setQMarks(Number(e.target.value))}
-                  />
+                <div className="grid grid-cols-2 sm:grid-cols-1 gap-2">
+                  <div>
+                    <Input
+                      label="Marks"
+                      type="number"
+                      min={1}
+                      value={qMarks}
+                      onChange={e => setQMarks(Number(e.target.value))}
+                    />
+                  </div>
+                  <div>
+                    <label className="text-[10px] font-bold text-[rgb(var(--text-muted))] uppercase block mb-1">Type</label>
+                    <select
+                      value={qType}
+                      onChange={e => setQType(e.target.value)}
+                      className="w-full px-2 py-1.5 sm:py-2 text-xs font-bold rounded-lg sm:rounded-xl bg-[rgb(var(--bg-elevated))] border border-[rgb(var(--border))] text-[rgb(var(--text-primary))] outline-none cursor-pointer"
+                    >
+                      <option value="mcq">MCQ</option>
+                      <option value="subjective">Subjective</option>
+                    </select>
+                  </div>
                 </div>
-              </div>
-
-              <div>
-                <label className="text-[10px] font-bold text-[rgb(var(--text-muted))] uppercase block mb-1">Question Type</label>
-                <select
-                  value={qType}
-                  onChange={e => setQType(e.target.value)}
-                  className="w-full px-3 py-2 text-xs font-bold rounded-xl bg-[rgb(var(--bg-elevated))] border border-[rgb(var(--border))] text-[rgb(var(--text-primary))] outline-none cursor-pointer"
-                >
-                  <option value="mcq">Multiple Choice (MCQ)</option>
-                  <option value="subjective">Subjective (Long Answer)</option>
-                </select>
               </div>
 
               {qType === 'mcq' && (
-                <div className="space-y-3 p-3.5 bg-[rgb(var(--bg-elevated))] rounded-xl border border-[rgb(var(--border))]">
+                <div className="space-y-2.5 p-2 sm:p-3 bg-[rgb(var(--bg-elevated))] rounded-lg sm:rounded-xl border border-[rgb(var(--border))]">
                   <div className="flex items-center justify-between">
-                    <span className="text-xs font-bold text-[rgb(var(--text-primary))]">Options & Correct Answer</span>
-                    <span className="text-[10px] text-[rgb(var(--text-muted))]">Select radio to set answer</span>
+                    <span className="text-[10px] sm:text-xs font-bold text-[rgb(var(--text-primary))]">Options (Select answer)</span>
                   </div>
 
                   <div className="space-y-2">
                     {options.map((opt, idx) => (
-                      <div key={idx} className="flex items-center gap-2">
+                      <div key={idx} className="flex items-center gap-1.5 sm:gap-2">
                         <input
                           type="radio"
                           name="correctAnswer"
-                          className="w-4 h-4 accent-indigo-500 cursor-pointer shrink-0"
+                          className="w-3.5 h-3.5 accent-indigo-500 cursor-pointer shrink-0"
                           checked={correctAnswer === opt.text && opt.text !== ''}
                           onChange={() => setCorrectAnswer(opt.text)}
                         />
                         <Input
-                          className="flex-1"
-                          placeholder={`Option ${String.fromCharCode(65 + idx)}`}
+                          className="flex-1 text-[11px] sm:text-xs !py-1 sm:!py-1.5"
+                          placeholder={`Opt ${String.fromCharCode(65 + idx)}`}
                           value={opt.text}
                           onChange={e => {
                             const newOpts = [...options]
@@ -359,10 +422,9 @@ export const ExamQuestionsEditor = () => {
                         {options.length > 2 && (
                           <button
                             onClick={() => handleRemoveOption(idx)}
-                            className="p-2 text-rose-400 hover:bg-rose-500/10 rounded-xl transition-all cursor-pointer"
-                            title="Remove Option"
+                            className="p-1 sm:p-1.5 text-rose-400 hover:bg-rose-500/10 rounded-lg transition-all cursor-pointer"
                           >
-                            <Trash2 size={14} />
+                            <Trash2 size={12} />
                           </button>
                         )}
                       </div>
@@ -373,16 +435,16 @@ export const ExamQuestionsEditor = () => {
                     variant="outline"
                     size="sm"
                     onClick={handleAddOption}
-                    className="text-xs font-bold rounded-xl"
-                    leftIcon={<Plus size={13} />}
+                    className="text-[10px] font-bold rounded-lg py-1 px-2"
+                    leftIcon={<Plus size={10} />}
                   >
                     Add Option
                   </Button>
                 </div>
               )}
 
-              <div className="flex items-center justify-end gap-2 pt-3 border-t border-[rgb(var(--border))]">
-                <Button variant="outline" size="sm" onClick={() => setIsAdding(false)} className="rounded-xl font-bold">
+              <div className="flex items-center justify-end gap-2 pt-2 border-t border-[rgb(var(--border))]">
+                <Button variant="outline" size="sm" onClick={() => setIsAdding(false)} className="rounded-lg font-bold text-[10px] sm:text-xs px-3">
                   Cancel
                 </Button>
                 <Button
@@ -390,63 +452,86 @@ export const ExamQuestionsEditor = () => {
                   size="sm"
                   onClick={handleSaveQuestion}
                   loading={addMutation.isPending}
-                  className="bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold px-4"
+                  className="bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-bold px-3 sm:px-4 text-[10px] sm:text-xs"
                 >
                   Save Question
                 </Button>
               </div>
             </div>
           ) : (
-            <div className="space-y-4 py-2">
+            <div className="space-y-3 py-1">
               <div className="relative">
-                <Search size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[rgb(var(--text-muted))]" />
+                <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-[rgb(var(--text-muted))]" />
                 <input
                   type="text"
-                  placeholder="Search by question text or subject..."
+                  placeholder="Search bank..."
                   value={bankSearch}
                   onChange={e => setBankSearch(e.target.value)}
-                  className="w-full pl-9 pr-4 py-2 text-xs rounded-xl bg-[rgb(var(--bg-elevated))] border border-[rgb(var(--border))] text-[rgb(var(--text-primary))] outline-none focus:border-indigo-500/50 transition-all"
+                  className="w-full pl-8 pr-3 py-1.5 text-xs rounded-lg bg-[rgb(var(--bg-elevated))] border border-[rgb(var(--border))] text-[rgb(var(--text-primary))] outline-none focus:border-indigo-500/50 transition-all"
                 />
               </div>
 
               {isBankLoading ? (
-                <div className="flex justify-center p-8"><Spinner size={24} /></div>
+                <div className="flex justify-center p-6"><Spinner size={20} /></div>
               ) : filteredBankQuestions.length === 0 ? (
-                <div className="text-center p-8 text-xs text-[rgb(var(--text-muted))]">No questions found matching your search.</div>
+                <div className="text-center p-6 text-[10px] text-[rgb(var(--text-muted))]">No questions found.</div>
               ) : (
-                <div className="max-h-[50vh] overflow-y-auto pr-1 space-y-2 scrollbar-thin">
+                <div className="max-h-[40vh] sm:max-h-[50vh] overflow-y-auto pr-1 space-y-1.5 scrollbar-thin">
                   {filteredBankQuestions.map((bq: any) => {
                     const isAlreadyAttached = questions?.some((q: any) => q.id === bq.id)
+                    const isSelected = selectedBankIds.includes(bq.id)
                     return (
-                      <div key={bq.id} className="p-3 bg-[rgb(var(--bg-elevated))] border border-[rgb(var(--border))] rounded-xl hover:border-indigo-500/30 transition-all space-y-2">
-                        <div className="flex justify-between items-start gap-2">
+                      <div 
+                        key={bq.id} 
+                        onClick={() => !isAlreadyAttached && handleToggleBankSelection(bq.id)}
+                        className={cn(
+                          "p-2 bg-[rgb(var(--bg-elevated))] border rounded-lg transition-all cursor-pointer",
+                          isAlreadyAttached ? "opacity-50 border-[rgb(var(--border))] cursor-not-allowed" : 
+                          isSelected ? "border-indigo-500 bg-indigo-500/5" : "border-[rgb(var(--border))] hover:border-indigo-500/30"
+                        )}
+                      >
+                        <div className="flex items-start gap-2">
+                          <button className="mt-0.5 shrink-0 text-[rgb(var(--text-muted))] pointer-events-none">
+                            {isAlreadyAttached ? <CheckSquare size={14} className="text-emerald-400" /> :
+                             isSelected ? <CheckSquare size={14} className="text-indigo-500" /> : 
+                             <Square size={14} />}
+                          </button>
                           <div className="flex-1 min-w-0">
-                            <div className="flex items-center gap-1.5 mb-1 flex-wrap">
-                              <span className="text-[9px] font-bold uppercase font-mono text-indigo-400 bg-indigo-500/10 px-1.5 py-0.5 rounded-md">{bq.subject}</span>
-                              <span className="text-[9px] font-bold uppercase font-mono text-[rgb(var(--text-muted))] bg-[rgb(var(--bg-surface))] border border-[rgb(var(--border))] px-1.5 py-0.5 rounded-md">{bq.type}</span>
-                              <span className="text-[9px] font-bold uppercase font-mono text-purple-400 bg-purple-500/10 px-1.5 py-0.5 rounded-md">+{bq.marks} Marks</span>
+                            <div className="flex items-center gap-1 mb-0.5 flex-wrap">
+                              <span className="text-[8px] font-bold uppercase font-mono text-indigo-400 bg-indigo-500/10 px-1 py-0.5 rounded">{bq.subject}</span>
+                              <span className="text-[8px] font-bold uppercase font-mono text-purple-400 bg-purple-500/10 px-1 py-0.5 rounded">+{bq.marks}</span>
                             </div>
-                            <p className="text-xs font-bold text-[rgb(var(--text-primary))] leading-relaxed line-clamp-2">
+                            <p className="text-[10px] sm:text-xs font-bold text-[rgb(var(--text-primary))] leading-tight line-clamp-2">
                               {bq.question_text}
                             </p>
                           </div>
-                          
-                          <Button
-                            variant={isAlreadyAttached ? "outline" : "primary"}
-                            size="sm"
-                            disabled={isAlreadyAttached || attachMutation.isPending}
-                            onClick={() => handleAttachQuestion(bq)}
-                            className={cn(
-                              "text-[10px] px-3 py-1.5 rounded-lg shrink-0 h-auto",
-                              isAlreadyAttached ? "opacity-50 cursor-not-allowed text-[rgb(var(--text-muted))]" : "bg-indigo-600 hover:bg-indigo-700 text-white font-bold shadow-md shadow-indigo-600/20"
-                            )}
-                          >
-                            {isAlreadyAttached ? 'Added' : 'Select'}
-                          </Button>
                         </div>
                       </div>
                     )
                   })}
+                </div>
+              )}
+
+              {/* Bulk Attach Footer */}
+              {addMode === 'bank' && !isBankLoading && (
+                <div className="flex items-center justify-between pt-2 border-t border-[rgb(var(--border))]">
+                  <span className="text-[10px] font-bold text-[rgb(var(--text-muted))]">
+                    {selectedBankIds.length} selected
+                  </span>
+                  <div className="flex gap-2">
+                    <Button variant="outline" size="sm" onClick={() => setIsAdding(false)} className="rounded-lg font-bold text-[10px] px-2 py-1">
+                      Cancel
+                    </Button>
+                    <Button 
+                      variant="primary" 
+                      size="sm" 
+                      disabled={selectedBankIds.length === 0 || attachMutation.isPending}
+                      onClick={handleAttachBulk}
+                      className="bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-bold text-[10px] px-3 py-1 shadow-md shadow-indigo-600/20"
+                    >
+                      Attach {selectedBankIds.length} Questions
+                    </Button>
+                  </div>
                 </div>
               )}
             </div>
