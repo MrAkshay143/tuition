@@ -58,7 +58,7 @@ export default function MobileBottomNav() {
             {({ isActive }) => (
               <>
                 <div className="relative flex items-center justify-center">
-                  <Icon size={20} strokeWidth={isActive ? 2.2 : 1.8} />
+                  <Icon size={18} strokeWidth={isActive ? 2.2 : 1.8} />
                   {tab.badge && unreadCount > 0 && (
                     <motion.span
                       className="absolute -top-1.5 -right-2 w-4 h-4 bg-rose-500 text-white text-[9px] font-extrabold rounded-full flex items-center justify-center shadow-xs"
@@ -69,7 +69,7 @@ export default function MobileBottomNav() {
                     </motion.span>
                   )}
                 </div>
-                <span className="text-[10px] font-bold leading-none">{tab.label}</span>
+                <span className="text-[9px] sm:text-[10px] font-bold leading-none">{tab.label}</span>
                 {isActive && (
                   <motion.div
                     layoutId="mobile-nav-indicator"

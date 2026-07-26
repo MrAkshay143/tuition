@@ -122,28 +122,28 @@ export const ExamQuestionsEditor = () => {
   return (
     <div className="space-y-4 max-w-6xl mx-auto pb-10">
       {/* Short Header Bar */}
-      <div className="p-3 bg-[rgb(var(--bg-surface))] border border-[rgb(var(--border))] rounded-2xl shadow-xs">
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <div className="flex items-center gap-3 min-w-0">
+      <div className="p-2 sm:p-3 bg-[rgb(var(--bg-surface))] border border-[rgb(var(--border))] rounded-2xl shadow-xs">
+        <div className="flex flex-row items-center justify-between gap-2 min-w-0">
+          <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
             <button
               onClick={() => navigate(-1)}
-              className="p-2 rounded-xl bg-[rgb(var(--bg-elevated))] hover:bg-[rgb(var(--border))] text-[rgb(var(--text-muted))] hover:text-[rgb(var(--text-primary))] transition-all cursor-pointer border border-[rgb(var(--border))]"
+              className="p-1.5 sm:p-2 rounded-xl bg-[rgb(var(--bg-elevated))] hover:bg-[rgb(var(--border))] text-[rgb(var(--text-muted))] hover:text-[rgb(var(--text-primary))] transition-all cursor-pointer border border-[rgb(var(--border))] shrink-0"
             >
               <ArrowLeft size={16} />
             </button>
-            <div className="min-w-0">
-              <div className="flex items-center gap-2">
-                <h1 className="text-sm sm:text-base font-extrabold text-[rgb(var(--text-primary))] font-[Outfit] truncate">
+            <div className="min-w-0 flex-1">
+              <div className="flex items-center gap-1.5 sm:gap-2 min-w-0">
+                <h1 className="text-xs sm:text-base font-extrabold text-[rgb(var(--text-primary))] font-[Outfit] truncate">
                   {exam?.title || 'Exam Questions'}
                 </h1>
-                <Badge variant="primary" className="text-[9px] uppercase font-mono tracking-wider shrink-0">
+                <Badge variant="primary" className="text-[9px] uppercase font-mono tracking-wider shrink-0 hidden sm:inline-flex">
                   {exam?.type || 'MCQ'}
                 </Badge>
               </div>
-              <div className="flex items-center gap-3 text-[10px] text-[rgb(var(--text-muted))] font-bold mt-0.5">
-                <span className="flex items-center gap-1"><HelpCircle size={12}/> {questions?.length || 0} Questions</span>
-                <span className="flex items-center gap-1"><Award size={12}/> {totalMarks} / {maxMarks} Marks</span>
-                <span className="text-indigo-400">{marksPercentage}% Allocated</span>
+              <div className="flex items-center gap-1.5 sm:gap-3 text-[9px] sm:text-[10px] text-[rgb(var(--text-muted))] font-bold mt-0.5 truncate">
+                <span className="flex items-center gap-1 shrink-0"><HelpCircle size={10} className="sm:w-3 sm:h-3"/> {questions?.length || 0} Qs</span>
+                <span className="flex items-center gap-1 shrink-0"><Award size={10} className="sm:w-3 sm:h-3"/> {totalMarks}/{maxMarks}</span>
+                <span className="text-indigo-400 shrink-0">{marksPercentage}%</span>
               </div>
             </div>
           </div>
@@ -152,9 +152,9 @@ export const ExamQuestionsEditor = () => {
             variant="primary"
             size="sm"
             onClick={() => { setAddMode('create'); setIsAdding(true); }}
-            className="font-bold text-xs bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl px-4 py-2 cursor-pointer shadow-md shadow-indigo-600/20 shrink-0"
+            className="font-bold text-xs bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl px-2 sm:px-4 py-1.5 sm:py-2 cursor-pointer shadow-md shadow-indigo-600/20 shrink-0"
           >
-            <Plus size={15} /> Add Question
+            <Plus size={15} /> <span className="hidden sm:inline ml-1">Add Question</span>
           </Button>
         </div>
       </div>
