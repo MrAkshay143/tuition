@@ -103,6 +103,9 @@ export default function CourseBuilderPage() {
   const [examInput, setExamInput] = useState('JEE Advanced')
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false)
 
+  // Delete Confirmation State
+  const [confirmDelete, setConfirmDelete] = useState<{ type: 'module' | 'lesson'; id: number; title: string } | null>(null)
+
   // Module & Lesson Popup Modals State
   const [isModuleModalOpen, setIsModuleModalOpen] = useState(false)
   const [editingModuleId, setEditingModuleId] = useState<number | null>(null)
@@ -331,20 +334,22 @@ export default function CourseBuilderPage() {
         </div>
 
         {/* Right Top Action Bar Buttons (Cleaned up duplicates) */}
-        <div className="flex items-center gap-2">
-          <button onClick={exportCourse} className="px-3 py-1.5 text-xs font-bold text-slate-700 dark:text-[#c4c6e5] hover:text-white bg-slate-100 dark:bg-[#12132e] hover:bg-slate-200 dark:hover:bg-[#1f2147] border border-slate-200 dark:border-[#23254e] rounded-xl flex items-center gap-1.5 transition-all">
-            <Download size={13} /> Export
+        <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+          <button onClick={exportCourse} className="px-2 sm:px-3 py-1.5 text-xs font-bold text-slate-700 dark:text-[#c4c6e5] hover:text-white bg-slate-100 dark:bg-[#12132e] hover:bg-slate-200 dark:hover:bg-[#1f2147] border border-slate-200 dark:border-[#23254e] rounded-xl flex items-center gap-1.5 transition-all cursor-pointer" title="Export">
+            <Download size={13} /> <span className="hidden sm:inline">Export</span>
           </button>
 
-          <button onClick={() => navigate(`/courses/${id}`)} className="px-3.5 py-1.5 text-xs font-bold text-white bg-indigo-600 dark:bg-[#1a1b3d] hover:bg-indigo-700 dark:hover:bg-[#282a5c] border border-indigo-500 dark:border-[#30336b] rounded-xl flex items-center gap-1.5 transition-all">
-            <Eye size={13} /> Preview
+          <button onClick={() => navigate(`/courses/${id}`)} className="px-2 sm:px-3.5 py-1.5 text-xs font-bold text-white bg-indigo-600 dark:bg-[#1a1b3d] hover:bg-indigo-700 dark:hover:bg-[#282a5c] border border-indigo-500 dark:border-[#30336b] rounded-xl flex items-center gap-1.5 transition-all cursor-pointer" title="Preview">
+            <Eye size={13} /> <span className="hidden sm:inline">Preview</span>
           </button>
 
           <button
             onClick={() => publishMutation.mutate(course.status !== 'published')}
-            className="px-4 py-1.5 text-xs font-extrabold text-white bg-[#594fe6] hover:bg-[#4a41d0] rounded-xl flex items-center gap-1.5 shadow-lg shadow-indigo-600/30 transition-all cursor-pointer"
+            className="px-2 sm:px-4 py-1.5 text-xs font-extrabold text-white bg-[#594fe6] hover:bg-[#4a41d0] rounded-xl flex items-center gap-1.5 shadow-lg shadow-indigo-600/30 transition-all cursor-pointer"
           >
-            {course.status === 'published' ? 'Unpublish' : 'Publish'} <ChevronDown size={13} />
+            <span className="hidden sm:inline">{course.status === 'published' ? 'Unpublish' : 'Publish'}</span>
+            <span className="sm:hidden">{course.status === 'published' ? 'Unpub' : 'Pub'}</span>
+            <ChevronDown size={13} />
           </button>
 
           <div className="w-8 h-8 rounded-full bg-[#594fe6] text-white flex items-center justify-center font-black text-xs shadow-md ml-2 border border-indigo-400/30">
@@ -354,7 +359,7 @@ export default function CourseBuilderPage() {
       </div>
 
       {/* ── 3-COLUMN WORKSPACE BODY ────────────────────────────────────── */}
-      <div className="flex-1 grid grid-cols-1 lg:grid-cols-12 gap-0" style={{ minHeight: 'calc(100vh - 110px)' }}>
+      <div className="flex-1 grid grid-cols-1 lg:grid-cols-12 gap-4 lg:gap-0 p-4 lg:p-0" style={{ minHeight: 'calc(100vh - 110px)' }}>
 
         {/* ── COLUMN 1: LEFT CURRICULUM TREE SIDEBAR (3 cols) ─────────── */}
         <div className="lg:col-span-3 border-r border-slate-200 dark:border-[#1b1d3d] bg-white dark:bg-[#0c0e25] flex flex-col p-4 space-y-4">
@@ -441,8 +446,8 @@ export default function CourseBuilderPage() {
                           <Pencil size={12} />
                         </button>
                         <button
-                          onClick={() => { if (confirm(`Delete Module "${mod.title}"?`)) deleteModuleMutation.mutate(mod.id) }}
-                          className="p-1 hover:bg-red-500/10 rounded text-slate-500 dark:text-[#8e91b5] hover:text-red-400"
+                          onClick={() => setConfirmDelete({ type: 'module', id: mod.id, title: mod.title })}
+                          className="p-1 hover:bg-red-500/10 rounded text-slate-500 dark:text-[#8e91b5] hover:text-red-400 cursor-pointer"
                           title="Delete Module"
                         >
                           <Trash2 size={12} />
@@ -623,7 +628,7 @@ export default function CourseBuilderPage() {
                   </button>
 
                   <button
-                    onClick={() => { if (confirm(`Delete Lesson "${selectedLesson.title}"?`)) deleteLessonMutation.mutate(selectedLesson.id) }}
+                    onClick={() => setConfirmDelete({ type: 'lesson', id: selectedLesson.id, title: selectedLesson.title })}
                     className="px-3.5 py-2 bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 font-bold text-xs rounded-xl flex items-center gap-1.5 transition-all cursor-pointer"
                   >
                     <Trash2 size={14} /> Delete Lesson
@@ -734,7 +739,7 @@ export default function CourseBuilderPage() {
                     </div>
 
                     {/* 5-Metric Compact Inline Statistics Grid - Perfect Fit */}
-                    <div className="grid grid-cols-1 md:grid-cols-5 gap-1.5 pt-1">
+                    <div className="grid grid-cols-3 sm:grid-cols-5 gap-1.5 pt-1">
                       <div className="p-2.5 rounded-xl bg-[rgb(var(--bg-elevated))] border border-[rgb(var(--border))] flex flex-col items-center justify-center text-slate-500 dark:text-slate-400 text-center min-w-0">
                         <span className="text-slate-500 dark:text-slate-400 text-base font-extrabold text-[rgb(var(--text-primary))] font-[Outfit] leading-none">{modules.length}</span>
                         <div className="flex items-center justify-center gap-1 text-[9px] font-extrabold text-[rgb(var(--text-muted))] uppercase mt-1.5 whitespace-nowrap tracking-tight w-full">
@@ -1285,6 +1290,23 @@ export default function CourseBuilderPage() {
           </div>
         </div>
       </Modal>
+
+      <ConfirmModal
+        open={!!confirmDelete}
+        onClose={() => setConfirmDelete(null)}
+        title={confirmDelete?.type === 'module' ? 'Delete Module' : 'Delete Lesson'}
+        message={`Are you sure you want to delete "${confirmDelete?.title}"? This action cannot be undone.`}
+        confirmLabel="Delete"
+        variant="danger"
+        onConfirm={() => {
+          if (confirmDelete?.type === 'module') {
+            deleteModuleMutation.mutate(confirmDelete.id, { onSettled: () => setConfirmDelete(null) })
+          } else if (confirmDelete?.type === 'lesson') {
+            deleteLessonMutation.mutate(confirmDelete.id, { onSettled: () => setConfirmDelete(null) })
+          }
+        }}
+        loading={deleteModuleMutation.isPending || deleteLessonMutation.isPending}
+      />
     </div>
   )
 }
