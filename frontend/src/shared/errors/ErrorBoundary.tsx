@@ -122,7 +122,9 @@ export class ErrorBoundary extends Component<Props, State> {
           errorMessage={this.state.error?.message}
           onReload={() => {
             this.setState({ hasError: false, error: null })
-            window.location.reload()
+            const currentUrl = new URL(window.location.href)
+            currentUrl.searchParams.set('cb', String(Date.now()))
+            window.location.replace(currentUrl.toString())
           }}
           onHome={() => {
             this.setState({ hasError: false, error: null })
@@ -153,12 +155,35 @@ export function RouteErrorBoundary() {
 
   React.useEffect(() => {
     if (isChunkLoadError) {
-      const lastReload = sessionStorage.getItem('chunk_error_reload')
-      const now = Date.now()
-      if (!lastReload || now - parseInt(lastReload, 10) > 10000) {
-        sessionStorage.setItem('chunk_error_reload', String(now))
-        window.location.reload()
+      const attemptRecovery = async () => {
+        const lastReload = sessionStorage.getItem('chunk_error_reload')
+        const now = Date.now()
+        
+        if (!lastReload || now - parseInt(lastReload, 10) > 10000) {
+          sessionStorage.setItem('chunk_error_reload', String(now))
+          
+          try {
+            // 1. Clear all service worker caches
+            if ('caches' in window) {
+              const cacheNames = await caches.keys()
+              await Promise.all(cacheNames.map(name => caches.delete(name)))
+            }
+            // 2. Unregister service workers
+            if ('serviceWorker' in navigator) {
+              const registrations = await navigator.serviceWorker.getRegistrations()
+              await Promise.all(registrations.map(r => r.unregister()))
+            }
+          } catch (err) {
+            console.error('Failed to clear caches', err)
+          }
+
+          // 3. Bust the HTML cache by appending a timestamp query parameter
+          const currentUrl = new URL(window.location.href)
+          currentUrl.searchParams.set('cb', String(now)) // cache-bust
+          window.location.replace(currentUrl.toString())
+        }
       }
+      attemptRecovery()
     }
   }, [isChunkLoadError])
 

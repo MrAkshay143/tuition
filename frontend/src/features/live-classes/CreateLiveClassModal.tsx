@@ -1,13 +1,17 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { Modal } from '@/components/ui/overlays'
 import { Input, Select, Button, Textarea } from '@/components/ui'
-import { useCreateLiveClass } from '@/api/resources/liveClasses'
+import { useCreateLiveClass, useUpdateLiveClass } from '@/api/resources/liveClasses'
 import { useBatches } from '@/api/resources/batches'
 import toast from 'react-hot-toast'
 
-export const CreateLiveClassModal = ({ open, isOpen, onClose }: { open?: boolean, isOpen?: boolean, onClose: () => void }) => {
+export const CreateLiveClassModal = ({ open, isOpen, onClose, initialData }: { open?: boolean, isOpen?: boolean, onClose: () => void, initialData?: any }) => {
   const isModalOpen = !!(open ?? isOpen)
+  const isEditMode = !!initialData
+  
   const createMutation = useCreateLiveClass()
+  const updateMutation = useUpdateLiveClass(initialData?.id || '')
+  
   const { data: batchesData } = useBatches({ per_page: 100 })
   const batches = batchesData?.data || []
 
@@ -21,10 +25,48 @@ export const CreateLiveClassModal = ({ open, isOpen, onClose }: { open?: boolean
   const [duration, setDuration] = React.useState(60)
   const [selectedBatch, setSelectedBatch] = React.useState('')
 
+  useEffect(() => {
+    if (isModalOpen) {
+      if (initialData) {
+        setTitle(initialData.title || '')
+        setDescription(initialData.description || '')
+        setProvider(initialData.provider || 'zoom')
+        setMeetingUrl(initialData.meeting_url || '')
+        setMeetingId(initialData.meeting_id || '')
+        setPassword(initialData.password || '')
+        
+        // Format scheduled_at for datetime-local input
+        let formattedDate = ''
+        if (initialData.scheduled_at) {
+          try {
+            const dateObj = new Date(initialData.scheduled_at)
+            // Adjust for local timezone to display correctly in input type="datetime-local"
+            const tzOffset = dateObj.getTimezoneOffset() * 60000;
+            formattedDate = (new Date(dateObj.getTime() - tzOffset)).toISOString().slice(0, 16);
+          } catch (e) {
+            formattedDate = ''
+          }
+        }
+        setScheduledAt(formattedDate)
+        
+        setDuration(initialData.duration_minutes || 60)
+        
+        // For batch, extract first batch id if array, or map from objects
+        let batchId = ''
+        if (initialData.batches && initialData.batches.length > 0) {
+          batchId = String(initialData.batches[0].id)
+        }
+        setSelectedBatch(batchId)
+      } else {
+        // Reset form for create
+        setTitle(''); setDescription(''); setProvider('zoom')
+        setMeetingUrl(''); setMeetingId(''); setPassword('')
+        setScheduledAt(''); setDuration(60); setSelectedBatch('')
+      }
+    }
+  }, [isModalOpen, initialData])
+
   const handleClose = () => {
-    setTitle(''); setDescription(''); setProvider('zoom')
-    setMeetingUrl(''); setMeetingId(''); setPassword('')
-    setScheduledAt(''); setDuration(60); setSelectedBatch('')
     onClose()
   }
 
@@ -34,7 +76,8 @@ export const CreateLiveClassModal = ({ open, isOpen, onClose }: { open?: boolean
       toast.error('Please fill in all required fields')
       return
     }
-    createMutation.mutate({
+    
+    const payload = {
       title, description, provider,
       meeting_url: meetingUrl,
       meeting_id: meetingId,
@@ -42,20 +85,28 @@ export const CreateLiveClassModal = ({ open, isOpen, onClose }: { open?: boolean
       scheduled_at: new Date(scheduledAt).toISOString(),
       duration_minutes: Number(duration),
       batch_ids: [Number(selectedBatch)]
-    }, { onSuccess: handleClose })
+    }
+    
+    if (isEditMode) {
+      updateMutation.mutate(payload, { onSuccess: handleClose })
+    } else {
+      createMutation.mutate(payload, { onSuccess: handleClose })
+    }
   }
+
+  const isPending = isEditMode ? updateMutation.isPending : createMutation.isPending
 
   return (
     <Modal
-      title="Schedule Live Class"
+      title={isEditMode ? "Edit Live Class" : "Schedule Live Class"}
       open={isModalOpen}
       onClose={handleClose}
       size="md"
       footer={
         <>
           <Button type="button" variant="outline" onClick={handleClose}>Cancel</Button>
-          <Button type="submit" form="live-class-form" variant="primary" loading={createMutation.isPending}>
-            Schedule Class
+          <Button type="submit" form="live-class-form" variant="primary" loading={isPending}>
+            {isEditMode ? "Update Class" : "Schedule Class"}
           </Button>
         </>
       }

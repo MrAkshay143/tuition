@@ -322,7 +322,7 @@ Route::middleware(['auth:sanctum', 'active', \App\Http\Middleware\ValidateSessio
             Route::delete('admin/live-classes/{id}', [\App\Http\Controllers\Api\V1\LiveClassController::class, 'destroy']);
         });
 
-        Route::middleware('permission:teacher')->group(function () {
+        Route::middleware('role:teacher|admin')->group(function () {
             Route::get('teacher/live-classes', [\App\Http\Controllers\Api\V1\LiveClassController::class, 'index']);
             Route::post('teacher/live-classes', [\App\Http\Controllers\Api\V1\LiveClassController::class, 'store']);
             Route::delete('teacher/live-classes/{id}', [\App\Http\Controllers\Api\V1\LiveClassController::class, 'destroy']);

@@ -62,6 +62,11 @@ class SystemSecurityAndAnalyticsSeeder extends Seeder
             ['id' => 2, 'name' => 'student.view',   'guard_name' => 'web'],
             ['id' => 3, 'name' => 'batch.view',     'guard_name' => 'web'],
             ['id' => 4, 'name' => 'course.view',    'guard_name' => 'web'],
+            ['id' => 5, 'name' => 'exam.view',      'guard_name' => 'web'],
+            ['id' => 6, 'name' => 'exam.attempt',   'guard_name' => 'web'],
+            ['id' => 7, 'name' => 'assignment.submit', 'guard_name' => 'web'],
+            ['id' => 8, 'name' => 'live_class.view', 'guard_name' => 'web'],
+            ['id' => 9, 'name' => 'system.manage',  'guard_name' => 'web'],
         ];
         foreach ($permissions as $p) {
             DB::table('permissions')->insertOrIgnore([
@@ -71,14 +76,21 @@ class SystemSecurityAndAnalyticsSeeder extends Seeder
             ]);
         }
 
+        // Base permissions for all
         foreach ([1, 2, 3] as $roleId) {
-            foreach ([1, 2, 3, 4] as $permId) {
+            foreach ([1, 2, 3, 4, 5, 6, 7, 8] as $permId) {
                 DB::table('role_has_permissions')->insertOrIgnore([
                     'permission_id' => $permId,
                     'role_id'       => $roleId,
                 ]);
             }
         }
+        
+        // System manage only for admin (role 1)
+        DB::table('role_has_permissions')->insertOrIgnore([
+            'permission_id' => 9,
+            'role_id'       => 1,
+        ]);
 
         // ── 2. FEATURE FLAGS ────────────────────────────────────────────────
         $featureFlags = [

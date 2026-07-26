@@ -4,7 +4,8 @@ import { useQueryClient } from '@tanstack/react-query'
 import {
   Video, Plus, Search, Filter, Calendar, Clock, Users,
   Bookmark, MoreVertical, PlayCircle, Radio, ChevronsLeft,
-  ChevronLeft, ChevronRight, ChevronsRight, ChevronDown, LayoutGrid, List, SlidersHorizontal
+  ChevronLeft, ChevronRight, ChevronsRight, ChevronDown, LayoutGrid, List, SlidersHorizontal,
+  Pencil, Trash2
 } from 'lucide-react'
 import { Button, Card, Skeleton, ConfirmModal } from '@/components/ui'
 import { cn } from '@/lib/utils'
@@ -23,6 +24,7 @@ export function LiveClassesPage() {
   const [showFilters, setShowFilters] = useState(false)
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid')
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
+  const [editTargetData, setEditTargetData] = useState<any>(null)
   const [deleteTargetId, setDeleteTargetId] = useState<number | null>(null)
 
   // API Queries
@@ -98,7 +100,7 @@ export function LiveClassesPage() {
             variant="primary"
             size="sm"
             leftIcon={<Plus size={15} />}
-            onClick={() => setIsCreateModalOpen(true)}
+            onClick={() => { setEditTargetData(null); setIsCreateModalOpen(true); }}
             className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-3 sm:px-4 py-1.5 rounded-xl text-xs shadow-md shadow-indigo-600/20 cursor-pointer shrink-0 whitespace-nowrap"
           >
             <span className="hidden sm:inline">Schedule Class</span>
@@ -317,9 +319,14 @@ export function LiveClassesPage() {
                     </span>
                   )}
 
-                  <button onClick={() => setDeleteTargetId(c.id)} className="p-1 text-[rgb(var(--text-muted))] hover:text-rose-400 shrink-0 cursor-pointer">
-                    <MoreVertical size={13} />
-                  </button>
+                  <div className="flex gap-2">
+                    <button onClick={() => { setEditTargetData(c); setIsCreateModalOpen(true); }} className="p-1 text-[rgb(var(--text-muted))] hover:text-indigo-400 shrink-0 cursor-pointer" title="Edit Class">
+                      <Pencil size={13} />
+                    </button>
+                    <button onClick={() => setDeleteTargetId(c.id)} className="p-1 text-[rgb(var(--text-muted))] hover:text-rose-400 shrink-0 cursor-pointer" title="Cancel Class">
+                      <Trash2 size={13} />
+                    </button>
+                  </div>
                 </div>
 
                 <div>
@@ -375,9 +382,14 @@ export function LiveClassesPage() {
                   >
                     Start Session
                   </Button>
-                  <button onClick={() => setDeleteTargetId(c.id)} className="p-2 hover:text-rose-400 text-[rgb(var(--text-muted))]">
-                    <MoreVertical size={14} />
-                  </button>
+                  <div className="flex gap-1.5 ml-2">
+                    <button onClick={() => { setEditTargetData(c); setIsCreateModalOpen(true); }} className="p-2 hover:text-indigo-400 text-[rgb(var(--text-muted))]" title="Edit Class">
+                      <Pencil size={14} />
+                    </button>
+                    <button onClick={() => setDeleteTargetId(c.id)} className="p-2 hover:text-rose-400 text-[rgb(var(--text-muted))]" title="Cancel Class">
+                      <Trash2 size={14} />
+                    </button>
+                  </div>
                 </div>
               </Card>
             )
@@ -404,8 +416,12 @@ export function LiveClassesPage() {
         </div>
       </div>
 
-      {/* Modals */}
-      <CreateLiveClassModal open={isCreateModalOpen} onClose={() => setIsCreateModalOpen(false)} />
+      {/* Create / Edit Modal */}
+      <CreateLiveClassModal
+        open={isCreateModalOpen}
+        onClose={() => { setIsCreateModalOpen(false); setEditTargetData(null); }}
+        initialData={editTargetData}
+      />
 
       <ConfirmModal
         open={!!deleteTargetId}
