@@ -7,8 +7,12 @@ class SendChatMessageRequest extends ApiFormRequest {
     }
     public function rules(): array {
         return [
-            "message" => "required|string",
-            "media_id" => "nullable|integer|exists:media,id"
+            "message"              => "nullable|string|max:10000",
+            "media_id"             => "nullable|integer|exists:media,id",
+            "type"                 => "nullable|in:text,voice,media,file,call",
+            "uuid"                 => "nullable|string|max:64",
+            "reply_to_message_uuid" => "nullable|string|max:64",
         ];
     }
 }
+

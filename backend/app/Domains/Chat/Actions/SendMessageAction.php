@@ -11,10 +11,10 @@ class SendMessageAction
     /**
      * Send a direct chat message, supporting optional attachments.
      */
-    public function execute(int $senderId, int $receiverId, string $body, string $type = 'text', ?int $mediaId = null, ?string $uuid = null): ChatMessage
+    public function execute(int $senderId, int $receiverId, string $body, string $type = 'text', ?int $mediaId = null, ?string $uuid = null, ?string $replyToUuid = null): ChatMessage
     {
         if ($mediaId) {
-            $type = 'media';
+            $type = in_array($type, ['voice', 'call']) ? $type : 'media';
         }
 
         // 1. Check for Duplicate UUID
@@ -46,18 +46,19 @@ class SendMessageAction
 
         // 2. Create the message
         $message = ChatMessage::create([
-            'uuid'            => $uuid ?? \Illuminate\Support\Str::uuid(),
-            'conversation_id' => $conversation->id,
-            'sender_id'       => $senderId,
-            'receiver_id'     => $receiverId,
-            'message_type'    => $type,
-            'type'            => $type, // legacy support
-            'body'            => $body, // legacy support
-            'text'            => $body,
-            'media_id'        => $mediaId,
-            'status'          => 'sent',
-            'sent_at'         => now(),
-            'read'            => false, // legacy support
+            'uuid'                  => $uuid ?? \Illuminate\Support\Str::uuid(),
+            'conversation_id'       => $conversation->id,
+            'sender_id'             => $senderId,
+            'receiver_id'           => $receiverId,
+            'message_type'          => $type,
+            'type'                  => $type, // legacy support
+            'body'                  => $body,
+            'text'                  => $body,
+            'media_id'              => $mediaId,
+            'reply_to_message_uuid' => $replyToUuid,
+            'status'                => 'sent',
+            'sent_at'               => now(),
+            'read'                  => false,
         ]);
 
         // 3. Update Conversation

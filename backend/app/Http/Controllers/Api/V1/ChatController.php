@@ -24,7 +24,7 @@ class ChatController extends ApiController
     ) {
         \Illuminate\Support\Facades\Gate::authorize('message', [\App\Domains\Chat\Models\ChatConversation::class, (int)$partnerId]);
         $messages = $action->execute($request->user()->id, $partnerId);
-        return $this->paginated($messages, 'Chat thread retrieved successfully');
+        return $this->success($messages, 'Chat thread retrieved successfully');
     }
     
     // Fallback sync for missed messages
@@ -52,15 +52,39 @@ class ChatController extends ApiController
         \Illuminate\Support\Facades\Gate::authorize('message', [\App\Domains\Chat\Models\ChatConversation::class, (int)$partnerId]);
         
         $validated = $request->validated();
+        $type = $validated['type'] ?? ($validated['media_id'] ? 'media' : 'text');
         $message = $action->execute(
-            $request->user()->id, 
-            $partnerId, 
-            $validated['message'], 
-            'text', 
+            $request->user()->id,
+            $partnerId,
+            $validated['message'] ?? '',
+            $type,
             $validated['media_id'] ?? null,
-            $validated['uuid'] ?? null
+            $validated['uuid'] ?? null,
+            $validated['reply_to_message_uuid'] ?? null
         );
-        return $this->success($message, 'Message sent', 201);
+        $message->load('media');
+        return $this->success([
+            'uuid'                  => $message->uuid,
+            'id'                    => $message->id,
+            'sender_id'             => $message->sender_id,
+            'receiver_id'           => $message->receiver_id,
+            'body'                  => $message->body ?? $message->text,
+            'message'               => $message->body ?? $message->text,
+            'message_type'          => $message->message_type ?? $type,
+            'type'                  => $message->message_type ?? $type,
+            'status'                => $message->status,
+            'is_pinned'             => $message->is_pinned,
+            'reactions'             => $message->reactions ?? [],
+            'deleted_for'           => $message->deleted_for ?? [],
+            'created_at'            => $message->created_at,
+            'reply_to_message_uuid' => $message->reply_to_message_uuid,
+            'media'                 => $message->media ? [
+                'id'        => $message->media->id,
+                'url'       => $message->media->url ?? $message->media->path,
+                'mime_type' => $message->media->mime_type ?? $message->media->type,
+                'title'     => $message->media->title ?? $message->media->name,
+            ] : null,
+        ], 'Message sent', 201);
     }
     
     public function updateStatus(Request $request, $uuidOrId) {

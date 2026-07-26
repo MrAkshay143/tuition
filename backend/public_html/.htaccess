@@ -1,0 +1,21 @@
+<IfModule mod_dir.c>
+  DirectoryIndex index.html
+</IfModule>
+
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteBase /
+
+  RewriteRule ^index\.html$ - [L]
+
+  # Serve backend images directly if available
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteRule ^images/(.*)$ api_backend/public/images/$1 [L]
+
+  # Allow direct access to backend directory
+  RewriteRule ^api_backend/(.*)$ - [L]
+
+  # Route all non-file requests directly to index.html for SPA page refreshes
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteRule ^(.*)$ index.html [L]
+</IfModule>
