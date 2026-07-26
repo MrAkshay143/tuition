@@ -55,28 +55,33 @@ class ValidateSessionBinding
         }
 
         if (!$session) {
+            Log::warning("[Security] Session not found for token hash. User: {$user->id}");
             return $this->unauthorizedResponse();
         }
 
         // 3. Status Must Be ACTIVE
         if ($session->status !== UserSessionStatus::ACTIVE) {
+            Log::warning("[Security] Session status is not ACTIVE. User: {$user->id}");
             return $this->unauthorizedResponse();
         }
 
         // 4. Session Version Check
         if ($session->created_at && $user->password_changed_at && $session->created_at->lt($user->password_changed_at)) {
+            Log::warning("[Security] Session created before password change. User: {$user->id}");
             $session->update(['status' => UserSessionStatus::REVOKED->value, 'revoked_at' => now()]);
             return $this->unauthorizedResponse();
         }
 
         // 5. Force Logout Check
         if ($user->force_logout_at && $session->created_at && $session->created_at->lt($user->force_logout_at)) {
+            Log::warning("[Security] Session created before force logout. User: {$user->id}");
             $session->update(['status' => UserSessionStatus::REVOKED->value, 'revoked_at' => now()]);
             return $this->unauthorizedResponse();
         }
 
         // 6. Timeout Check (Idle & Absolute)
         if ($session->isExpired()) {
+            Log::warning("[Security] Session is expired. User: {$user->id}");
             $session->update(['status' => UserSessionStatus::EXPIRED->value]);
             return $this->unauthorizedResponse();
         }

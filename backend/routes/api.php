@@ -76,10 +76,10 @@ Route::middleware(['auth:sanctum', 'active', \App\Http\Middleware\ValidateSessio
 
     // ── Bundle endpoints (load entire page with 1 call) ──────────────────────
     Route::prefix('bundle')->group(function () {
-        Route::get('dashboard',          [BundleController::class, 'teacherDashboard'])->middleware('permission:dashboard.view');
-        Route::get('student-dashboard',  [BundleController::class, 'studentDashboard'])->middleware('permission:dashboard.view');
-        Route::get('student-profile/{id}',[BundleController::class, 'studentProfile'])->middleware('permission:dashboard.view');
-        Route::get('admin-overview',     [BundleController::class, 'adminOverview'])->middleware('permission:dashboard.view');
+        Route::get('dashboard',          [BundleController::class, 'teacherDashboard'])->middleware('role:teacher|admin');
+        Route::get('student-dashboard',  [BundleController::class, 'studentDashboard'])->middleware('role:student');
+        Route::get('student-profile/{id}',[BundleController::class, 'studentProfile'])->middleware('role:teacher|admin');
+        Route::get('admin-overview',     [BundleController::class, 'adminOverview'])->middleware('role:admin');
     });
 
     Route::get('students/{id}/devices', [StudentController::class, 'devices'])->middleware('permission:student.view');
@@ -210,7 +210,7 @@ Route::middleware(['auth:sanctum', 'active', \App\Http\Middleware\ValidateSessio
     Route::get('health', \App\Http\Controllers\Api\V1\HealthController::class);
 
     // ── Courses Management (V1) ────────────────────────────────────────────────
-    Route::middleware('permission:course.view')->group(function () {
+    Route::middleware('role:admin|teacher')->group(function () {
         Route::apiResource('courses', \App\Http\Controllers\Api\V1\CourseController::class);
         Route::patch('courses/{id}/publish', \App\Http\Controllers\Api\V1\CoursePublishController::class);
         Route::patch('courses/{id}/archive', [\App\Http\Controllers\Api\V1\CourseArchiveController::class, 'archive']);
@@ -316,13 +316,17 @@ Route::middleware(['auth:sanctum', 'active', \App\Http\Middleware\ValidateSessio
         Route::patch('live-classes/{id}/end', [\App\Http\Controllers\Api\V1\LiveClassController::class, 'end']);
 
         // Alias routes for frontend compatibility
-        Route::get('admin/live-classes', [\App\Http\Controllers\Api\V1\LiveClassController::class, 'index']);
-        Route::post('admin/live-classes', [\App\Http\Controllers\Api\V1\LiveClassController::class, 'store']);
-        Route::delete('admin/live-classes/{id}', [\App\Http\Controllers\Api\V1\LiveClassController::class, 'destroy']);
+        Route::middleware('permission:system.manage')->group(function () {
+            Route::get('admin/live-classes', [\App\Http\Controllers\Api\V1\LiveClassController::class, 'index']);
+            Route::post('admin/live-classes', [\App\Http\Controllers\Api\V1\LiveClassController::class, 'store']);
+            Route::delete('admin/live-classes/{id}', [\App\Http\Controllers\Api\V1\LiveClassController::class, 'destroy']);
+        });
 
-        Route::get('teacher/live-classes', [\App\Http\Controllers\Api\V1\LiveClassController::class, 'index']);
-        Route::post('teacher/live-classes', [\App\Http\Controllers\Api\V1\LiveClassController::class, 'store']);
-        Route::delete('teacher/live-classes/{id}', [\App\Http\Controllers\Api\V1\LiveClassController::class, 'destroy']);
+        Route::middleware('permission:teacher')->group(function () {
+            Route::get('teacher/live-classes', [\App\Http\Controllers\Api\V1\LiveClassController::class, 'index']);
+            Route::post('teacher/live-classes', [\App\Http\Controllers\Api\V1\LiveClassController::class, 'store']);
+            Route::delete('teacher/live-classes/{id}', [\App\Http\Controllers\Api\V1\LiveClassController::class, 'destroy']);
+        });
 
         // Academic Taxonomy Read/Write (Teacher/Admin)
         Route::get('education-types',  [EducationTypeController::class, 'index']);
