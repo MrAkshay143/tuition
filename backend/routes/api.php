@@ -303,6 +303,7 @@ Route::middleware(['auth:sanctum', 'active', \App\Http\Middleware\ValidateSessio
         Route::delete('exams/{id}', [\App\Http\Controllers\Api\V1\ExamController::class, 'destroy']);
         Route::get('exams/{id}/questions', [\App\Http\Controllers\Api\V1\ExamController::class, 'questions']);
         Route::post('exams/{id}/questions', [\App\Http\Controllers\Api\V1\ExamController::class, 'addQuestion']);
+        Route::post('exams/{id}/questions/attach', [\App\Http\Controllers\Api\V1\ExamController::class, 'attachQuestion']);
         Route::put('exams/{id}/questions/{qId}', [\App\Http\Controllers\Api\V1\ExamController::class, 'updateQuestion']);
         Route::delete('exams/{id}/questions/{qId}', [\App\Http\Controllers\Api\V1\ExamController::class, 'removeQuestion']);
         Route::post('exams/{id}/questions/sync', [\App\Http\Controllers\Api\V1\ExamController::class, 'syncQuestions']);

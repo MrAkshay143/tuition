@@ -1,26 +1,64 @@
-import React, { useState } from 'react'
+import React, { useState, useMemo } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-import { useExam, useExamQuestions, useAddQuestion, useRemoveQuestion } from '@/api/resources/exams'
+import { useExam, useExamQuestions, useAddQuestion, useRemoveQuestion, useAttachQuestion } from '@/api/resources/exams'
+import { useApiQuery } from '@/api/resources/hooks'
 import { Button, Card, Badge, Spinner, Input, Select, Modal } from '@/components/ui'
 import { ArrowLeft, Trash2, Plus, GripVertical, CheckCircle2, HelpCircle, Award, Sparkles, FileText, Library, Search } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { motion, AnimatePresence } from 'framer-motion'
+import { cn } from '@/lib/utils'
 
 export const ExamQuestionsEditor = () => {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
   const { data: exam, isLoading: isExamLoading } = useExam(id || '')
   const { data: questions, isLoading: isQuestionsLoading } = useExamQuestions(id || '')
+  
   const addMutation = useAddQuestion(id || '')
+  const attachMutation = useAttachQuestion(id || '')
   const removeMutation = useRemoveQuestion(id || '')
 
   const [isAdding, setIsAdding] = useState(false)
   const [addMode, setAddMode] = useState<'create' | 'bank'>('create')
+  
+  // Create Question State
   const [qText, setQText] = useState('')
   const [qType, setQType] = useState('mcq')
   const [qMarks, setQMarks] = useState(1)
   const [options, setOptions] = useState([{ text: '' }, { text: '' }])
   const [correctAnswer, setCorrectAnswer] = useState('')
+
+  // Bank Question State
+  const [bankSearch, setBankSearch] = useState('')
+  
+  const { data: bankQuestions = [], isLoading: isBankLoading } = useApiQuery(
+    ['admin', 'question-bank'],
+    '/questions?per_page=100',
+    undefined,
+    {
+      enabled: isAdding && addMode === 'bank',
+      select: (list: any) => {
+        if (Array.isArray(list) && list.length > 0) {
+          return list.map((q: any) => ({
+            id: q.id,
+            question_text: q.content || q.question_text || q.question || '',
+            type: q.type || 'mcq',
+            difficulty: (q.difficulty?.name || q.difficulty || 'medium').toLowerCase(),
+            subject: q.topic?.subject?.name || q.subject || 'General',
+            marks: q.default_marks || q.marks || 4
+          }))
+        }
+        return []
+      }
+    }
+  )
+
+  const filteredBankQuestions = useMemo(() => {
+    return bankQuestions.filter((q: any) => 
+      q.question_text.toLowerCase().includes(bankSearch.toLowerCase()) ||
+      q.subject.toLowerCase().includes(bankSearch.toLowerCase())
+    )
+  }, [bankQuestions, bankSearch])
 
   if (isExamLoading || isQuestionsLoading) return (
     <div className="flex flex-col items-center justify-center min-h-[60vh] gap-3">
@@ -55,6 +93,24 @@ export const ExamQuestionsEditor = () => {
         setQMarks(1)
         setOptions([{ text: '' }, { text: '' }])
         setCorrectAnswer('')
+      }
+    })
+  }
+
+  const handleAttachQuestion = (bankQ: any) => {
+    const isAlreadyAttached = questions?.some((q: any) => q.id === bankQ.id)
+    if (isAlreadyAttached) {
+      toast.error('Question is already in this exam')
+      return
+    }
+
+    attachMutation.mutate({
+      question_id: bankQ.id,
+      marks: bankQ.marks,
+      sort_order: (questions?.length || 0) + 1
+    }, {
+      onSuccess: () => {
+        setIsAdding(false)
       }
     })
   }
@@ -341,16 +397,58 @@ export const ExamQuestionsEditor = () => {
               </div>
             </div>
           ) : (
-            <div className="space-y-4 py-4 text-center">
-              <div className="w-12 h-12 rounded-2xl bg-indigo-500/10 text-indigo-400 flex items-center justify-center mx-auto">
-                <Search size={24} />
+            <div className="space-y-4 py-2">
+              <div className="relative">
+                <Search size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[rgb(var(--text-muted))]" />
+                <input
+                  type="text"
+                  placeholder="Search by question text or subject..."
+                  value={bankSearch}
+                  onChange={e => setBankSearch(e.target.value)}
+                  className="w-full pl-9 pr-4 py-2 text-xs rounded-xl bg-[rgb(var(--bg-elevated))] border border-[rgb(var(--border))] text-[rgb(var(--text-primary))] outline-none focus:border-indigo-500/50 transition-all"
+                />
               </div>
-              <div>
-                <h3 className="text-sm font-extrabold text-[rgb(var(--text-primary))] font-[Outfit]">Question Bank</h3>
-                <p className="text-xs text-[rgb(var(--text-muted))] max-w-xs mx-auto mt-1">
-                  Integration with the central question bank is coming soon. You will be able to search and pick existing questions here.
-                </p>
-              </div>
+
+              {isBankLoading ? (
+                <div className="flex justify-center p-8"><Spinner size={24} /></div>
+              ) : filteredBankQuestions.length === 0 ? (
+                <div className="text-center p-8 text-xs text-[rgb(var(--text-muted))]">No questions found matching your search.</div>
+              ) : (
+                <div className="max-h-[50vh] overflow-y-auto pr-1 space-y-2 scrollbar-thin">
+                  {filteredBankQuestions.map((bq: any) => {
+                    const isAlreadyAttached = questions?.some((q: any) => q.id === bq.id)
+                    return (
+                      <div key={bq.id} className="p-3 bg-[rgb(var(--bg-elevated))] border border-[rgb(var(--border))] rounded-xl hover:border-indigo-500/30 transition-all space-y-2">
+                        <div className="flex justify-between items-start gap-2">
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-1.5 mb-1 flex-wrap">
+                              <span className="text-[9px] font-bold uppercase font-mono text-indigo-400 bg-indigo-500/10 px-1.5 py-0.5 rounded-md">{bq.subject}</span>
+                              <span className="text-[9px] font-bold uppercase font-mono text-[rgb(var(--text-muted))] bg-[rgb(var(--bg-surface))] border border-[rgb(var(--border))] px-1.5 py-0.5 rounded-md">{bq.type}</span>
+                              <span className="text-[9px] font-bold uppercase font-mono text-purple-400 bg-purple-500/10 px-1.5 py-0.5 rounded-md">+{bq.marks} Marks</span>
+                            </div>
+                            <p className="text-xs font-bold text-[rgb(var(--text-primary))] leading-relaxed line-clamp-2">
+                              {bq.question_text}
+                            </p>
+                          </div>
+                          
+                          <Button
+                            variant={isAlreadyAttached ? "outline" : "primary"}
+                            size="sm"
+                            disabled={isAlreadyAttached || attachMutation.isPending}
+                            onClick={() => handleAttachQuestion(bq)}
+                            className={cn(
+                              "text-[10px] px-3 py-1.5 rounded-lg shrink-0 h-auto",
+                              isAlreadyAttached ? "opacity-50 cursor-not-allowed text-[rgb(var(--text-muted))]" : "bg-indigo-600 hover:bg-indigo-700 text-white font-bold shadow-md shadow-indigo-600/20"
+                            )}
+                          >
+                            {isAlreadyAttached ? 'Added' : 'Select'}
+                          </Button>
+                        </div>
+                      </div>
+                    )
+                  })}
+                </div>
+              )}
             </div>
           )}
         </div>

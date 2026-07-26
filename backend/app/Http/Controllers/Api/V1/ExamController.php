@@ -136,6 +136,28 @@ class ExamController extends ApiController
         return $this->success($res, 'Question added successfully', 201);
     }
 
+    public function attachQuestion(
+        \Illuminate\Http\Request $request,
+        $id
+    ) {
+        $exam = Exam::findOrFail($id);
+        $validated = $request->validate([
+            'question_id' => 'required|exists:questions,id',
+            'marks'       => 'required|numeric|min:1',
+            'sort_order'  => 'nullable|integer',
+        ]);
+
+        $sortOrder = $validated['sort_order'] ?? ($exam->questions()->count() + 1);
+        $exam->questions()->syncWithoutDetaching([
+            $validated['question_id'] => [
+                'marks'      => $validated['marks'],
+                'sort_order' => $sortOrder,
+            ]
+        ]);
+
+        return $this->success(null, 'Question attached to exam successfully');
+    }
+
     public function updateQuestion(
         \Illuminate\Http\Request $request,
         $id,
