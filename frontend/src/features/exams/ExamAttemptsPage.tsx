@@ -188,6 +188,10 @@ export const ExamAttemptsPage = () => {
                     }
                   </span>
                 )
+              },
+              {
+                header: '',
+                accessor: () => <div className="hidden" />
               }
             ]}
             onRowClick={(row) => {

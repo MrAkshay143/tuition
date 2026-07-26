@@ -193,16 +193,26 @@ class AssessmentSeeder extends Seeder
             // Add questions
             $questionIds = [];
             foreach ($qList as $sOrder => $q) {
-                $questionIds[] = DB::table('exam_questions')->insertGetId([
-                    'exam_id'        => $examId,
-                    'question'       => $q['question'],
+                // Insert into global questions table first
+                $qId = DB::table('questions')->insertGetId([
+                    'content'        => $q['question'],
                     'type'           => 'mcq',
                     'options'        => $q['options'],
                     'correct_answer' => $q['correct_answer'],
-                    'marks'          => $q['marks'],
-                    'sort_order'     => $sOrder + 1,
+                    'default_marks'  => $q['marks'],
+                    'teacher_id'     => $teacher->id,
+                    'is_active'      => true,
                     'created_at'     => now(),
                     'updated_at'     => now(),
+                ]);
+                $questionIds[] = $qId;
+
+                // Attach to exam_question_bank
+                DB::table('exam_question_bank')->insert([
+                    'exam_id'        => $examId,
+                    'question_id'    => $qId,
+                    'marks'          => $q['marks'],
+                    'sort_order'     => $sOrder + 1,
                 ]);
             }
 
