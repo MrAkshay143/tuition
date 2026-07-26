@@ -212,8 +212,8 @@ export const AttemptDetailsPage = () => {
                 <div className="space-y-1.5 mt-3">
                   <p className="text-[10px] font-bold text-[rgb(var(--text-muted))] uppercase mb-2">Options</p>
                   {q.type === 'mcq' && Array.isArray(q.options) && q.options.map((opt: string, oIdx: number) => {
-                    const isStudentChoice = String(studentAns) === String(oIdx)
-                    const isActualCorrect = String(q.evaluation.correct_answer) === String(oIdx)
+                    const isStudentChoice = String(studentAns) === String(opt) || String(studentAns) === String(oIdx)
+                    const isActualCorrect = String(q.evaluation.correct_answer) === String(opt) || String(q.evaluation.correct_answer) === String(oIdx)
 
                     let optClass = "border-[rgb(var(--border))] bg-[rgb(var(--bg-body))]"
                     let icon = null

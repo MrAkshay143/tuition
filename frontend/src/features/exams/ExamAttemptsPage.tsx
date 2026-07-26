@@ -153,9 +153,6 @@ export const ExamAttemptsPage = () => {
                       )}
                       <span className="truncate">{attempt.student?.name}</span>
                     </div>
-                    <span className="text-[10px] text-[rgb(var(--text-muted))] font-mono sm:hidden pl-11">
-                      Started: {new Date(attempt.started_at).toLocaleDateString()}
-                    </span>
                   </div>
                 )
               },
