@@ -10,7 +10,6 @@ interface Tab { label: string; to: string; icon: React.ElementType; badge?: bool
 const teacherTabs: Tab[] = [
   { label: 'Home', to: '/teacher/dashboard', icon: LayoutDashboard },
   { label: 'Students', to: '/teacher/students', icon: Users },
-  { label: 'Certs', to: '/teacher/certificates', icon: Award },
   { label: 'Calendar', to: '/teacher/calendar', icon: Calendar },
   { label: 'Chat', to: '/teacher/chat', icon: MessageSquare, badge: true },
   { label: 'Settings', to: '/teacher/settings', icon: Settings },
