@@ -49,7 +49,7 @@ export const ExamAttemptsPage = () => {
       </div>
 
       {/* Top 4 KPI Metrics Sparkline Cards Row */}
-      <div className="admin-stats-row">
+      <div className="admin-stats-row flex overflow-x-auto scrollbar-hide gap-3 pb-1">
         {/* Card 1: Total Attempts */}
         <Card className="p-3.5 border border-[rgb(var(--border))] flex items-center justify-between gap-2 relative overflow-hidden">
           <div className="flex items-center gap-2.5 min-w-0 flex-1">
