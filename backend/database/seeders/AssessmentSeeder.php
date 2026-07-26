@@ -191,8 +191,9 @@ class AssessmentSeeder extends Seeder
             ]);
 
             // Add questions
+            $questionIds = [];
             foreach ($qList as $sOrder => $q) {
-                DB::table('exam_questions')->insert([
+                $questionIds[] = DB::table('exam_questions')->insertGetId([
                     'exam_id'        => $examId,
                     'question'       => $q['question'],
                     'type'           => 'mcq',
@@ -212,18 +213,51 @@ class AssessmentSeeder extends Seeder
                 $percentage = round(($score / $eItem['total_marks']) * 100, 1);
                 $passed     = $score >= $eItem['pass_marks'];
 
+                $answers = [];
+                foreach ($questionIds as $idx => $qid) {
+                    // Randomly select index 0, 1, 2, or 3 based on correct answer logic in real life.
+                    // For mock, just put a random string or the correct index.
+                    // Actually, the resource evaluates using (string)$studentAnswer === (string)$q->correct_answer
+                    // We know qList has options and correct_answer as string.
+                    // E.g., 'Tesla'
+                    // For simplicity, we just put some option from the question.
+                    $qData = $qList[$idx];
+                    $options = json_decode($qData['options'], true);
+                    $answers[$qid] = (rand(0, 100) > 30) ? $qData['correct_answer'] : $options[array_rand($options)];
+                }
+
                 $attemptId = DB::table('exam_attempts')->insertGetId([
                     'exam_id'      => $examId,
                     'student_id'   => $student->id,
                     'score'        => $score,
                     'percentage'   => $percentage,
                     'passed'       => $passed,
-                    'answers'      => json_encode(['q1' => 'Option A', 'q2' => 'Option B']),
+                    'answers'      => json_encode($answers),
                     'started_at'   => now()->subHours(3),
                     'submitted_at' => now()->subHours(2),
                     'created_at'   => now()->subHours(3),
                     'updated_at'   => now()->subHours(2),
                 ]);
+
+                // Seed security logs for the attempt
+                $logTypes = [
+                    ['type' => 'tab_switch', 'severity' => 'warning', 'details' => json_encode(['switched_to' => 'Google', 'duration' => '15s'])],
+                    ['type' => 'fullscreen_exit', 'severity' => 'warning', 'details' => json_encode(['duration' => '5s'])],
+                    ['type' => 'right_click', 'severity' => 'info', 'details' => json_encode(['element' => 'question_body'])]
+                ];
+                
+                // Add 1-3 random logs
+                for ($i = 0; $i < rand(1, 3); $i++) {
+                    $log = $logTypes[array_rand($logTypes)];
+                    DB::table('exam_security_logs')->insert([
+                        'exam_attempt_id' => $attemptId,
+                        'event_type'      => $log['type'],
+                        'severity'        => $log['severity'],
+                        'details'         => $log['details'],
+                        'created_at'      => now()->subHours(3)->addMinutes(rand(5, 50)),
+                        'updated_at'      => now(),
+                    ]);
+                }
 
                 // Certificates
                 if ($passed) {
