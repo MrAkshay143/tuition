@@ -74,8 +74,7 @@ const MessageContent: React.FC<{
   msg: any
   isMine: boolean
   onImageClick: (url: string) => void
-  onPlayVideo?: (url: string) => void
-}> = ({ msg, isMine, onImageClick, onPlayVideo }) => {
+}> = ({ msg, isMine, onImageClick }) => {
   const body = msg.body || msg.message || msg.text || ''
   const type = msg.message_type || msg.type || 'text'
   const mediaUrl = msg.media?.url || msg.media_url
@@ -139,15 +138,8 @@ const MessageContent: React.FC<{
 
     if (isVideo) {
       return (
-        <div className="relative group rounded-xl overflow-hidden max-w-[260px] bg-black border border-white/10 shadow-md">
+        <div className="rounded-xl overflow-hidden max-w-[260px] bg-black border border-white/10 shadow-md">
           <video src={mediaUrl} controls className="w-full h-auto max-h-48" />
-          {onPlayVideo && (
-            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity pointer-events-none">
-              <button onClick={(e) => { e.preventDefault(); onPlayVideo(mediaUrl); }} className="w-12 h-12 bg-emerald-600 hover:bg-emerald-500 hover:scale-110 rounded-full flex items-center justify-center shadow-lg transition-all pointer-events-auto">
-                <Play size={20} className="text-white fill-current ml-1" />
-              </button>
-            </div>
-          )}
         </div>
       )
     }
@@ -183,41 +175,23 @@ const MessageContent: React.FC<{
   if (ytId) {
     return (
       <div className="space-y-2 min-w-[200px]">
-        {onPlayVideo ? (
-          <div
-            onClick={() => onPlayVideo(body)}
-            className="block cursor-pointer relative group rounded-xl overflow-hidden aspect-video bg-black border border-white/10 shadow-md"
-          >
-            <img
-              src={`https://img.youtube.com/vi/${ytId}/mqdefault.jpg`}
-              alt="YouTube video"
-              className="w-full h-full object-cover opacity-80 group-hover:opacity-60 transition-opacity"
-            />
-            <div className="absolute inset-0 flex items-center justify-center">
-              <div className="w-12 h-12 bg-red-600 rounded-full flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
-                <Play size={20} className="text-white fill-current ml-1" />
-              </div>
+        <a
+          href={body}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="block relative group rounded-xl overflow-hidden aspect-video bg-black border border-white/10 shadow-md"
+        >
+          <img
+            src={`https://img.youtube.com/vi/${ytId}/mqdefault.jpg`}
+            alt="YouTube video"
+            className="w-full h-full object-cover opacity-80 group-hover:opacity-60 transition-opacity"
+          />
+          <div className="absolute inset-0 flex items-center justify-center">
+            <div className="w-12 h-12 bg-red-600 rounded-full flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+              <Play size={20} className="text-white fill-current ml-1" />
             </div>
           </div>
-        ) : (
-          <a
-            href={body}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="block relative group rounded-xl overflow-hidden aspect-video bg-black border border-white/10 shadow-md"
-          >
-            <img
-              src={`https://img.youtube.com/vi/${ytId}/mqdefault.jpg`}
-              alt="YouTube video"
-              className="w-full h-full object-cover opacity-80 group-hover:opacity-60 transition-opacity"
-            />
-            <div className="absolute inset-0 flex items-center justify-center">
-              <div className="w-12 h-12 bg-red-600 rounded-full flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
-                <Play size={20} className="text-white fill-current ml-1" />
-              </div>
-            </div>
-          </a>
-        )}
+        </a>
         <p className={`text-[10px] truncate ${isMine ? 'text-white/60' : 'text-slate-400'}`}>{body}</p>
       </div>
     )
@@ -1076,13 +1050,6 @@ export const ChatPage = () => {
                               msg={msg} 
                               isMine={isMine} 
                               onImageClick={setLightboxSrc}
-                              onPlayVideo={isHost ? (url) => {
-                                handleVideoPickerSelect({
-                                  id: 0,
-                                  title: 'Shared Video',
-                                  url: url
-                                })
-                              } : undefined}
                             />
 
                             {/* Meta row: time + status */}

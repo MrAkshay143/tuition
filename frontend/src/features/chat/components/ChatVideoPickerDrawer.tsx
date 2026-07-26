@@ -117,7 +117,7 @@ export function ChatVideoPickerDrawer({ open, onClose, partnerId, onSelect }: Ch
                 }`}
               >
                 <BookOpen size={16} />
-                Student's Course Videos
+                Assigned Video
                 {courseVideos.length > 0 && (
                   <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full ${activeTab === 'course' ? 'bg-white/20' : 'bg-indigo-500/20 text-indigo-500'}`}>
                     {courseVideos.length}
@@ -133,7 +133,7 @@ export function ChatVideoPickerDrawer({ open, onClose, partnerId, onSelect }: Ch
                 }`}
               >
                 <Library size={16} />
-                All Media Library
+                Other Courses Video
               </button>
             </div>
 
