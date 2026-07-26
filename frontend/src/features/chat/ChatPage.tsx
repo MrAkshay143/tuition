@@ -188,9 +188,16 @@ export const ChatPage = () => {
   useEffect(() => {
     if (threadData) {
       setLocalMessages(sortMessages([...threadData]))
-      messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
     }
   }, [threadData])
+
+  // --- Auto Scroll to Bottom ---
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+    }, 100)
+    return () => clearTimeout(timer)
+  }, [localMessages.length, typing])
 
   // --- WebRTC Initialization ---
   useEffect(() => {
@@ -273,7 +280,6 @@ export const ChatPage = () => {
     setMessage('')
     setReplyingTo(null)
     setShowInputEmojiPicker(false)
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
 
     if (isOffline) {
       await chatOutbox.enqueue(newMsg)

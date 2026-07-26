@@ -146,8 +146,8 @@ Route::middleware(['auth:sanctum', 'active', \App\Http\Middleware\ValidateSessio
         Route::delete('{id}', [\App\Http\Controllers\Api\V1\AnnouncementController::class, 'destroy']);
     });
 
-    // ── Chat System (All Authenticated Roles) ──────────────────────────────
-    Route::prefix('chat')->middleware('throttle:60,1')->group(function () {
+    // 💬 Chat System (All Authenticated Roles) 💬
+    Route::prefix('chat')->middleware('throttle:1000,1')->group(function () {
         Route::get('conversations', [\App\Http\Controllers\Api\V1\ChatController::class, 'conversations']);
         Route::get('messages/sync', [\App\Http\Controllers\Api\V1\ChatController::class, 'syncMessages']);
         Route::get('messages/{userId}', [\App\Http\Controllers\Api\V1\ChatController::class, 'thread']);
