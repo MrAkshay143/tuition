@@ -259,7 +259,7 @@ export const ExamsPage = () => {
           <p className="text-xs text-[rgb(var(--text-muted))] mt-1">Try adjusting your search criteria or create a new exam</p>
         </Card>
       ) : viewMode === 'grid' ? (
-        <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4">
           {filtered.map((exam: any) => {
             const isPastDue = exam.ends_at && new Date(exam.ends_at) < new Date()
             const dateObj = exam.ends_at ? new Date(exam.ends_at) : new Date('2026-07-29')
@@ -275,7 +275,7 @@ export const ExamsPage = () => {
               >
                 <Card
                   className={cn(
-                    "p-2.5 sm:p-3.5 border border-[rgb(var(--border))] bg-[rgb(var(--bg-surface))] flex flex-col justify-between space-y-2 sm:space-y-3 hover:border-indigo-500/50 hover:shadow-md transition-all duration-200 group relative overflow-hidden rounded-2xl",
+                    "p-3 sm:p-4 border border-[rgb(var(--border))] bg-[rgb(var(--bg-surface))] flex flex-col justify-between space-y-3 hover:border-indigo-500/50 hover:shadow-md transition-all duration-200 group relative overflow-hidden rounded-2xl",
                     isPastDue && "border-rose-500/30 bg-rose-500/5"
                   )}
                 >
@@ -284,19 +284,19 @@ export const ExamsPage = () => {
 
                   {/* Header Type & Action Buttons */}
                   <div className="flex items-center justify-between pt-1 gap-1">
-                    <div className="flex items-center gap-1 min-w-0 flex-wrap sm:flex-nowrap">
-                      <span className="inline-flex items-center gap-0.5 text-[8px] sm:text-[9px] font-extrabold uppercase tracking-wider text-indigo-400 bg-indigo-500/10 border border-indigo-500/20 px-1.5 sm:px-2 py-0.5 rounded-full font-mono truncate">
+                    <div className="flex items-center gap-1.5 min-w-0 flex-wrap">
+                      <span className="inline-flex items-center gap-0.5 text-[9px] sm:text-[10px] font-extrabold uppercase tracking-wider text-indigo-400 bg-indigo-500/10 border border-indigo-500/20 px-2 py-0.5 rounded-full font-mono truncate">
                         <Sparkles size={10} className="text-indigo-400 shrink-0" />
                         {exam.type || 'MCQ'}
                       </span>
 
                       {exam.is_active || exam.status === 'published' ? (
-                        <span className="inline-flex items-center gap-1 text-[8px] sm:text-[9px] font-bold uppercase text-slate-500 dark:text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-1.5 sm:px-2 py-0.5 rounded-full truncate">
+                        <span className="inline-flex items-center gap-1 text-[9px] sm:text-[10px] font-bold uppercase text-slate-500 dark:text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded-full truncate">
                           <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse shrink-0" />
                           LIVE
                         </span>
                       ) : (
-                        <span className="inline-flex items-center gap-1 text-[8px] sm:text-[9px] font-bold uppercase text-amber-400 bg-amber-500/10 border border-amber-500/20 px-1.5 sm:px-2 py-0.5 rounded-full truncate">
+                        <span className="inline-flex items-center gap-1 text-[9px] sm:text-[10px] font-bold uppercase text-amber-400 bg-amber-500/10 border border-amber-500/20 px-2 py-0.5 rounded-full truncate">
                           DRAFT
                         </span>
                       )}
@@ -306,28 +306,28 @@ export const ExamsPage = () => {
                     <div className="flex items-center gap-1 shrink-0">
                       <button
                         onClick={() => setEditTarget(exam)}
-                        className="p-1 sm:p-1.5 rounded-lg border border-[rgb(var(--border))] text-[rgb(var(--text-muted))] hover:text-indigo-400 hover:bg-indigo-500/10 transition-all cursor-pointer"
+                        className="p-1.5 rounded-lg border border-[rgb(var(--border))] text-[rgb(var(--text-muted))] hover:text-indigo-400 hover:bg-indigo-500/10 transition-all cursor-pointer"
                         title="Edit Exam"
                       >
-                        <Pencil size={12} />
+                        <Pencil size={13} />
                       </button>
                       <button
                         onClick={() => setDeleteTargetId(exam.id)}
-                        className="p-1 sm:p-1.5 rounded-lg border border-[rgb(var(--border))] text-[rgb(var(--text-muted))] hover:text-rose-400 hover:bg-rose-500/10 transition-all cursor-pointer"
+                        className="p-1.5 rounded-lg border border-[rgb(var(--border))] text-[rgb(var(--text-muted))] hover:text-rose-400 hover:bg-rose-500/10 transition-all cursor-pointer"
                         title="Delete Exam"
                       >
-                        <Trash2 size={12} />
+                        <Trash2 size={13} />
                       </button>
                     </div>
                   </div>
 
                   {/* Title & Tag */}
-                  <div className="space-y-1">
-                    <h3 className="font-extrabold text-xs sm:text-sm text-[rgb(var(--text-primary))] font-[Outfit] leading-snug line-clamp-1 sm:line-clamp-2 group-hover:text-indigo-400 transition-colors">
+                  <div className="space-y-1.5">
+                    <h3 className="font-extrabold text-xs sm:text-sm text-[rgb(var(--text-primary))] font-[Outfit] leading-snug line-clamp-2 group-hover:text-indigo-400 transition-colors">
                       {exam.title}
                     </h3>
                     <div className="flex items-center gap-1">
-                      <span className="inline-flex items-center gap-1 text-[8px] sm:text-[9px] font-mono uppercase font-bold text-[rgb(var(--text-muted))] bg-[rgb(var(--bg-elevated))] border border-[rgb(var(--border))] px-1.5 sm:px-2 py-0.5 rounded-md truncate max-w-full">
+                      <span className="inline-flex items-center gap-1 text-[9px] font-mono uppercase font-bold text-[rgb(var(--text-muted))] bg-[rgb(var(--bg-elevated))] border border-[rgb(var(--border))] px-2 py-0.5 rounded-md truncate max-w-full">
                         <Folder size={9} className="text-purple-400 shrink-0" />
                         {batchTag}
                       </span>
@@ -335,27 +335,27 @@ export const ExamsPage = () => {
                   </div>
 
                   {/* Due Date & Info Box */}
-                  <div className="py-1.5 px-2 sm:px-2.5 rounded-lg bg-[rgb(var(--bg-surface))] border border-[rgb(var(--border))] flex items-center justify-between text-[9px] sm:text-[10px] font-mono">
-                    <span className="text-[rgb(var(--text-muted))] truncate">Due: {dateStr}, {timeStr}</span>
-                    <span className="font-bold text-indigo-400 shrink-0">{exam.duration_minutes || 30}m • {exam.total_marks || 50}M</span>
+                  <div className="py-2 px-2.5 rounded-xl bg-[rgb(var(--bg-surface))] border border-[rgb(var(--border))] flex items-center justify-between text-[10px] sm:text-xs font-mono gap-1">
+                    <span className="text-[rgb(var(--text-muted))] truncate">Due: {dateStr}</span>
+                    <span className="font-bold text-indigo-400 shrink-0 whitespace-nowrap">{exam.duration_minutes || 30}m • {exam.total_marks || 50}M</span>
                   </div>
 
                   {/* Bottom Actions Bar */}
-                  <div className="flex items-center gap-2 pt-2 border-t border-[rgb(var(--border))] mt-1 sm:mt-2">
+                  <div className="flex items-center gap-2 pt-2.5 border-t border-[rgb(var(--border))] mt-2">
                     <Button
                       size="sm"
                       variant="primary"
-                      className="flex-1 font-bold text-xs bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl py-1.5 shadow-xs cursor-pointer flex items-center justify-center gap-1.5"
+                      className="flex-1 font-bold text-xs bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl py-1.5 shadow-xs cursor-pointer flex items-center justify-center gap-1.5 whitespace-nowrap"
                       onClick={() => navigate(`${rolePrefix}/exams/${exam.id}/questions`)}
                     >
-                      <Settings size={12} className="shrink-0" />
+                      <Settings size={13} className="shrink-0" />
                       <span>Questions</span>
                     </Button>
 
                     <Button
                       size="sm"
                       variant="secondary"
-                      className="font-bold text-xs px-2.5 sm:px-3.5 rounded-xl py-1.5 cursor-pointer border border-[rgb(var(--border))] shrink-0"
+                      className="font-bold text-xs px-3 rounded-xl py-1.5 cursor-pointer border border-[rgb(var(--border))] shrink-0 whitespace-nowrap"
                       onClick={() => navigate(`${rolePrefix}/exams/${exam.id}/attempts`)}
                     >
                       Attempts ({exam.attempts_count || 0})
