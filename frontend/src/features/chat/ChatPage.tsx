@@ -581,24 +581,26 @@ export const ChatPage = () => {
   const startCall = async (withVideo: boolean) => {
     if (!activePartnerId) return
     setIsVideoCall(withVideo)
+    setCallStatus('calling') // Open window immediately
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: withVideo })
       setLocalStream(stream)
-      setCallStatus('calling')
-      webrtcManagerRef.current?.send({ type: 'call-offer', payload: { isVideo: withVideo } })
+      webrtcManagerRef.current?.send({ type: 'call-offer', payload: { isVideo: withVideo, hasMedia: true } })
     } catch {
-      toast.error('Could not access microphone/camera')
+      toast('Camera/Mic not found. Proceeding as view-only.', { icon: '⚠️' })
+      webrtcManagerRef.current?.send({ type: 'call-offer', payload: { isVideo: withVideo, hasMedia: false } })
     }
   }
 
   const answerCall = async () => {
+    setCallStatus('connected') // Open window immediately
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: isVideoCall })
       setLocalStream(stream)
-      setCallStatus('connected')
-      webrtcManagerRef.current?.send({ type: 'call-answer', payload: {} })
+      webrtcManagerRef.current?.send({ type: 'call-answer', payload: { hasMedia: true } })
     } catch {
-      toast.error('Could not access microphone/camera')
+      toast('Camera/Mic not found. Proceeding as view-only.', { icon: '⚠️' })
+      webrtcManagerRef.current?.send({ type: 'call-answer', payload: { hasMedia: false } })
     }
   }
 
