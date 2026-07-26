@@ -49,9 +49,9 @@ export const ExamAttemptsPage = () => {
       </div>
 
       {/* Top 4 KPI Metrics Sparkline Cards Row */}
-      <div className="admin-stats-row flex overflow-x-auto scrollbar-hide gap-3 pb-1">
+      <div className="flex overflow-x-auto scrollbar-hide gap-3 pb-1 -mx-2 px-2 sm:mx-0 sm:px-0">
         {/* Card 1: Total Attempts */}
-        <Card className="p-3.5 border border-[rgb(var(--border))] flex items-center justify-between gap-2 relative overflow-hidden">
+        <Card className="p-3.5 border border-[rgb(var(--border))] flex items-center justify-between gap-2 relative overflow-hidden min-w-[240px] sm:min-w-0 sm:flex-1">
           <div className="flex items-center gap-2.5 min-w-0 flex-1">
             <div className="w-10 h-10 rounded-xl bg-blue-500/10 text-slate-500 dark:text-blue-400 flex items-center justify-center flex-shrink-0">
               <Users size={18} />
@@ -70,7 +70,7 @@ export const ExamAttemptsPage = () => {
         </Card>
 
         {/* Card 2: Pass Rate */}
-        <Card className="p-3.5 border border-[rgb(var(--border))] flex items-center justify-between gap-2 relative overflow-hidden">
+        <Card className="p-3.5 border border-[rgb(var(--border))] flex items-center justify-between gap-2 relative overflow-hidden min-w-[240px] sm:min-w-0 sm:flex-1">
           <div className="flex items-center gap-2.5 min-w-0 flex-1">
             <div className="w-10 h-10 rounded-xl bg-emerald-500/10 text-slate-500 dark:text-emerald-400 flex items-center justify-center flex-shrink-0">
               <TrendingUp size={18} />
@@ -89,7 +89,7 @@ export const ExamAttemptsPage = () => {
         </Card>
 
         {/* Card 3: Average Score */}
-        <Card className="p-3.5 border border-[rgb(var(--border))] flex items-center justify-between gap-2 relative overflow-hidden">
+        <Card className="p-3.5 border border-[rgb(var(--border))] flex items-center justify-between gap-2 relative overflow-hidden min-w-[240px] sm:min-w-0 sm:flex-1">
           <div className="flex items-center gap-2.5 min-w-0 flex-1">
             <div className="w-10 h-10 rounded-xl bg-purple-500/10 text-purple-400 flex items-center justify-center flex-shrink-0">
               <BarChart2 size={18} />
@@ -108,7 +108,7 @@ export const ExamAttemptsPage = () => {
         </Card>
 
         {/* Card 4: High / Low */}
-        <Card className="p-3.5 border border-[rgb(var(--border))] flex items-center justify-between gap-2 relative overflow-hidden">
+        <Card className="p-3.5 border border-[rgb(var(--border))] flex items-center justify-between gap-2 relative overflow-hidden min-w-[240px] sm:min-w-0 sm:flex-1">
           <div className="flex items-center gap-2.5 min-w-0 flex-1">
             <div className="w-10 h-10 rounded-xl bg-amber-500/10 text-amber-400 flex items-center justify-center flex-shrink-0">
               <Target size={18} />
@@ -133,45 +133,37 @@ export const ExamAttemptsPage = () => {
           <EnterpriseTable
             columns={[
               {
+                header: '',
+                accessor: (attempt: any) => (
+                  <div className="hidden sm:block w-0"></div>
+                )
+              },
+              {
                 header: 'Student',
                 accessor: (attempt: any) => (
-                  <div className="flex items-center gap-3 font-medium text-[rgb(var(--text-primary))]">
-                    {(attempt.student?.avatar || attempt.student?.avatar_url) ? (
-                      <img src={attempt.student?.avatar || attempt.student?.avatar_url} alt="" className="w-8 h-8 rounded-full flex-shrink-0 object-cover" />
-                    ) : (
-                      <div className="w-8 h-8 rounded-full bg-[rgb(var(--primary)/0.1)] flex items-center justify-center text-[rgb(var(--primary))] font-bold text-xs flex-shrink-0">
-                        {attempt.student?.name?.charAt(0) || '?'}
-                      </div>
-                    )}
-                    <span>{attempt.student?.name}</span>
+                  <div className="flex flex-col gap-1 min-w-0">
+                    <div className="flex items-center gap-3 font-medium text-[rgb(var(--text-primary))]">
+                      {(attempt.student?.avatar || attempt.student?.avatar_url) ? (
+                        <img src={attempt.student?.avatar || attempt.student?.avatar_url} alt="" className="w-8 h-8 rounded-full flex-shrink-0 object-cover" />
+                      ) : (
+                        <div className="w-8 h-8 rounded-full bg-[rgb(var(--primary)/0.1)] flex items-center justify-center text-[rgb(var(--primary))] font-bold text-xs flex-shrink-0">
+                          {attempt.student?.name?.charAt(0) || '?'}
+                        </div>
+                      )}
+                      <span className="truncate">{attempt.student?.name}</span>
+                    </div>
+                    <span className="text-[10px] text-[rgb(var(--text-muted))] font-mono sm:hidden pl-11">
+                      Started: {new Date(attempt.started_at).toLocaleDateString()}
+                    </span>
                   </div>
-                )
-              },
-              {
-                header: 'Started At',
-                accessor: (attempt: any) => (
-                  <span className="text-[rgb(var(--text-secondary))]">
-                    {new Date(attempt.started_at).toLocaleString()}
-                  </span>
-                )
-              },
-              {
-                header: 'Submitted At',
-                accessor: (attempt: any) => (
-                  <span className="text-[rgb(var(--text-secondary))]">
-                    {attempt.submitted_at
-                      ? new Date(attempt.submitted_at).toLocaleString()
-                      : <span className="text-[rgb(var(--warning))] font-medium">In Progress</span>
-                    }
-                  </span>
                 )
               },
               {
                 header: 'Score',
                 accessor: (attempt: any) => (
-                  <div className="font-bold text-[rgb(var(--text-primary))]">
+                  <div className="font-bold text-[rgb(var(--text-primary))] whitespace-nowrap">
                     {attempt.submitted_at ? (
-                      <>{Number(attempt.score) || 0} <span className="text-xs font-normal text-[rgb(var(--text-muted))]">({Math.round(Number(attempt.percentage) || 0)}%)</span></>
+                      <>{Number(attempt.score) || 0} <span className="text-[10px] font-normal text-[rgb(var(--text-muted))]">({Math.round(Number(attempt.percentage) || 0)}%)</span></>
                     ) : '-'}
                   </div>
                 )
@@ -181,11 +173,22 @@ export const ExamAttemptsPage = () => {
                 accessor: (attempt: any) => (
                   attempt.submitted_at ? (
                     attempt.passed
-                      ? <Badge variant="success" className="flex items-center gap-1 w-fit"><CheckCircle size={11} /> Passed</Badge>
-                      : <Badge variant="error" className="flex items-center gap-1 w-fit"><XCircle size={11} /> Failed</Badge>
+                      ? <Badge variant="success" className="flex items-center gap-1 w-fit"><CheckCircle size={10} /> Passed</Badge>
+                      : <Badge variant="error" className="flex items-center gap-1 w-fit"><XCircle size={10} /> Failed</Badge>
                   ) : (
                     <Badge variant="warning" className="w-fit">Pending</Badge>
                   )
+                )
+              },
+              {
+                header: 'Submitted',
+                accessor: (attempt: any) => (
+                  <span className="text-[10px] sm:text-xs text-[rgb(var(--text-secondary))] whitespace-nowrap">
+                    {attempt.submitted_at
+                      ? new Date(attempt.submitted_at).toLocaleDateString()
+                      : <span className="text-[rgb(var(--warning))] font-medium">In Progress</span>
+                    }
+                  </span>
                 )
               }
             ]}
