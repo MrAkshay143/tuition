@@ -62,9 +62,9 @@ class DashboardService
             ->where('u.role', 'student')
             ->when($isTeacher, fn($q) => $q->whereExists(fn($sub) =>
                 $sub->select(DB::raw(1))
-                    ->from('batch_user as bu')
+                    ->from('batch_student as bu')
                     ->join('batches as b', 'b.id', '=', 'bu.batch_id')
-                    ->whereColumn('bu.user_id', 'u.id')
+                    ->whereColumn('bu.student_id', 'u.id')
                     ->where('b.teacher_id', $user->id)
             ))
             ->where('lp.created_at', '>=', now()->subDays(6)->startOfDay())
