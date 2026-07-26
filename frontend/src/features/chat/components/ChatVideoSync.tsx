@@ -202,8 +202,9 @@ const SyncedVideoPlayer: React.FC<SyncedPlayerProps> = ({ state, isHost, onSync 
   return (
     <div
       ref={containerRef}
-      className="relative w-full bg-black overflow-hidden select-none"
-      style={{ aspectRatio: '16/9' }}
+      className={`relative group w-full bg-black flex items-center justify-center overflow-hidden transition-all duration-300 ${
+        isFullscreen ? 'fixed inset-0 z-[100]' : 'aspect-video max-h-[50vh]'
+      }`}
       onMouseMove={showControls}
       onMouseLeave={() => isPlaying && setControlsVisible(false)}
     >

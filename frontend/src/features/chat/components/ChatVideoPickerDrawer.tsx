@@ -79,16 +79,16 @@ export function ChatVideoPickerDrawer({ open, onClose, partnerId, onSelect }: Ch
             onClick={onClose}
           />
 
-          {/* Drawer panel — slides in from right */}
+          {/* Drawer panel - slides in from right */}
           <motion.div
             initial={{ x: '100%', opacity: 0 }}
             animate={{ x: 0, opacity: 1 }}
             exit={{ x: '100%', opacity: 0 }}
             transition={{ type: 'spring', stiffness: 320, damping: 32 }}
-            className="fixed right-0 top-0 bottom-0 z-[91] w-full max-w-2xl bg-[rgb(var(--bg-surface))] shadow-2xl flex flex-col"
+            className="fixed right-0 top-0 bottom-0 z-[91] w-full max-w-md sm:max-w-lg md:max-w-xl bg-[rgb(var(--bg-surface))] shadow-2xl flex flex-col"
           >
             {/* Header */}
-            <div className="p-5 border-b border-[rgb(var(--border))] flex items-center justify-between bg-gradient-to-r from-indigo-600/10 to-violet-600/5">
+            <div className="p-4 sm:p-5 border-b border-[rgb(var(--border))] flex items-center justify-between bg-gradient-to-r from-indigo-600/10 to-violet-600/5">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-indigo-600 to-violet-600 flex items-center justify-center shadow-lg">
                   <Film size={20} className="text-white" />
