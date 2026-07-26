@@ -121,7 +121,6 @@ export const AttemptDetailsPage = () => {
             </div>
           </div>
           </div>
-          </div>
         </div>
       </Card>
 
