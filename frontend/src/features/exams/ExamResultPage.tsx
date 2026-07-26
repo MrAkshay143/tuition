@@ -64,22 +64,23 @@ export const ExamResultPage = () => {
       </div>
 
       {/* Header Info Banner */}
-      <Card className="p-4 sm:p-6 flex flex-col md:flex-row gap-6 justify-between items-start md:items-center">
-        <div className="flex items-center gap-4">
+      <Card className="p-3 sm:p-6 flex flex-col md:flex-row gap-4 sm:gap-6 justify-between items-start md:items-center">
+        <div className="flex items-center gap-3 sm:gap-4">
           {summary.student.avatar ? (
-            <img src={summary.student.avatar} alt="Avatar" className="w-14 h-14 rounded-full object-cover border-2 border-[rgb(var(--border))]" />
+            <img src={summary.student.avatar} alt="Avatar" className="w-10 h-10 sm:w-14 sm:h-14 rounded-full object-cover border-2 border-[rgb(var(--border))]" />
           ) : (
-            <div className="w-14 h-14 rounded-full bg-[rgb(var(--primary)/0.1)] flex items-center justify-center text-[rgb(var(--primary))] font-bold text-xl">
+            <div className="w-10 h-10 sm:w-14 sm:h-14 rounded-full bg-[rgb(var(--primary)/0.1)] flex items-center justify-center text-[rgb(var(--primary))] font-bold text-lg sm:text-xl">
               {summary.student.name?.charAt(0) || '?'}
             </div>
           )}
           <div>
-            <h2 className="text-lg font-bold text-[rgb(var(--text-primary))]">{summary.student.name}</h2>
-            <p className="text-sm text-[rgb(var(--text-muted))]">{summary.student.email}</p>
+            <h2 className="text-base sm:text-lg font-bold text-[rgb(var(--text-primary))] leading-tight">{summary.student.name}</h2>
+            <p className="text-xs sm:text-sm text-[rgb(var(--text-muted))]">{summary.student.email}</p>
           </div>
         </div>
 
-        <div className="flex flex-wrap gap-4 sm:gap-8 bg-[rgb(var(--bg-body))] p-3 sm:p-4 rounded-xl border border-[rgb(var(--border))]">
+        <div className="w-full md:w-auto overflow-x-auto scrollbar-hide -mx-3 sm:mx-0 px-3 sm:px-0">
+          <div className="flex gap-4 sm:gap-8 bg-[rgb(var(--bg-body))] p-3 sm:p-4 rounded-xl border border-[rgb(var(--border))] min-w-max">
           <div>
             <p className="text-[10px] text-[rgb(var(--text-muted))] uppercase font-bold tracking-wider mb-1">Status</p>
             <Badge variant={summary.status === 'Submitted' ? 'success' : 'warning'}>
@@ -106,44 +107,45 @@ export const ExamResultPage = () => {
             </div>
           </div>
         </div>
+        </div>
       </Card>
 
       {/* Summary Cards */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <Card className="p-4 flex items-center justify-between">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
+        <Card className="p-3 sm:p-4 flex items-center justify-between">
           <div>
-            <p className="text-[11px] font-medium text-[rgb(var(--text-muted))] mb-1">Total Questions</p>
-            <h3 className="text-2xl font-bold text-[rgb(var(--text-primary))]">{totalQuestions}</h3>
+            <p className="text-[10px] sm:text-[11px] font-medium text-[rgb(var(--text-muted))] mb-1">Total</p>
+            <h3 className="text-xl sm:text-2xl font-bold text-[rgb(var(--text-primary))]">{totalQuestions}</h3>
           </div>
-          <div className="w-10 h-10 rounded-xl bg-blue-500/10 text-blue-500 flex items-center justify-center">
-            <Activity size={20} />
+          <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-blue-500/10 text-blue-500 flex items-center justify-center">
+            <Activity size={18} />
           </div>
         </Card>
-        <Card className="p-4 flex items-center justify-between border-l-4 border-l-emerald-500">
+        <Card className="p-3 sm:p-4 flex items-center justify-between border-l-4 border-l-emerald-500">
           <div>
-            <p className="text-[11px] font-medium text-[rgb(var(--text-muted))] mb-1">Correct</p>
-            <h3 className="text-2xl font-bold text-emerald-500">{correctAnswers}</h3>
+            <p className="text-[10px] sm:text-[11px] font-medium text-[rgb(var(--text-muted))] mb-1">Correct</p>
+            <h3 className="text-xl sm:text-2xl font-bold text-emerald-500">{correctAnswers}</h3>
           </div>
-          <div className="w-10 h-10 rounded-xl bg-emerald-500/10 text-emerald-500 flex items-center justify-center">
-            <CheckCircle size={20} />
+          <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-emerald-500/10 text-emerald-500 flex items-center justify-center">
+            <CheckCircle size={18} />
           </div>
         </Card>
-        <Card className="p-4 flex items-center justify-between border-l-4 border-l-rose-500">
+        <Card className="p-3 sm:p-4 flex items-center justify-between border-l-4 border-l-rose-500">
           <div>
-            <p className="text-[11px] font-medium text-[rgb(var(--text-muted))] mb-1">Incorrect</p>
-            <h3 className="text-2xl font-bold text-rose-500">{incorrectAnswers}</h3>
+            <p className="text-[10px] sm:text-[11px] font-medium text-[rgb(var(--text-muted))] mb-1">Incorrect</p>
+            <h3 className="text-xl sm:text-2xl font-bold text-rose-500">{incorrectAnswers}</h3>
           </div>
-          <div className="w-10 h-10 rounded-xl bg-rose-500/10 text-rose-500 flex items-center justify-center">
-            <XCircle size={20} />
+          <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-rose-500/10 text-rose-500 flex items-center justify-center">
+            <XCircle size={18} />
           </div>
         </Card>
-        <Card className="p-4 flex items-center justify-between border-l-4 border-l-slate-500">
+        <Card className="p-3 sm:p-4 flex items-center justify-between border-l-4 border-l-slate-500">
           <div>
-            <p className="text-[11px] font-medium text-[rgb(var(--text-muted))] mb-1">Skipped</p>
-            <h3 className="text-2xl font-bold text-slate-500">{skippedQuestions}</h3>
+            <p className="text-[10px] sm:text-[11px] font-medium text-[rgb(var(--text-muted))] mb-1">Skipped</p>
+            <h3 className="text-xl sm:text-2xl font-bold text-slate-500">{skippedQuestions}</h3>
           </div>
-          <div className="w-10 h-10 rounded-xl bg-slate-500/10 text-slate-500 flex items-center justify-center">
-            <AlertTriangle size={20} />
+          <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-slate-500/10 text-slate-500 flex items-center justify-center">
+            <AlertTriangle size={18} />
           </div>
         </Card>
       </div>
@@ -171,7 +173,7 @@ export const ExamResultPage = () => {
                 <Card 
                   key={q.id} 
                   className={cn(
-                    "p-5 relative overflow-hidden transition-all",
+                    "p-3 sm:p-5 relative overflow-hidden transition-all",
                     isCorrect ? "border-l-4 border-l-emerald-500" : (isSkipped ? "border-l-4 border-l-slate-400" : "border-l-4 border-l-rose-500")
                   )}
                   ref={el => { questionRefs.current[q.id] = el }}
@@ -219,12 +221,12 @@ export const ExamResultPage = () => {
                       }
 
                       return (
-                        <div key={oIdx} className={cn("p-3 rounded-lg border flex items-center justify-between gap-3", optClass)}>
-                          <div className="flex items-center gap-3">
-                            <div className="w-6 h-6 rounded bg-[rgb(var(--bg-elevated))] border flex items-center justify-center text-xs font-mono font-bold shrink-0">
+                        <div key={oIdx} className={cn("p-2 sm:p-3 rounded-lg border flex items-center justify-between gap-2 sm:gap-3", optClass)}>
+                          <div className="flex items-center gap-2 sm:gap-3">
+                            <div className="w-5 h-5 sm:w-6 sm:h-6 rounded bg-[rgb(var(--bg-elevated))] border flex items-center justify-center text-[10px] sm:text-xs font-mono font-bold shrink-0">
                               {String.fromCharCode(65 + oIdx)}
                             </div>
-                            <span className="text-sm">{opt}</span>
+                            <span className="text-xs sm:text-sm">{opt}</span>
                           </div>
                           {icon && <div>{icon}</div>}
                         </div>
@@ -242,12 +244,12 @@ export const ExamResultPage = () => {
           </div>
 
           {/* Right Column: Navigator */}
-          <div className="w-full lg:w-1/3 space-y-6 sticky top-6">
-            <Card className="p-5">
+          <div className="w-full lg:w-1/3 space-y-6 lg:sticky lg:top-6 flex flex-col-reverse lg:flex-col">
+            <Card className="p-4 sm:p-5">
               <h3 className="font-bold text-[rgb(var(--text-primary))] mb-4 flex items-center gap-2">
                 <Activity size={18} /> Question Navigator
               </h3>
-              <div className="grid grid-cols-5 gap-2">
+              <div className="grid grid-cols-6 sm:grid-cols-5 gap-1.5 sm:gap-2">
                 {questions.map((q: any, idx: number) => {
                   const isCorrect = q.evaluation.is_correct
                   const studentAns = q.student_response.selected_answer
