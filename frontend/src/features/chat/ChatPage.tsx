@@ -909,14 +909,14 @@ export const ChatPage = () => {
                               setShowVideoPicker(true)
                             }
                           }}
-                          className={`p-1.5 rounded-xl transition-all cursor-pointer ${
+                          className={`h-9 w-9 flex items-center justify-center rounded-full text-white transition-all shadow-md hover:scale-105 ${
                             showVideoSync
-                              ? 'bg-indigo-600 text-white shadow-md shadow-indigo-500/30'
-                              : 'text-slate-400 hover:text-indigo-400 hover:bg-indigo-500/10'
+                              ? 'bg-rose-600 hover:bg-rose-700 shadow-rose-600/30'
+                              : 'bg-rose-500 hover:bg-rose-600 shadow-rose-500/20'
                           }`}
                           title="Watch Together"
                         >
-                          <Monitor size={17} />
+                          <Monitor size={16} className="fill-current" />
                         </button>
                       )}
                       <button className="p-1.5 text-slate-400 hover:text-[rgb(var(--text-primary))] hover:bg-[rgb(var(--bg-elevated))] rounded-xl transition-all cursor-pointer" title="More">
