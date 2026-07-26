@@ -270,7 +270,7 @@ export const ChatPage = () => {
   const presenceMutation = useChatPresence()
 
   // Role detection
-  const isHost = me?.role === 'teacher' || me?.role === 'admin'
+  const isHost = ['teacher', 'admin', 'super_admin'].includes(me?.role?.toLowerCase() || me?.role_name?.toLowerCase() || '')
 
   const conversations = conversationsData || []
 

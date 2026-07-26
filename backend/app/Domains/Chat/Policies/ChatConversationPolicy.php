@@ -22,8 +22,13 @@ class ChatConversationPolicy
      * Determine whether the user can message a partner.
      * In private chats, users can message anyone except themselves.
      */
-    public function message(User $user, int $partnerId): bool
+    public function message(User $user, $arg1, $arg2 = null): bool
     {
-        return $user->id !== $partnerId;
+        // When called via Gate::authorize('message', [Class::class, $partnerId])
+        // $arg1 is the string class name, and $arg2 is the $partnerId.
+        // When called via $user->can('message', $partnerId), $arg1 is the $partnerId.
+        $partnerId = $arg2 !== null ? $arg2 : $arg1;
+        
+        return $user->id !== (int)$partnerId;
     }
 }
