@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useExam, useExamQuestions, useAddQuestion, useRemoveQuestion } from '@/api/resources/exams'
 import { Button, Card, Badge, Spinner, Input, Select, Modal } from '@/components/ui'
-import { ArrowLeft, Trash2, Plus, GripVertical, CheckCircle2, HelpCircle, Award, Sparkles, FileText } from 'lucide-react'
+import { ArrowLeft, Trash2, Plus, GripVertical, CheckCircle2, HelpCircle, Award, Sparkles, FileText, Library } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { motion, AnimatePresence } from 'framer-motion'
 
@@ -217,25 +217,43 @@ export const ExamQuestionsEditor = () => {
                 Start building this exam by adding MCQ or Subjective questions with marks allocation.
               </p>
             </div>
-            <Button
-              variant="primary"
-              size="sm"
-              onClick={() => setIsAdding(true)}
-              className="font-bold text-xs bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl px-4 py-2 cursor-pointer shadow-md shadow-indigo-600/20 mt-2"
-            >
-              <Plus size={15} /> Add First Question
-            </Button>
+            <div className="flex justify-center gap-2 mt-4">
+              <Button
+                variant="primary"
+                size="sm"
+                onClick={() => setIsAdding(true)}
+                className="font-bold text-xs bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl px-4 py-2 cursor-pointer shadow-md shadow-indigo-600/20"
+              >
+                <Plus size={15} /> Add First Question
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => toast.success('Question Bank integration coming soon!')}
+                className="font-bold text-xs rounded-xl px-4 py-2 cursor-pointer"
+              >
+                <Library size={15} /> Pick from Bank
+              </Button>
+            </div>
           </Card>
         )}
 
         {/* Add Question CTA Footer */}
         {(questions || []).length > 0 && (
-          <button
-            onClick={() => setIsAdding(true)}
-            className="w-full border-2 border-dashed border-[rgb(var(--border))] hover:border-indigo-500 text-[rgb(var(--text-muted))] hover:text-indigo-400 font-bold text-xs py-3 rounded-2xl transition-all flex items-center justify-center gap-2 cursor-pointer bg-[rgb(var(--bg-surface))] mt-3"
-          >
-            <Plus size={15} /> Add Another Question
-          </button>
+          <div className="flex gap-2 mt-3">
+            <button
+              onClick={() => setIsAdding(true)}
+              className="flex-1 border-2 border-dashed border-[rgb(var(--border))] hover:border-indigo-500 text-[rgb(var(--text-muted))] hover:text-indigo-400 font-bold text-xs py-3 rounded-2xl transition-all flex items-center justify-center gap-2 cursor-pointer bg-[rgb(var(--bg-surface))]"
+            >
+              <Plus size={15} /> Add Another Question
+            </button>
+            <button
+              onClick={() => toast.success('Question Bank integration coming soon!')}
+              className="flex-1 border-2 border-dashed border-[rgb(var(--border))] hover:border-indigo-500 text-[rgb(var(--text-muted))] hover:text-indigo-400 font-bold text-xs py-3 rounded-2xl transition-all flex items-center justify-center gap-2 cursor-pointer bg-[rgb(var(--bg-surface))]"
+            >
+              <Library size={15} /> Pick from Question Bank
+            </button>
+          </div>
         )}
       </div>
 

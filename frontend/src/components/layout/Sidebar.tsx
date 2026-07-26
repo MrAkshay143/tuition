@@ -81,6 +81,7 @@ const adminNav: NavItem[] = [
 
   { section: 'Assessment & Reports' },
   { label: 'Assignments', to: '/admin/assignments', icon: <ClipboardList size={17} /> },
+  { label: 'Question Bank', to: '/admin/question-bank', icon: <HelpCircle size={17} /> },
   { label: 'Exams Bank', to: '/admin/exams', icon: <BookOpenCheck size={17} /> },
   { label: 'Analytics', to: '/admin/analytics', icon: <BarChart3 size={17} /> },
 ]
