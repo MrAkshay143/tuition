@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom'
 import { useExamResult } from '@/api/resources/exams'
 import { Button, Card, Badge, Spinner } from '@/components/ui'
 import { 
-  ArrowLeft, CheckCircle, XCircle, Clock, Activity, Check, X, AlertTriangle
+  ArrowLeft, CheckCircle, XCircle, Clock, Activity, Check, X, AlertTriangle, Download, Printer
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
