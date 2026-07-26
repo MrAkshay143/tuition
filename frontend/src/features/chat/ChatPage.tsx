@@ -1191,26 +1191,18 @@ export const ChatPage = () => {
                     {/* Hidden file input */}
                     <input type="file" ref={fileInputRef} className="hidden" onChange={handleFileUpload} accept="image/*,audio/*,video/*,.pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.zip" />
 
-                    {/* Plus Button (Media Picker for Teachers, Attach for Students) */}
-                    {isHost ? (
-                      <button
-                        type="button"
-                        onClick={() => setShowVideoPicker(true)}
-                        className="w-9 h-9 rounded-full bg-rose-600/15 text-rose-500 hover:bg-rose-600 hover:text-white flex items-center justify-center transition-all cursor-pointer shrink-0"
-                        title="Watch Together (Media Picker)"
-                      >
-                        <Plus size={18} />
-                      </button>
-                    ) : (
-                      <button
-                        type="button"
-                        onClick={() => fileInputRef.current?.click()}
-                        className="w-9 h-9 rounded-full bg-indigo-600/15 text-indigo-400 hover:bg-indigo-600 hover:text-white flex items-center justify-center transition-all cursor-pointer shrink-0"
-                        title="Attach file or image"
-                      >
-                        <Plus size={18} />
-                      </button>
-                    )}
+                    {/* Plus Button (Media Picker) */}
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.preventDefault()
+                        setShowVideoPicker(true)
+                      }}
+                      className="w-9 h-9 rounded-full bg-rose-600/15 text-rose-500 hover:bg-rose-600 hover:text-white flex items-center justify-center transition-all cursor-pointer shrink-0"
+                      title="Watch Together (Media Picker)"
+                    >
+                      <Plus size={18} />
+                    </button>
 
                     {/* Text input */}
                     <div className="flex-1 relative flex items-center">
