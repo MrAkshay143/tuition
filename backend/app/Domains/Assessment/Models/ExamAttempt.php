@@ -28,4 +28,9 @@ class ExamAttempt extends Model
     {
         return $this->belongsTo(\App\Domains\Core\Models\User::class, 'student_id');
     }
+
+    public function securityLogs()
+    {
+        return $this->hasMany(\App\Domains\Assessment\Models\ExamSecurityLog::class, 'exam_attempt_id');
+    }
 }

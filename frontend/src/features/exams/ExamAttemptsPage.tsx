@@ -1,5 +1,5 @@
 import React from 'react'
-import { useParams, useNavigate } from 'react-router-dom'
+import { useParams, useNavigate, useLocation } from 'react-router-dom'
 import { useExam, useExamAttempts } from '@/api/resources/exams'
 import { Button, Card, Badge, Spinner } from '@/components/ui'
 import { EnterpriseTable } from '@/components/ui/EnterpriseTable'
@@ -8,6 +8,7 @@ import { ArrowLeft, CheckCircle, XCircle, Users, TrendingUp, BarChart2, Target }
 export const ExamAttemptsPage = () => {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
+  const location = useLocation()
   const { data: exam, isLoading: isExamLoading } = useExam(id || '')
   const { data: attempts, isLoading: isAttemptsLoading } = useExamAttempts(id || '')
 
@@ -192,6 +193,10 @@ export const ExamAttemptsPage = () => {
                 )
               }
             ]}
+            onRowClick={(row) => {
+              const basePath = location.pathname.startsWith('/admin') ? '/admin' : '/teacher';
+              navigate(`${basePath}/exams/${id}/attempts/${row.id}`)
+            }}
             data={paginatedAttempts}
             meta={{
               current_page: attemptPage,
@@ -210,3 +215,4 @@ export const ExamAttemptsPage = () => {
     </div>
   )
 }
+

@@ -72,6 +72,18 @@ class ExamController extends ApiController
         return $this->success($attempts, 'Exam attempts retrieved successfully');
     }
 
+    public function attemptDetails(\Illuminate\Http\Request $request, $id, $attemptId)
+    {
+        $attempt = ExamAttempt::with(['student:id,name,email,avatar', 'exam.questions.topic.chapter', 'exam.questions.difficulty'])
+            ->where('exam_id', $id)
+            ->findOrFail($attemptId);
+
+        return $this->success(
+            new \App\Http\Resources\ExamAttemptDetailsResource($attempt),
+            'Exam attempt details retrieved successfully'
+        );
+    }
+
     // Exam question management
 
     public function questions(
@@ -338,16 +350,17 @@ class ExamController extends ApiController
 
     public function studentResult(\Illuminate\Http\Request $request, $id)
     {
-        $exam = Exam::with('questions')->findOrFail($id);
-        $attempt = ExamAttempt::where('exam_id', $id)
+        $exam = Exam::with(['questions.topic.chapter', 'questions.difficulty'])->findOrFail($id);
+        $attempt = ExamAttempt::with(['student:id,name,email,avatar'])
+            ->where('exam_id', $id)
             ->where('student_id', $request->user()->id)
-            ->whereNotNull('completed_at')
-            ->latest('completed_at')
+            ->whereNotNull('submitted_at')
+            ->latest('submitted_at')
             ->first();
 
         if (!$attempt) {
-            // Check if there is an attempt even if completed_at is null or latest attempt
-            $attempt = ExamAttempt::where('exam_id', $id)
+            $attempt = ExamAttempt::with(['student:id,name,email,avatar'])
+                ->where('exam_id', $id)
                 ->where('student_id', $request->user()->id)
                 ->latest('started_at')
                 ->first();
@@ -356,13 +369,17 @@ class ExamController extends ApiController
         if (!$attempt) {
             return $this->error('No exam attempt found.', 404);
         }
+        
+        $attempt->setRelation('exam', $exam);
+        
+        // Hide questions from student if show_result_immediately is false
+        if (!$exam->show_result_immediately) {
+            $exam->setRelation('questions', collect([]));
+        }
 
-        $questions = $exam->show_result_immediately ? $exam->questions : [];
-
-        return $this->success([
-            'exam' => $exam,
-            'attempt' => $attempt,
-            'questions' => $questions
-        ], 'Exam result retrieved successfully');
+        return $this->success(
+            new \App\Http\Resources\ExamAttemptDetailsResource($attempt),
+            'Exam result retrieved successfully'
+        );
     }
 }

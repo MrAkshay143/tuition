@@ -50,6 +50,7 @@ const TeacherExamsPage = lazy(() => import('@/features/exams/ExamsPage').then((m
 const QuestionBankPage = lazy(() => import('@/features/exams/QuestionBankPage'))
 const TeacherExamQuestionsEditor = lazy(() => import('@/features/exams/ExamQuestionsEditor').then((m) => ({ default: m.ExamQuestionsEditor })))
 const TeacherExamAttemptsPage = lazy(() => import('@/features/exams/ExamAttemptsPage').then((m) => ({ default: m.ExamAttemptsPage })))
+const TeacherAttemptDetailsPage = lazy(() => import('@/features/exams/AttemptDetailsPage').then((m) => ({ default: m.AttemptDetailsPage })))
 const TeacherCertificatesPage = lazy(() => import('@/features/certificates/TeacherCertificatesPage').then(m => ({ default: m.TeacherCertificatesPage })))
 const ContentLibraryPage = lazy(() => import('@/features/media/ContentLibrary').then(m => ({ default: m.ContentLibrary })))
 
@@ -234,6 +235,7 @@ const router = createBrowserRouter([
         { path: '/teacher/exams', element: <Suspense fallback={<PageLoader />}><TeacherExamsPage /></Suspense> },
         { path: '/teacher/exams/:id/questions', element: <Suspense fallback={<PageLoader />}><TeacherExamQuestionsEditor /></Suspense> },
         { path: '/teacher/exams/:id/attempts', element: <Suspense fallback={<PageLoader />}><TeacherExamAttemptsPage /></Suspense> },
+        { path: '/teacher/exams/:id/attempts/:attemptId', element: <Suspense fallback={<PageLoader />}><TeacherAttemptDetailsPage /></Suspense> },
         { path: '/teacher/certificates', element: <Suspense fallback={<PageLoader />}><TeacherCertificatesPage /></Suspense> },
         { path: '/teacher/chat', element: <Suspense fallback={<PageLoader />}><ChatPage /></Suspense> },
         { path: '/teacher/announcements', element: <Suspense fallback={<PageLoader />}><TeacherAnnouncementsPage /></Suspense> },
@@ -310,6 +312,7 @@ const router = createBrowserRouter([
         { path: '/admin/exams', element: <Suspense fallback={<PageLoader />}><TeacherExamsPage /></Suspense> },
         { path: '/admin/exams/:id/questions', element: <Suspense fallback={<PageLoader />}><TeacherExamQuestionsEditor /></Suspense> },
         { path: '/admin/exams/:id/attempts', element: <Suspense fallback={<PageLoader />}><TeacherExamAttemptsPage /></Suspense> },
+        { path: '/admin/exams/:id/attempts/:attemptId', element: <Suspense fallback={<PageLoader />}><TeacherAttemptDetailsPage /></Suspense> },
         { path: '/admin/students', element: <Suspense fallback={<PageLoader />}><StudentsPage /></Suspense> },
         { path: '/admin/students/:id', element: <Suspense fallback={<PageLoader />}><StudentProfilePage /></Suspense> },
         { path: '/admin/analytics', element: <Suspense fallback={<PageLoader />}><TeacherAnalyticsPage /></Suspense> },

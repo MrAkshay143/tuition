@@ -35,6 +35,15 @@ export const useExamAttempts = (id: string | number) => {
   })
 }
 
+export const useExamAttemptDetails = (examId: string | number, attemptId: string | number) => {
+  return useQuery({
+    queryKey: ['exams', examId, 'attempts', attemptId],
+    queryFn: () => api.get(`/exams/${examId}/attempts/${attemptId}`).then(res => res.data?.data || res.data),
+    enabled: !!examId && !!attemptId
+  })
+}
+
+
 export const useStudentExams = (params?: Record<string, any>) => {
   return useQuery({
     queryKey: ['student', 'exams', params],

@@ -308,6 +308,7 @@ Route::middleware(['auth:sanctum', 'active', \App\Http\Middleware\ValidateSessio
         Route::delete('exams/{id}/questions/{qId}', [\App\Http\Controllers\Api\V1\ExamController::class, 'removeQuestion']);
         Route::post('exams/{id}/questions/sync', [\App\Http\Controllers\Api\V1\ExamController::class, 'syncQuestions']);
         Route::get('exams/{id}/attempts', [\App\Http\Controllers\Api\V1\ExamController::class, 'attempts']);
+        Route::get('exams/{id}/attempts/{attempt_id}', [\App\Http\Controllers\Api\V1\ExamController::class, 'attemptDetails']);
 
         // Live Classes (Teacher/Admin)
         Route::apiResource('live-classes', \App\Http\Controllers\Api\V1\LiveClassController::class);
