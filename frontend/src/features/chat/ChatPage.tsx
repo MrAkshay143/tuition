@@ -587,7 +587,7 @@ export const ChatPage = () => {
       setLocalStream(stream)
       webrtcManagerRef.current?.send({ type: 'call-offer', payload: { isVideo: withVideo, hasMedia: true } })
     } catch {
-      toast('Camera/Mic not found. Proceeding as view-only.', { icon: '⚠️' })
+      toast.error('Camera/Mic access denied')
       webrtcManagerRef.current?.send({ type: 'call-offer', payload: { isVideo: withVideo, hasMedia: false } })
     }
   }
@@ -599,7 +599,7 @@ export const ChatPage = () => {
       setLocalStream(stream)
       webrtcManagerRef.current?.send({ type: 'call-answer', payload: { hasMedia: true } })
     } catch {
-      toast('Camera/Mic not found. Proceeding as view-only.', { icon: '⚠️' })
+      toast.error('Camera/Mic access denied')
       webrtcManagerRef.current?.send({ type: 'call-answer', payload: { hasMedia: false } })
     }
   }
