@@ -211,4 +211,62 @@ class ChatController extends ApiController
         \Illuminate\Support\Facades\Cache::put("user:{$user->id}:last_seen", now(), now()->addMinutes(5));
         return $this->success(null, 'Presence updated');
     }
+
+    /**
+     * Return all video lessons from courses a partner (student) is enrolled in.
+     * Accessible only to teacher/admin roles.
+     */
+    public function partnerCourseVideos(Request $request, $partnerId)
+    {
+        $authUser = $request->user();
+
+        if (!$authUser->isTeacher() && !$authUser->isAdmin()) {
+            return $this->error('Forbidden', 403);
+        }
+
+        $partner = \App\Domains\Core\Models\User::findOrFail($partnerId);
+
+        // Resolve enrolled courses via the enrollments → course chain
+        $courses = $partner->enrollments()
+            ->with([
+                'course.modules.chapters.lessons' => function ($query) {
+                    $query->where('type', 'video')
+                          ->with('primaryMedia');
+                },
+            ])
+            ->get()
+            ->pluck('course')
+            ->filter();
+
+        $videos = [];
+
+        foreach ($courses as $course) {
+            foreach ($course->modules as $module) {
+                foreach ($module->chapters as $chapter) {
+                    foreach ($chapter->lessons as $lesson) {
+                        // primaryMedia is a collection; grab the first video media item
+                        $media = $lesson->primaryMedia
+                            ->first(fn($m) => str_starts_with($m->mime_type ?? '', 'video/'));
+
+                        if (!$media) {
+                            continue;
+                        }
+
+                        $videos[] = [
+                            'id'               => $lesson->id,
+                            'title'            => $lesson->title,
+                            'url'              => $media->url,
+                            'mime_type'        => $media->mime_type,
+                            'thumbnail_url'    => $media->thumbnail_url,
+                            'course_name'      => $course->title,
+                            'chapter_name'     => $chapter->title,
+                            'duration_seconds' => $lesson->duration_seconds,
+                        ];
+                    }
+                }
+            }
+        }
+
+        return $this->success($videos, 'Partner course videos retrieved successfully');
+    }
 }

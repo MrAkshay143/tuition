@@ -8,6 +8,7 @@ import {
   useUpdateMessageStatus,
   useChatPresence
 } from '@/api/resources/chat'
+import { useMe } from '@/api/resources/auth'
 import { WebRTCManager } from '@/lib/WebRTCManager'
 import { chatOutbox } from '@/lib/ChatOutbox'
 import { Spinner, Avatar, Card, Badge } from '@/components/ui'
@@ -15,9 +16,9 @@ import {
   Send, MessageSquare, Search, ArrowLeft, CheckCheck, Clock, Check,
   Sparkles, WifiOff, Paperclip, MoreVertical, Reply, Smile, Trash2,
   Edit2, Pin, Phone, Video, X, AlertCircle, CornerDownRight, Mic,
-  Plus, ShieldCheck, Zap, CheckCircle2, File, Download, Play,
-  ChevronRight, Filter, PhoneIncoming, PhoneOutgoing, PhoneMissed,
-  ImageIcon, FileAudio, Volume2
+  Plus, ShieldCheck, Zap, File, Download, Play,
+  PhoneIncoming, PhoneOutgoing, PhoneMissed,
+  Volume2, Monitor
 } from 'lucide-react'
 import { v4 as uuidv4 } from 'uuid'
 import { toast } from 'react-hot-toast'
@@ -26,6 +27,9 @@ import VoiceMessagePlayer from './components/VoiceMessagePlayer'
 import VoiceRecorder from './components/VoiceRecorder'
 import ImageLightbox from './components/ImageLightbox'
 import AudioVideoCallUI, { CallStatus } from './components/AudioVideoCallUI'
+import { ChatVideoSync, EMPTY_VIDEO_SYNC } from './components/ChatVideoSync'
+import type { VideoSyncState } from './components/ChatVideoSync'
+import { ChatVideoPickerDrawer } from './components/ChatVideoPickerDrawer'
 
 // Emoji reactions set
 const EMOJI_LIST = ['👍', '❤️', '😂', '😮', '😢', '🔥', '🎉', '👏']
@@ -235,6 +239,11 @@ export const ChatPage = () => {
   const [showContextMenu, setShowContextMenu] = useState<{ id: string; x: number; y: number } | null>(null)
   const [showSecurityModal, setShowSecurityModal] = useState(false)
 
+  // Video sync state
+  const [videoSyncState, setVideoSyncState] = useState<VideoSyncState>(EMPTY_VIDEO_SYNC)
+  const [showVideoSync, setShowVideoSync] = useState(false)
+  const [showVideoPicker, setShowVideoPicker] = useState(false)
+
   // Call state
   const [callStatus, setCallStatus] = useState<CallStatus>('idle')
   const [isVideoCall, setIsVideoCall] = useState(false)
@@ -255,10 +264,14 @@ export const ChatPage = () => {
   // API hooks
   const { data: conversationsData, isLoading: isLoadingConversations } = useConversations()
   const { data: threadData, isLoading: isLoadingThread, refetch: refetchThread } = useChatThread(activePartnerId!)
+  const { data: me } = useMe()
   const sendMutation = useSendMessage()
   const markReadMutation = useMarkChatRead()
   const updateStatusMutation = useUpdateMessageStatus()
   const presenceMutation = useChatPresence()
+
+  // Role detection
+  const isHost = me?.role === 'teacher' || me?.role === 'admin'
 
   const conversations = conversationsData || []
 
@@ -405,6 +418,14 @@ export const ChatPage = () => {
         case 'call-end':
           endCall()
           break
+        case 'video-sync':
+          // Student receives sync from teacher
+          if (!isHost) {
+            setVideoSyncState(data.payload)
+            if (data.payload.videoUrl) setShowVideoSync(true)
+            else { setShowVideoSync(false); setVideoSyncState(EMPTY_VIDEO_SYNC) }
+          }
+          break
       }
     }
 
@@ -414,6 +435,9 @@ export const ChatPage = () => {
     return () => {
       webrtcManagerRef.current?.disconnect()
       endCall()
+      // Clean up video sync when switching chats
+      setShowVideoSync(false)
+      setVideoSyncState(EMPTY_VIDEO_SYNC)
     }
   }, [activePartnerId])
 
@@ -621,6 +645,33 @@ export const ChatPage = () => {
       } catch { toast.error('Screen sharing not supported or denied') }
     }
   }
+
+  // ── Video sync handlers ──
+  const handleVideoSync = useCallback((state: VideoSyncState) => {
+    setVideoSyncState(state)
+    // Broadcast to peer
+    webrtcManagerRef.current?.send({ type: 'video-sync', payload: state })
+    if (!state.videoUrl) {
+      setShowVideoSync(false)
+      setVideoSyncState(EMPTY_VIDEO_SYNC)
+    }
+  }, [])
+
+  const handleVideoPickerSelect = useCallback((item: any) => {
+    const newState: VideoSyncState = {
+      videoUrl: item.url,
+      videoTitle: item.title || 'Video',
+      mediaId: item.id,
+      playing: true,
+      time: 0,
+      lastUpdated: Date.now(),
+    }
+    setVideoSyncState(newState)
+    setShowVideoSync(true)
+    setShowVideoPicker(false)
+    // Broadcast immediately so student gets the video
+    webrtcManagerRef.current?.send({ type: 'video-sync', payload: newState })
+  }, [])
 
   // ─── Render ───────────────────────────────────────────────────────────────
   return (
@@ -847,6 +898,28 @@ export const ChatPage = () => {
                       <button onClick={() => startCall(true)} className="p-1.5 text-slate-400 hover:text-indigo-400 hover:bg-indigo-500/10 rounded-xl transition-all cursor-pointer" title="Video Call">
                         <Video size={17} />
                       </button>
+                      {/* Watch Together — teacher/admin only */}
+                      {isHost && (
+                        <button
+                          onClick={() => {
+                            if (showVideoSync) {
+                              // Close: send empty state to viewer
+                              handleVideoSync({ ...EMPTY_VIDEO_SYNC, lastUpdated: Date.now() })
+                            } else {
+                              setShowVideoSync(true)
+                              setShowVideoPicker(true)
+                            }
+                          }}
+                          className={`p-1.5 rounded-xl transition-all cursor-pointer ${
+                            showVideoSync
+                              ? 'bg-indigo-600 text-white shadow-md shadow-indigo-500/30'
+                              : 'text-slate-400 hover:text-indigo-400 hover:bg-indigo-500/10'
+                          }`}
+                          title="Watch Together"
+                        >
+                          <Monitor size={17} />
+                        </button>
+                      )}
                       <button className="p-1.5 text-slate-400 hover:text-[rgb(var(--text-primary))] hover:bg-[rgb(var(--bg-elevated))] rounded-xl transition-all cursor-pointer" title="More">
                         <MoreVertical size={17} />
                       </button>
@@ -863,6 +936,23 @@ export const ChatPage = () => {
                     <AlertCircle size={14} className="text-amber-500 shrink-0" />
                     You are offline — messages will be queued.
                   </motion.div>
+                )}
+              </AnimatePresence>
+
+              {/* Video Sync Panel */}
+              <AnimatePresence>
+                {showVideoSync && activePartnerId && (
+                  <ChatVideoSync
+                    isHost={isHost}
+                    syncState={videoSyncState}
+                    onSync={handleVideoSync}
+                    onClose={() => {
+                      setShowVideoSync(false)
+                      setVideoSyncState(EMPTY_VIDEO_SYNC)
+                    }}
+                    onPickVideo={() => setShowVideoPicker(true)}
+                    partnerName={activePartner?.name || 'Partner'}
+                  />
                 )}
               </AnimatePresence>
 
@@ -1191,6 +1281,16 @@ export const ChatPage = () => {
           )}
         </Card>
       </div>
+
+      {/* Video Picker Drawer */}
+      {activePartnerId && (
+        <ChatVideoPickerDrawer
+          open={showVideoPicker}
+          onClose={() => setShowVideoPicker(false)}
+          partnerId={activePartnerId}
+          onSelect={handleVideoPickerSelect}
+        />
+      )}
     </>
   )
 }

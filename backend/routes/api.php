@@ -159,6 +159,7 @@ Route::middleware(['auth:sanctum', 'active', \App\Http\Middleware\ValidateSessio
         Route::patch('messages/{userId}/read', [\App\Http\Controllers\Api\V1\ChatController::class, 'markRead']);
         Route::get('unread-count', [\App\Http\Controllers\Api\V1\ChatController::class, 'unreadCount']);
         Route::post('presence', [\App\Http\Controllers\Api\V1\ChatController::class, 'presence']);
+        Route::get('partner-course-videos/{partnerId}', [\App\Http\Controllers\Api\V1\ChatController::class, 'partnerCourseVideos']);
 
         // Signaling & Config
         Route::get('webrtc-config', [\App\Http\Controllers\Api\V1\ChatSignalingController::class, 'getConfig']);
