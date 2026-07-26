@@ -63,12 +63,18 @@ class ChatController extends ApiController
         return $this->success($message, 'Message sent', 201);
     }
     
-    public function updateStatus(Request $request, $uuid) {
+    public function updateStatus(Request $request, $uuidOrId) {
         $validated = $request->validate([
             'status' => 'required|in:delivered,read'
         ]);
         
-        $message = ChatMessage::where('uuid', $uuid)->firstOrFail();
+        $query = ChatMessage::query();
+        if (is_numeric($uuidOrId)) {
+            $query->where('id', $uuidOrId);
+        } else {
+            $query->where('uuid', $uuidOrId);
+        }
+        $message = $query->firstOrFail();
         
         // Ensure user is receiver
         if ($message->receiver_id !== $request->user()->id) {
@@ -89,13 +95,19 @@ class ChatController extends ApiController
         return $this->success($message, 'Message status updated');
     }
     
-    public function messageAction(Request $request, $uuid) {
+    public function messageAction(Request $request, $uuidOrId) {
         $validated = $request->validate([
             'action' => 'required|in:edit,delete,react,pin',
             'payload' => 'nullable'
         ]);
         
-        $message = ChatMessage::where('uuid', $uuid)->firstOrFail();
+        $query = ChatMessage::query();
+        if (is_numeric($uuidOrId)) {
+            $query->where('id', $uuidOrId);
+        } else {
+            $query->where('uuid', $uuidOrId);
+        }
+        $message = $query->firstOrFail();
         $user = $request->user();
         
         // Ensure user is part of the conversation
