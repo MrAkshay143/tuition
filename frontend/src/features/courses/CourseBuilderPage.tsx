@@ -210,7 +210,11 @@ export default function CourseBuilderPage() {
   // Derived real data
   const modules = Array.isArray(course?.modules) ? course.modules : []
   const allChapters = modules.flatMap(m => m.chapters || [])
-  const allLessons = allChapters.flatMap(c => c.lessons || [])
+  const allLessons = modules.flatMap(m => {
+    const chapLessons = (m.chapters || []).flatMap(c => c.lessons || [])
+    const directLessons = (m as any).lessons || []
+    return chapLessons.length > 0 ? chapLessons : directLessons
+  })
   const videoLessons = allLessons.filter(l => l.type === 'video')
   const freePreviewLessons = allLessons.filter(l => l.is_free_preview)
   const totalDurationSeconds = allLessons.reduce((acc, l) => acc + (l.duration_seconds || 0), 0)
@@ -396,7 +400,8 @@ export default function CourseBuilderPage() {
               modules.map((mod, modIdx) => {
                 const isExpanded = expandedModules[mod.id] !== false
                 const chapters = mod.chapters || []
-                const totalModLessons = chapters.reduce((acc, c) => acc + (c.lessons?.length || 0), 0)
+                const directLessons = (mod as any).lessons || []
+                const totalModLessons = chapters.reduce((acc, c) => acc + (c.lessons?.length || 0), 0) || directLessons.length
 
                 return (
                   <div key={mod.id} className="rounded-xl border border-slate-200 dark:border-[#1b1d3d] bg-white dark:bg-[#090a1e] overflow-hidden">

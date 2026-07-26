@@ -2,8 +2,9 @@ import React, { useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useExam, useExamQuestions, useAddQuestion, useRemoveQuestion } from '@/api/resources/exams'
 import { Button, Card, Badge, Spinner, Input, Select, Modal } from '@/components/ui'
-import { ArrowLeft, Trash2, Plus, GripVertical, CheckCircle2 } from 'lucide-react'
+import { ArrowLeft, Trash2, Plus, GripVertical, CheckCircle2, HelpCircle, Award, Sparkles, FileText } from 'lucide-react'
 import toast from 'react-hot-toast'
+import { motion, AnimatePresence } from 'framer-motion'
 
 export const ExamQuestionsEditor = () => {
   const { id } = useParams<{ id: string }>()
@@ -20,7 +21,12 @@ export const ExamQuestionsEditor = () => {
   const [options, setOptions] = useState([{ text: '' }, { text: '' }])
   const [correctAnswer, setCorrectAnswer] = useState('')
 
-  if (isExamLoading || isQuestionsLoading) return <div className="flex justify-center p-12"><Spinner /></div>
+  if (isExamLoading || isQuestionsLoading) return (
+    <div className="flex flex-col items-center justify-center min-h-[60vh] gap-3">
+      <Spinner size={36} />
+      <span className="text-xs text-[rgb(var(--text-muted))] font-semibold">Loading Exam Questions...</span>
+    </div>
+  )
 
   const handleAddOption = () => setOptions([...options, { text: '' }])
   const handleRemoveOption = (idx: number) => setOptions(options.filter((_, i) => i !== idx))
@@ -53,113 +59,204 @@ export const ExamQuestionsEditor = () => {
   }
 
   const totalMarks = (questions || []).reduce((acc: number, q: any) => acc + (q.marks || 0), 0)
+  const maxMarks = exam?.total_marks || 100
+  const marksPercentage = Math.min(Math.round((totalMarks / maxMarks) * 100), 100)
 
   return (
-    <div className="flex flex-col gap-6">
-      {/* Header */}
-      <div className="flex items-center gap-4">
-        <Button variant="ghost" size="icon" onClick={() => navigate('/teacher/exams')}>
-          <ArrowLeft size={20} />
-        </Button>
-        <div className="flex-1">
-          <h2 className="text-xl font-bold font-[Outfit] text-[rgb(var(--text-primary))]">Manage Questions</h2>
-          <p className="text-sm text-[rgb(var(--text-muted))]">
-            {exam?.title} · {questions?.length || 0} questions · {totalMarks} / {exam?.total_marks} marks assigned
-          </p>
+    <div className="space-y-4 max-w-6xl mx-auto pb-10">
+      {/* Header Bar */}
+      <div className="p-3 sm:p-5 bg-[rgb(var(--bg-surface))] border border-[rgb(var(--border))] rounded-2xl shadow-xs space-y-3">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className="flex items-center gap-2.5 min-w-0">
+            <button
+              onClick={() => navigate(-1)}
+              className="p-2 rounded-xl bg-[rgb(var(--bg-elevated))] hover:bg-[rgb(var(--border))] text-[rgb(var(--text-muted))] hover:text-[rgb(var(--text-primary))] transition-all cursor-pointer border border-[rgb(var(--border))]"
+            >
+              <ArrowLeft size={16} />
+            </button>
+            <div className="min-w-0">
+              <div className="flex items-center gap-2">
+                <h1 className="text-base sm:text-lg font-extrabold text-[rgb(var(--text-primary))] font-[Outfit] truncate">
+                  {exam?.title || 'Exam Questions'}
+                </h1>
+                <Badge variant="primary" className="text-[9px] uppercase font-mono tracking-wider shrink-0">
+                  {exam?.type || 'MCQ'}
+                </Badge>
+              </div>
+              <p className="text-xs text-[rgb(var(--text-muted))] font-medium truncate">
+                Questions Manager
+              </p>
+            </div>
+          </div>
+
+          <Button
+            variant="primary"
+            size="sm"
+            onClick={() => setIsAdding(true)}
+            className="font-bold text-xs bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl px-4 py-2 cursor-pointer shadow-md shadow-indigo-600/20 shrink-0"
+          >
+            <Plus size={15} /> Add Question
+          </Button>
         </div>
-        <Button variant="primary" size="sm" leftIcon={<Plus size={15} />} onClick={() => setIsAdding(true)}>
-          Add Question
-        </Button>
+
+        {/* Stats Metrics Bar */}
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 pt-2 border-t border-[rgb(var(--border))]">
+          <div className="p-2.5 rounded-xl bg-[rgb(var(--bg-elevated))] border border-[rgb(var(--border))] flex items-center gap-2.5">
+            <div className="p-2 rounded-lg bg-indigo-500/10 text-indigo-400">
+              <HelpCircle size={15} />
+            </div>
+            <div>
+              <span className="text-[9px] font-bold text-[rgb(var(--text-muted))] uppercase block leading-none">Total Questions</span>
+              <span className="text-xs sm:text-sm font-extrabold text-[rgb(var(--text-primary))] font-[Outfit]">{questions?.length || 0}</span>
+            </div>
+          </div>
+
+          <div className="p-2.5 rounded-xl bg-[rgb(var(--bg-elevated))] border border-[rgb(var(--border))] flex items-center gap-2.5">
+            <div className="p-2 rounded-lg bg-emerald-500/10 text-emerald-400">
+              <Award size={15} />
+            </div>
+            <div>
+              <span className="text-[9px] font-bold text-[rgb(var(--text-muted))] uppercase block leading-none">Marks Assigned</span>
+              <span className="text-xs sm:text-sm font-extrabold text-[rgb(var(--text-primary))] font-[Outfit]">{totalMarks} / {maxMarks}</span>
+            </div>
+          </div>
+
+          <div className="col-span-2 sm:col-span-1 p-2.5 rounded-xl bg-[rgb(var(--bg-elevated))] border border-[rgb(var(--border))] flex flex-col justify-center gap-1.5">
+            <div className="flex justify-between items-center text-[9px] font-bold">
+              <span className="text-[rgb(var(--text-muted))] uppercase">Marks Allocated</span>
+              <span className="text-indigo-400">{marksPercentage}%</span>
+            </div>
+            <div className="w-full h-1.5 bg-[rgb(var(--border))] rounded-full overflow-hidden">
+              <div className="h-full bg-gradient-to-r from-indigo-500 to-emerald-400 transition-all duration-300" style={{ width: `${marksPercentage}%` }} />
+            </div>
+          </div>
+        </div>
       </div>
 
-      {/* Questions List */}
-      <div className="flex flex-col gap-3">
-        {(questions || []).map((q: any, idx: number) => (
-          <Card key={q.id} className="p-4 flex gap-4 hover:shadow-sm transition-all group">
-            <div className="pt-1 cursor-grab text-[rgb(var(--text-muted))] opacity-0 group-hover:opacity-100 transition-opacity">
-              <GripVertical size={18} />
-            </div>
-            <div className="flex-1 space-y-2">
-              <div className="flex justify-between items-start gap-3">
-                <div className="font-semibold text-[rgb(var(--text-primary))] flex-1">
-                  <span className="text-[rgb(var(--primary))] font-bold mr-2">Q{idx + 1}.</span>
-                  {q.question}
-                </div>
-                <div className="flex items-center gap-2 flex-shrink-0">
-                  <Badge variant="muted" className="text-[10px] uppercase">{q.type}</Badge>
-                  <Badge variant="warning" className="text-[10px]">{q.marks} mk</Badge>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-7 w-7 text-[rgb(var(--error))] hover:bg-[rgb(var(--error)/0.08)]"
-                    onClick={() => removeMutation.mutate(q.id)}
-                    loading={removeMutation.isPending}
-                  >
-                    <Trash2 size={14} />
-                  </Button>
-                </div>
-              </div>
+      {/* Questions List Container */}
+      <div className="space-y-3">
+        <AnimatePresence>
+          {(questions || []).map((q: any, idx: number) => (
+            <motion.div
+              key={q.id}
+              initial={{ opacity: 0, y: 5 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              transition={{ duration: 0.15 }}
+            >
+              <Card className="p-3 sm:p-4 bg-[rgb(var(--bg-surface))] border border-[rgb(var(--border))] hover:border-indigo-500/40 transition-all space-y-3 rounded-2xl group relative overflow-hidden">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="flex items-start gap-2.5 min-w-0">
+                    <span className="inline-flex items-center justify-center w-6 h-6 rounded-lg bg-indigo-500/10 text-indigo-400 font-black text-xs font-mono shrink-0 mt-0.5">
+                      Q{idx + 1}
+                    </span>
+                    <h3 className="font-bold text-xs sm:text-sm text-[rgb(var(--text-primary))] font-[Outfit] leading-relaxed">
+                      {q.question}
+                    </h3>
+                  </div>
 
-              {q.type === 'mcq' && q.options && (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mt-2">
-                  {q.options.map((opt: string, i: number) => {
-                    const isCorrect = q.correct_answer === opt
-                    return (
-                      <div key={i} className={`p-2.5 rounded-lg text-sm border flex items-center gap-2 ${
-                        isCorrect
-                          ? 'bg-[rgb(var(--success)/0.08)] border-[rgb(var(--success)/0.3)] text-[rgb(var(--success))] font-semibold'
-                          : 'bg-[rgb(var(--bg-elevated))] border-[rgb(var(--border))] text-[rgb(var(--text-secondary))]'
-                      }`}>
-                        {isCorrect && <CheckCircle2 size={13} className="flex-shrink-0" />}
-                        <span>{String.fromCharCode(65 + i)}. {opt}</span>
-                      </div>
-                    )
-                  })}
+                  <div className="flex items-center gap-1.5 shrink-0">
+                    <span className="text-[9px] font-extrabold uppercase font-mono px-2 py-0.5 rounded-full bg-purple-500/10 text-purple-400 border border-purple-500/20">
+                      {q.type}
+                    </span>
+                    <span className="text-[9px] font-extrabold uppercase font-mono px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                      {q.marks} {q.marks === 1 ? 'Mark' : 'Marks'}
+                    </span>
+                    <button
+                      onClick={() => removeMutation.mutate(q.id)}
+                      disabled={removeMutation.isPending}
+                      className="p-1.5 rounded-lg border border-[rgb(var(--border))] text-[rgb(var(--text-muted))] hover:text-rose-400 hover:bg-rose-500/10 transition-all cursor-pointer ml-1"
+                      title="Delete Question"
+                    >
+                      <Trash2 size={13} />
+                    </button>
+                  </div>
                 </div>
-              )}
-            </div>
-          </Card>
-        ))}
+
+                {/* MCQ Options Display */}
+                {q.type === 'mcq' && q.options && (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1">
+                    {q.options.map((opt: string, i: number) => {
+                      const isCorrect = q.correct_answer === opt
+                      return (
+                        <div
+                          key={i}
+                          className={`p-2 sm:p-2.5 rounded-xl text-xs flex items-center justify-between border transition-all ${
+                            isCorrect
+                              ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400 font-bold'
+                              : 'bg-[rgb(var(--bg-elevated))] border-[rgb(var(--border))] text-[rgb(var(--text-muted))]'
+                          }`}
+                        >
+                          <span className="truncate pr-2">
+                            <strong className="mr-1.5 font-mono">{String.fromCharCode(65 + i)}.</strong> {opt}
+                          </span>
+                          {isCorrect && (
+                            <span className="inline-flex items-center gap-1 text-[8px] font-black uppercase text-emerald-400 bg-emerald-500/20 px-1.5 py-0.5 rounded-md shrink-0">
+                              <CheckCircle2 size={10} /> Correct
+                            </span>
+                          )}
+                        </div>
+                      )
+                    })}
+                  </div>
+                )}
+              </Card>
+            </motion.div>
+          ))}
+        </AnimatePresence>
 
         {/* Empty State */}
         {(questions || []).length === 0 && (
-          <div className="py-16 flex flex-col items-center gap-4 border-2 border-dashed border-[rgb(var(--border))] rounded-xl text-[rgb(var(--text-muted))]">
-            <p className="text-sm font-medium">No questions yet. Click "Add Question" to add your first question.</p>
-            <Button variant="primary" size="sm" leftIcon={<Plus size={15} />} onClick={() => setIsAdding(true)}>
-              Add Question
+          <Card className="p-8 sm:p-12 text-center border-2 border-dashed border-[rgb(var(--border))] bg-[rgb(var(--bg-surface))] rounded-2xl space-y-3">
+            <div className="w-12 h-12 rounded-2xl bg-indigo-500/10 text-indigo-400 flex items-center justify-center mx-auto">
+              <HelpCircle size={24} />
+            </div>
+            <div className="space-y-1">
+              <h3 className="text-sm font-extrabold text-[rgb(var(--text-primary))] font-[Outfit]">No Questions Added Yet</h3>
+              <p className="text-xs text-[rgb(var(--text-muted))] max-w-sm mx-auto">
+                Start building this exam by adding MCQ or Subjective questions with marks allocation.
+              </p>
+            </div>
+            <Button
+              variant="primary"
+              size="sm"
+              onClick={() => setIsAdding(true)}
+              className="font-bold text-xs bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl px-4 py-2 cursor-pointer shadow-md shadow-indigo-600/20 mt-2"
+            >
+              <Plus size={15} /> Add First Question
             </Button>
-          </div>
+          </Card>
         )}
 
-        {/* Add Question Button */}
+        {/* Add Question CTA Footer */}
         {(questions || []).length > 0 && (
-          <Button
-            variant="outline"
-            className="w-full border-dashed border-2 py-5 text-[rgb(var(--text-muted))] hover:text-[rgb(var(--primary))] hover:border-[rgb(var(--primary))] transition-all"
+          <button
             onClick={() => setIsAdding(true)}
-            leftIcon={<Plus size={18} />}
+            className="w-full border-2 border-dashed border-[rgb(var(--border))] hover:border-indigo-500 text-[rgb(var(--text-muted))] hover:text-indigo-400 font-bold text-xs py-3 rounded-2xl transition-all flex items-center justify-center gap-2 cursor-pointer bg-[rgb(var(--bg-surface))] mt-3"
           >
-            Add Another Question
-          </Button>
+            <Plus size={15} /> Add Another Question
+          </button>
         )}
+      </div>
 
-        {/* Add Question Popup Modal */}
-        <Modal
-          open={isAdding}
-          onClose={() => setIsAdding(false)}
-          title={`Add Question #${(questions?.length || 0) + 1}`}
-          size="lg"
-        >
-          <div className="space-y-4 py-1">
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-              <div className="col-span-3">
-                <Input
-                  label="Question Text"
-                  value={qText}
-                  onChange={e => setQText(e.target.value)}
-                  placeholder="Enter the question..."
-                />
-              </div>
+      {/* Add Question Modal */}
+      <Modal
+        open={isAdding}
+        onClose={() => setIsAdding(false)}
+        title={`Add Question #${(questions?.length || 0) + 1}`}
+        size="lg"
+      >
+        <div className="space-y-4 py-1">
+          <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
+            <div className="sm:col-span-3">
+              <Input
+                label="Question Statement"
+                value={qText}
+                onChange={e => setQText(e.target.value)}
+                placeholder="Type question prompt here..."
+              />
+            </div>
+            <div>
               <Input
                 label="Marks"
                 type="number"
@@ -168,22 +265,34 @@ export const ExamQuestionsEditor = () => {
                 onChange={e => setQMarks(Number(e.target.value))}
               />
             </div>
+          </div>
 
-            <Select label="Question Type" value={qType} onChange={e => setQType(e.target.value)}>
+          <div>
+            <label className="text-[10px] font-bold text-[rgb(var(--text-muted))] uppercase block mb-1">Question Type</label>
+            <select
+              value={qType}
+              onChange={e => setQType(e.target.value)}
+              className="w-full px-3 py-2 text-xs font-bold rounded-xl bg-[rgb(var(--bg-elevated))] border border-[rgb(var(--border))] text-[rgb(var(--text-primary))] outline-none cursor-pointer"
+            >
               <option value="mcq">Multiple Choice (MCQ)</option>
               <option value="subjective">Subjective (Long Answer)</option>
-            </Select>
+            </select>
+          </div>
 
-            {qType === 'mcq' && (
-              <div className="space-y-3 bg-[rgb(var(--bg-elevated))] p-4 rounded-xl border border-[rgb(var(--border))]">
-                <label className="text-sm font-bold text-[rgb(var(--text-primary))]">Options & Correct Answer</label>
-                <p className="text-xs text-[rgb(var(--text-muted))]">Select the radio button next to the correct answer.</p>
+          {qType === 'mcq' && (
+            <div className="space-y-3 p-3.5 bg-[rgb(var(--bg-elevated))] rounded-xl border border-[rgb(var(--border))]">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-bold text-[rgb(var(--text-primary))]">Options & Correct Answer</span>
+                <span className="text-[10px] text-[rgb(var(--text-muted))]">Select radio to set answer</span>
+              </div>
+
+              <div className="space-y-2">
                 {options.map((opt, idx) => (
-                  <div key={idx} className="flex gap-3 items-center">
+                  <div key={idx} className="flex items-center gap-2">
                     <input
                       type="radio"
                       name="correctAnswer"
-                      className="accent-[rgb(var(--primary))] w-4 h-4 flex-shrink-0"
+                      className="w-4 h-4 accent-indigo-500 cursor-pointer shrink-0"
                       checked={correctAnswer === opt.text && opt.text !== ''}
                       onChange={() => setCorrectAnswer(opt.text)}
                     />
@@ -199,32 +308,47 @@ export const ExamQuestionsEditor = () => {
                       }}
                     />
                     {options.length > 2 && (
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="text-[rgb(var(--error))] hover:bg-[rgb(var(--error)/0.08)] h-8 w-8"
+                      <button
                         onClick={() => handleRemoveOption(idx)}
+                        className="p-2 text-rose-400 hover:bg-rose-500/10 rounded-xl transition-all cursor-pointer"
+                        title="Remove Option"
                       >
-                        <Trash2 size={15} />
-                      </Button>
+                        <Trash2 size={14} />
+                      </button>
                     )}
                   </div>
                 ))}
-                <Button variant="outline" size="sm" onClick={handleAddOption} className="mt-1 text-xs" leftIcon={<Plus size={13} />}>
-                  Add Option
-                </Button>
               </div>
-            )}
 
-            <div className="flex justify-end gap-2 pt-3 border-t border-[rgb(var(--border))]">
-              <Button variant="outline" onClick={() => setIsAdding(false)}>Cancel</Button>
-              <Button variant="primary" onClick={handleSaveQuestion} loading={addMutation.isPending}>
-                Save Question
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleAddOption}
+                className="text-xs font-bold rounded-xl"
+                leftIcon={<Plus size={13} />}
+              >
+                Add Option
               </Button>
             </div>
+          )}
+
+          <div className="flex items-center justify-end gap-2 pt-3 border-t border-[rgb(var(--border))]">
+            <Button variant="outline" size="sm" onClick={() => setIsAdding(false)} className="rounded-xl font-bold">
+              Cancel
+            </Button>
+            <Button
+              variant="primary"
+              size="sm"
+              onClick={handleSaveQuestion}
+              loading={addMutation.isPending}
+              className="bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold px-4"
+            >
+              Save Question
+            </Button>
           </div>
-        </Modal>
-      </div>
+        </div>
+      </Modal>
     </div>
   )
 }
+
