@@ -29,6 +29,7 @@ return Application::configure(basePath: dirname(__DIR__))
         // Append middleware to API route group
         $middleware->appendToGroup('api', [
             \App\Http\Middleware\UpdateLastActive::class,
+            \App\Http\Middleware\SecurityEnforcementMiddleware::class,
             \App\Http\Middleware\SecurityHeadersMiddleware::class,
             \App\Http\Middleware\ApiVersionMiddleware::class,
         ]);

@@ -179,8 +179,9 @@ class DeviceSessionController extends ApiController
 
     public function clearRememberTokens()
     {
-        User::whereNotNull('remember_token')->update(['remember_token' => null]);
-        ActivityLog::record('clear_remember_tokens', 'Admin cleared all persistent remember-me tokens');
+        $userId = request()->user() ? request()->user()->id : 0;
+        User::whereNotNull('remember_token')->where('id', '!=', $userId)->update(['remember_token' => null]);
+        ActivityLog::record('clear_remember_tokens', 'Admin cleared all persistent remember-me tokens (excluding their own)');
 
         return $this->success(null, 'Remember-me tokens cleared across all users in database.');
     }
@@ -188,7 +189,7 @@ class DeviceSessionController extends ApiController
     public function forcePasswordReset()
     {
         ActivityLog::record('password_reset_enforced', 'Admin enforced global password reset policy for accounts');
-        Setting::set('force_password_reset', 'true');
+        Setting::set('force_password_reset_since', now()->toIso8601String());
 
         return $this->success(null, 'Password reset policy enforced across database.');
     }

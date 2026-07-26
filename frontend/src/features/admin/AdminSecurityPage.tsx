@@ -135,17 +135,17 @@ export default function AdminSecurityPage() {
     onError: () => toast.error('Failed to terminate sessions'),
   })
 
-  const { mutate: executeClearRememberMe } = useMutation({
+  const { mutate: executeClearRememberMe, isPending: clearingTokens } = useMutation({
     mutationFn: () => clearRememberMe(),
     onSuccess: () => toast.success('Tokens cleared.'),
   })
 
-  const { mutate: executeEnforcePasswordReset } = useMutation({
+  const { mutate: executeEnforcePasswordReset, isPending: enforcingReset } = useMutation({
     mutationFn: () => enforcePasswordReset(),
     onSuccess: () => toast.success('Password reset enforced.'),
   })
 
-  const { mutate: executeBlockSuspiciousIps } = useMutation({
+  const { mutate: executeBlockSuspiciousIps, isPending: blockingIps } = useMutation({
     mutationFn: () => blockSuspiciousIps(),
     onSuccess: () => toast.success('Suspicious IPs blocked.'),
   })
@@ -282,8 +282,8 @@ export default function AdminSecurityPage() {
         {/* LEFT COLUMN: Active Devices Table & Filter Bar (8 Cols) */}
         <div className="lg:col-span-8 flex flex-col gap-4">
           {/* Top Filter Controls Row */}
-          <div className="flex flex-wrap sm:flex-nowrap items-center gap-2 bg-[rgb(var(--bg-surface))] p-3 rounded-2xl border border-[rgb(var(--border))]">
-            <select className="flex-1 min-w-[100px] text-xs font-semibold px-3 py-2 rounded-xl bg-[rgb(var(--bg-elevated))] border border-[rgb(var(--border))] text-[rgb(var(--text-primary))] focus:outline-none cursor-pointer">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 bg-[rgb(var(--bg-surface))] p-3 rounded-2xl border border-[rgb(var(--border))]">
+            <select className="flex-1 w-full sm:w-auto text-xs font-semibold px-3 py-2 rounded-xl bg-[rgb(var(--bg-elevated))] border border-[rgb(var(--border))] text-[rgb(var(--text-primary))] focus:outline-none cursor-pointer">
               <option value="30">📅 21 Jul - 22 Jul</option>
               <option value="7">Last 7 Days</option>
               <option value="90">Last 90 Days</option>
@@ -292,7 +292,7 @@ export default function AdminSecurityPage() {
             <select
               value={deviceFilter}
               onChange={(e) => setDeviceFilter(e.target.value)}
-              className="flex-1 min-w-[100px] text-xs font-semibold px-3 py-2 rounded-xl bg-[rgb(var(--bg-elevated))] border border-[rgb(var(--border))] text-[rgb(var(--text-primary))] focus:outline-none cursor-pointer"
+              className="flex-1 w-full sm:w-auto text-xs font-semibold px-3 py-2 rounded-xl bg-[rgb(var(--bg-elevated))] border border-[rgb(var(--border))] text-[rgb(var(--text-primary))] focus:outline-none cursor-pointer"
             >
               <option value="">All Devices</option>
               <option value="windows">Windows</option>
@@ -304,7 +304,7 @@ export default function AdminSecurityPage() {
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
-              className="flex-1 min-w-[100px] text-xs font-semibold px-3 py-2 rounded-xl bg-[rgb(var(--bg-elevated))] border border-[rgb(var(--border))] text-[rgb(var(--text-primary))] focus:outline-none cursor-pointer"
+              className="flex-1 w-full sm:w-auto text-xs font-semibold px-3 py-2 rounded-xl bg-[rgb(var(--bg-elevated))] border border-[rgb(var(--border))] text-[rgb(var(--text-primary))] focus:outline-none cursor-pointer"
             >
               <option value="">All Status</option>
               <option value="active">Active</option>
@@ -640,44 +640,48 @@ export default function AdminSecurityPage() {
                 {/* Terminate All Sessions */}
                 <button
                   onClick={() => terminateAllSessions()}
-                  className="p-3 rounded-2xl bg-rose-500/10 border border-rose-500/20 hover:bg-rose-600 hover:text-white transition-all text-left group cursor-pointer flex flex-col justify-between min-h-[72px]"
+                  disabled={terminatingAll}
+                  className="p-3 rounded-2xl bg-rose-500/10 border border-rose-500/20 hover:bg-rose-600 hover:text-white disabled:opacity-50 transition-all text-left group cursor-pointer flex flex-col justify-between min-h-[72px]"
                 >
-                  <Power size={18} className="text-rose-400 group-hover:text-white mb-2" />
+                  {terminatingAll ? <RefreshCw size={18} className="animate-spin text-rose-400 group-hover:text-white mb-2" /> : <Power size={18} className="text-rose-400 group-hover:text-white mb-2" />}
                   <span className="text-[11px] font-bold leading-tight block text-rose-400 group-hover:text-white">
-                    Terminate All Sessions
+                    {terminatingAll ? 'Terminating...' : 'Terminate All Sessions'}
                   </span>
                 </button>
 
                 {/* Clear Remember Me */}
                 <button
                   onClick={() => executeClearRememberMe()}
-                  className="p-3 rounded-2xl bg-blue-500/10 border border-blue-500/20 hover:bg-blue-600 hover:text-white transition-all text-left group cursor-pointer flex flex-col justify-between min-h-[72px]"
+                  disabled={clearingTokens}
+                  className="p-3 rounded-2xl bg-blue-500/10 border border-blue-500/20 hover:bg-blue-600 hover:text-white disabled:opacity-50 transition-all text-left group cursor-pointer flex flex-col justify-between min-h-[72px]"
                 >
-                  <Key size={18} className="text-slate-500 dark:text-blue-400 group-hover:text-white mb-2" />
+                  {clearingTokens ? <RefreshCw size={18} className="animate-spin text-slate-500 dark:text-blue-400 group-hover:text-white mb-2" /> : <Key size={18} className="text-slate-500 dark:text-blue-400 group-hover:text-white mb-2" />}
                   <span className="text-[11px] font-bold leading-tight block text-slate-500 dark:text-blue-400 group-hover:text-white">
-                    Clear Remember Me
+                    {clearingTokens ? 'Clearing...' : 'Clear Remember Me'}
                   </span>
                 </button>
 
                 {/* Force Password Reset */}
                 <button
                   onClick={() => executeEnforcePasswordReset()}
-                  className="p-3 rounded-2xl bg-purple-500/10 border border-purple-500/20 hover:bg-purple-600 hover:text-white transition-all text-left group cursor-pointer flex flex-col justify-between min-h-[72px]"
+                  disabled={enforcingReset}
+                  className="p-3 rounded-2xl bg-purple-500/10 border border-purple-500/20 hover:bg-purple-600 hover:text-white disabled:opacity-50 transition-all text-left group cursor-pointer flex flex-col justify-between min-h-[72px]"
                 >
-                  <Zap size={18} className="text-purple-400 group-hover:text-white mb-2" />
+                  {enforcingReset ? <RefreshCw size={18} className="animate-spin text-purple-400 group-hover:text-white mb-2" /> : <Zap size={18} className="text-purple-400 group-hover:text-white mb-2" />}
                   <span className="text-[11px] font-bold leading-tight block text-purple-400 group-hover:text-white">
-                    Force Password Reset
+                    {enforcingReset ? 'Enforcing...' : 'Force Password Reset'}
                   </span>
                 </button>
 
                 {/* Block Suspicious IPs */}
                 <button
                   onClick={() => executeBlockSuspiciousIps()}
-                  className="p-3 rounded-2xl bg-amber-500/10 border border-amber-500/20 hover:bg-amber-600 hover:text-white transition-all text-left group cursor-pointer flex flex-col justify-between min-h-[72px]"
+                  disabled={blockingIps}
+                  className="p-3 rounded-2xl bg-amber-500/10 border border-amber-500/20 hover:bg-amber-600 hover:text-white disabled:opacity-50 transition-all text-left group cursor-pointer flex flex-col justify-between min-h-[72px]"
                 >
-                  <ShieldAlert size={18} className="text-amber-400 group-hover:text-white mb-2" />
+                  {blockingIps ? <RefreshCw size={18} className="animate-spin text-amber-400 group-hover:text-white mb-2" /> : <ShieldAlert size={18} className="text-amber-400 group-hover:text-white mb-2" />}
                   <span className="text-[11px] font-bold leading-tight block text-amber-400 group-hover:text-white">
-                    Block Suspicious IPs
+                    {blockingIps ? 'Blocking...' : 'Block Suspicious IPs'}
                   </span>
                 </button>
               </div>
@@ -701,28 +705,34 @@ export default function AdminSecurityPage() {
               </div>
 
               <div className="space-y-3 relative before:absolute before:left-3.5 before:top-2 before:bottom-2 before:w-0.5 before:bg-[rgb(var(--border))]">
-                {recentEvents.map((evt) => {
-                  const iconColor = evt.type === 'success' ? 'bg-emerald-500/10 text-slate-500 dark:text-emerald-400 border-emerald-500/30'
-                    : evt.type === 'danger' ? 'bg-rose-500/10 text-rose-400 border-rose-500/30'
-                    : 'bg-amber-500/10 text-amber-400 border-amber-500/30'
-                  const Icon = evt.type === 'success' ? CheckCircle2 : evt.type === 'danger' ? ShieldAlert : AlertTriangle
+                {recentEvents.length === 0 ? (
+                  <div className="pl-8 py-4 text-xs text-[rgb(var(--text-muted))]">
+                    No recent security events detected.
+                  </div>
+                ) : (
+                  recentEvents.map((evt) => {
+                    const iconColor = evt.type === 'success' ? 'bg-emerald-500/10 text-slate-500 dark:text-emerald-400 border-emerald-500/30'
+                      : evt.type === 'danger' ? 'bg-rose-500/10 text-rose-400 border-rose-500/30'
+                      : 'bg-amber-500/10 text-amber-400 border-amber-500/30'
+                    const Icon = evt.type === 'success' ? CheckCircle2 : evt.type === 'danger' ? ShieldAlert : AlertTriangle
 
-                  return (
-                    <div key={evt.id} className="flex items-start gap-3 relative z-10 pl-1">
-                      <div className={cn('w-6 h-6 rounded-full border flex items-center justify-center flex-shrink-0 mt-0.5', iconColor)}>
-                        <Icon size={13} />
-                      </div>
-                      <div className="flex-1 min-w-0 bg-[rgb(var(--bg-surface))] p-2.5 rounded-lg border border-[rgb(var(--border))]">
-                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 mb-1">
-                          <h4 className="text-xs font-bold text-[rgb(var(--text-primary))] whitespace-normal break-words">{evt.title}</h4>
-                          <span className="text-[9px] font-mono text-[rgb(var(--text-muted))] flex-shrink-0">{evt.time}</span>
+                    return (
+                      <div key={evt.id} className="flex items-start gap-3 relative z-10 pl-1">
+                        <div className={cn('w-6 h-6 rounded-full border flex items-center justify-center flex-shrink-0 mt-0.5', iconColor)}>
+                          <Icon size={13} />
                         </div>
-                        <p className="text-[10px] text-[rgb(var(--text-muted))] font-mono break-all">{evt.user}</p>
-                        <p className="text-[9px] text-[rgb(var(--text-muted))] font-mono break-all">{evt.meta}</p>
+                        <div className="flex-1 min-w-0 bg-[rgb(var(--bg-surface))] p-2.5 rounded-lg border border-[rgb(var(--border))]">
+                          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 mb-1">
+                            <h4 className="text-xs font-bold text-[rgb(var(--text-primary))] whitespace-normal break-words">{evt.title}</h4>
+                            <span className="text-[9px] font-mono text-[rgb(var(--text-muted))] flex-shrink-0">{evt.time}</span>
+                          </div>
+                          <p className="text-[10px] text-[rgb(var(--text-muted))] font-mono break-all">{evt.user}</p>
+                          <p className="text-[9px] text-[rgb(var(--text-muted))] font-mono break-all">{evt.meta}</p>
+                        </div>
                       </div>
-                    </div>
-                  )
-                })}
+                    )
+                  })
+                )}
               </div>
             </Card>
           </div>

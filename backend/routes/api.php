@@ -22,6 +22,7 @@ use App\Http\Controllers\Api\Admin\AcademicSessionController;
 Route::prefix('auth')->group(function () {
     Route::post('login',          [AuthController::class, 'login'])->middleware('throttle:auth-login')->name('login');
     Route::post('forgot-password',[AuthController::class, 'forgotPassword'])->middleware('throttle:auth-forgot-password');
+    Route::post('validate-reset-token', [AuthController::class, 'validateResetToken']);
     Route::post('reset-password', [AuthController::class, 'resetPassword']);
     Route::get ('google',         [AuthController::class, 'redirectToGoogle']);
     Route::get ('google/callback',[AuthController::class, 'handleGoogleCallback']);

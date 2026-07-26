@@ -57,14 +57,33 @@ class DashboardService
 
         // Use LearningAnalyticsService / LessonProgress model instead of DB facade where possible
         // But for grouped weekly activity, DB is acceptable within a Service, just not Controller
-        $weeklyActivity = DB::table('lesson_progress as lp')
+        $rawActivity = DB::table('lesson_progress as lp')
             ->join('users as u', 'u.id', '=', 'lp.user_id')
             ->where('u.role', 'student')
-            ->where('lp.created_at', '>=', now()->subDays(7))
-            ->groupBy('date')
+            ->when($isTeacher, fn($q) => $q->whereExists(fn($sub) =>
+                $sub->select(DB::raw(1))
+                    ->from('batch_user as bu')
+                    ->join('batches as b', 'b.id', '=', 'bu.batch_id')
+                    ->whereColumn('bu.user_id', 'u.id')
+                    ->where('b.teacher_id', $user->id)
+            ))
+            ->where('lp.created_at', '>=', now()->subDays(6)->startOfDay())
+            ->groupBy(DB::raw('DATE(lp.created_at)'))
             ->orderBy('date')
             ->selectRaw('DATE(lp.created_at) as date, COUNT(DISTINCT lp.user_id) as students_active, COUNT(lp.id) as lessons_completed')
-            ->get();
+            ->get()
+            ->keyBy('date');
+
+        $weeklyActivity = collect();
+        for ($i = 6; $i >= 0; $i--) {
+            $dateStr = now()->subDays($i)->format('Y-m-d');
+            $found = $rawActivity->get($dateStr);
+            $weeklyActivity->push([
+                'date' => $dateStr,
+                'students_active' => $found ? (int)$found->students_active : 0,
+                'lessons_completed' => $found ? (int)$found->lessons_completed : 0,
+            ]);
+        }
 
         $topStudents = DB::table('lesson_progress as lp')
             ->join('users as u', 'u.id', '=', 'lp.user_id')
@@ -90,7 +109,7 @@ class DashboardService
         try {
             $storageUsed = \App\Domains\Media\Models\Media::sum('size_bytes');
         } catch (\Throwable $e) {}
-        $storageTotal = 5 * 1024 * 1024 * 1024;
+        $storageTotal = max(15 * 1024 * 1024 * 1024, (int)ceil(($storageUsed * 1.3) / (1024 * 1024 * 1024)) * 1024 * 1024 * 1024);
 
         return [
             'stats'               => $stats,

@@ -44,7 +44,7 @@ let isRefreshing = false
 
 apiClient.interceptors.response.use(
   (response) => response,
-  async (error: AxiosError<{ message?: string }>) => {
+  async (error: AxiosError<{ message?: string, errors?: string, reset_token?: string, email?: string }>) => {
     const status = error.response?.status
     const msg = error.response?.data?.message
 
@@ -85,7 +85,32 @@ apiClient.interceptors.response.use(
     }
 
     if (status === 403) {
-      toast.error('Permission denied.')
+      const errorType = error.response?.data?.errors
+      if (errorType === 'PasswordResetRequired') {
+        removeToken()
+        localStorage.removeItem('eduflow-auth')
+        
+        if (!isRefreshing) {
+          isRefreshing = true
+          toast.error(msg || 'Security policy requires a password reset.', { duration: 5000 })
+          
+          const resetToken = error.response?.data?.reset_token as string | undefined
+          const userEmail = error.response?.data?.email as string | undefined
+          
+          setTimeout(() => {
+            if (resetToken && userEmail) {
+              window.location.replace(`/login?token=${resetToken}&email=${encodeURIComponent(userEmail)}`)
+            } else {
+              window.location.replace('/login?reset=true')
+            }
+            isRefreshing = false
+          }, 5000)
+        }
+      } else if (errorType === 'IpBlocked') {
+        toast.error(msg || 'Your IP is blocked.')
+      } else {
+        toast.error('Permission denied.')
+      }
     } else if (status === 422) {
       // Handled by form validation schemas
     } else if (status === 429) {

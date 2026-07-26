@@ -7,7 +7,6 @@ import { RouteErrorBoundary } from '@/shared/errors/ErrorBoundary'
 
 // ── Layouts ──────────────────────────────────────────────────
 import PublicLayout from '@/layouts/PublicLayout'
-import AuthLayout from '@/layouts/AuthLayout'
 
 // ── Public Pages ──────────────────────────────────────────────
 const Home = lazy(() => import('@/pages/Home'))
@@ -30,8 +29,6 @@ const NotFound = lazy(() => import('@/pages/NotFound'))
 
 // ── Auth Pages ──────────────────────────────────────────────
 const LoginPage = lazy(() => import('@/features/auth/LoginPage'))
-const ForgotPasswordPage = lazy(() => import('@/features/auth/ForgotPasswordPage'))
-const ResetPasswordPage = lazy(() => import('@/features/auth/ResetPasswordPage'))
 
 // ── Teacher Dashboard & Operations ────────────────────────────
 const TeacherDashboard = lazy(() => import('@/features/dashboard/TeacherDashboard'))
@@ -209,13 +206,6 @@ const router = createBrowserRouter([
     errorElement: <RouteErrorBoundary />,
     children: [
       { path: '/login', element: <Suspense fallback={<PageLoader />}><LoginPage /></Suspense> },
-      {
-        element: <AuthLayout />,
-        children: [
-          { path: '/forgot-password', element: <Suspense fallback={<PageLoader />}><ForgotPasswordPage /></Suspense> },
-          { path: '/reset-password', element: <Suspense fallback={<PageLoader />}><ResetPasswordPage /></Suspense> },
-        ]
-      }
     ]
   },
 

@@ -202,7 +202,7 @@ export default function TeacherDashboard() {
             </div>
           </div>
           <ResponsiveContainer width="100%" height={180}>
-            <AreaChart data={b.weekly_activity} margin={{ top: 4, right: 4, bottom: 0, left: -20 }}>
+            <AreaChart data={b.weekly_activity} margin={{ top: 10, right: 10, bottom: 5, left: -15 }}>
               <defs>
                 <linearGradient id="gradStudents" x1="0" y1="0" x2="0" y2="1">
                   <stop offset="5%" stopColor="rgb(108,99,255)" stopOpacity={0.3} />
@@ -214,9 +214,29 @@ export default function TeacherDashboard() {
                 </linearGradient>
               </defs>
               <CartesianGrid strokeDasharray="3 3" stroke="rgb(var(--border))" vertical={false} />
-              <XAxis dataKey="date" tick={{ fontSize: 11, fill: 'rgb(var(--text-muted))' }} tickLine={false} axisLine={false}
-                tickFormatter={(v) => new Date(v).toLocaleDateString('en', { weekday: 'short' })} />
-              <YAxis tick={{ fontSize: 11, fill: 'rgb(var(--text-muted))' }} tickLine={false} axisLine={false} />
+              <XAxis
+                dataKey="date"
+                tick={{ fontSize: 11, fill: 'rgb(var(--text-muted))' }}
+                tickLine={false}
+                axisLine={false}
+                dy={6}
+                tickFormatter={(v) => {
+                  if (!v) return ''
+                  const parts = String(v).split('-')
+                  if (parts.length === 3) {
+                    const d = new Date(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2]))
+                    return d.toLocaleDateString('en-US', { weekday: 'short' })
+                  }
+                  return v
+                }}
+              />
+              <YAxis
+                allowDecimals={false}
+                tick={{ fontSize: 11, fill: 'rgb(var(--text-muted))' }}
+                tickLine={false}
+                axisLine={false}
+                dx={-4}
+              />
               <Tooltip cursor={{ fill: 'rgba(255, 255, 255, 0.06)' }} content={<CustomTooltip />} />
               <Area type="monotone" dataKey="students_active" name="Active Students"
                 stroke="rgb(108,99,255)" fill="url(#gradStudents)" strokeWidth={2} dot={false} />

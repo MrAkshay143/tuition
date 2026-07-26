@@ -518,7 +518,17 @@ export default function AdminUsersPage() {
       </Card>
 
       {/* User Add/Edit Modal */}
-      <UserFormModal open={addOpen || !!editUser} onClose={() => { setAddOpen(false); setEditUser(null) }} user={editUser} />
+      <UserFormModal
+        open={addOpen || !!editUser}
+        onClose={() => { setAddOpen(false); setEditUser(null) }}
+        user={editUser}
+        onSuccess={() => {
+          setPage(1)
+          setSearch('')
+          setRoleFilter('all')
+          setStatusFilter('all')
+        }}
+      />
 
       {/* Delete User Confirmation Modal */}
       <ConfirmModal
@@ -535,7 +545,7 @@ export default function AdminUsersPage() {
   )
 }
 
-function UserFormModal({ open, onClose, user }: { open: boolean; onClose: () => void; user: User | null }) {
+function UserFormModal({ open, onClose, user, onSuccess }: { open: boolean; onClose: () => void; user: User | null; onSuccess?: () => void }) {
   const qc = useQueryClient()
   const isEdit = !!user
   const { register, handleSubmit, reset, formState: { errors } } = useForm({
@@ -579,7 +589,9 @@ function UserFormModal({ open, onClose, user }: { open: boolean; onClose: () => 
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['admin', 'users'] })
-      toast.success(isEdit ? 'User details updated.' : 'User created.')
+      qc.invalidateQueries({ queryKey: ['bundle', 'admin-overview'] })
+      toast.success(isEdit ? 'User details updated.' : 'User created successfully.')
+      onSuccess?.()
       onClose()
     },
   })

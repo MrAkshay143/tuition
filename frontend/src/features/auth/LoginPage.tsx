@@ -1,5 +1,5 @@
-import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { useState, useEffect } from 'react'
+import { Link, useSearchParams } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
@@ -8,7 +8,8 @@ import { Eye, EyeOff, GraduationCap, Mail, Lock, ChevronLeft, ArrowLeft, KeyRoun
 import { toast } from 'react-hot-toast'
 
 import { Button, Input } from '@/components/ui'
-import { useLogin, useForgotPassword } from '@/api/resources/auth'
+import { useLogin, useForgotPassword, useResetPassword } from '@/api/resources/auth'
+import { api } from '@/api/client'
 
 const loginSchema = z.object({
   email: z.string().email('Enter a valid email address'),
@@ -19,12 +20,54 @@ type LoginForm = z.infer<typeof loginSchema>
 export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false)
   const [isFlipped, setIsFlipped] = useState(false)
+  const [searchParams, setSearchParams] = useSearchParams()
+
+  const token = searchParams.get('token')
+  const emailFromUrl = searchParams.get('email')
+  
+  const [isValidatingToken, setIsValidatingToken] = useState(false)
+
+  useEffect(() => {
+    if (token && emailFromUrl) {
+      setIsValidatingToken(true)
+      setIsFlipped(true)
+      api.post('/auth/validate-reset-token', { token, email: emailFromUrl })
+        .then(() => {
+          setIsFlipped(true)
+        })
+        .catch(() => {
+          toast.error('Invalid or expired reset link')
+          setSearchParams({})
+          setIsFlipped(false)
+        })
+        .finally(() => {
+          setIsValidatingToken(false)
+        })
+    } else if (searchParams.get('reset') === 'true') {
+      setIsFlipped(true)
+    }
+
+    const authError = searchParams.get('error')
+    if (authError) {
+      if (authError === 'SocialAuthNotConfigured') {
+        toast.error('Google Sign-In is not currently configured by the administrator.')
+      } else {
+        toast.error('Authentication failed. Please try again.')
+      }
+      setSearchParams({})
+    }
+  }, [searchParams, token, emailFromUrl, setSearchParams])
+  
   const [resetEmail, setResetEmail] = useState('')
   const [resetSubmitted, setResetSubmitted] = useState(false)
   const [isGoogleLoading, setIsGoogleLoading] = useState(false)
+  
+  const [newPassword, setNewPassword] = useState('')
+  const [confirmPassword, setConfirmPassword] = useState('')
 
   const { mutate: login, isPending: isLoginPending } = useLogin()
   const { mutate: forgotPassword, isPending: isResetPending } = useForgotPassword()
+  const { mutate: resetPassword, isPending: isConfirmResetPending } = useResetPassword()
 
   const { register, handleSubmit, formState: { errors } } = useForm<LoginForm>({
     resolver: zodResolver(loginSchema),
@@ -45,6 +88,43 @@ export default function LoginPage() {
     })
   }
 
+  const handleConfirmReset = (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!newPassword || newPassword.length < 6) {
+      toast.error('Password must be at least 6 characters')
+      return
+    }
+    if (newPassword !== confirmPassword) {
+      toast.error('Passwords do not match')
+      return
+    }
+    if (!token || !emailFromUrl) {
+      toast.error('Invalid reset link')
+      return
+    }
+    resetPassword({
+      token,
+      email: emailFromUrl,
+      password: newPassword,
+      password_confirmation: confirmPassword
+    }, {
+      onSuccess: () => {
+        setIsFlipped(false)
+        setNewPassword('')
+        setConfirmPassword('')
+        // Remove token from URL
+        window.history.replaceState({}, '', '/login')
+      },
+      onError: () => {
+        setNewPassword('')
+        setConfirmPassword('')
+        // Return to Forgot Password view
+        window.history.replaceState({}, '', '/login?reset=true')
+        setIsFlipped(true)
+      }
+    })
+  }
+
   const handleGoogleLogin = () => {
     setIsGoogleLoading(true)
     toast.loading('Redirecting to Google Sign-In...', { id: 'google-oauth' })
@@ -54,9 +134,8 @@ export default function LoginPage() {
     
     let googleRedirect = customRoute
     if (!googleRedirect) {
-      googleRedirect = backendUrl && backendUrl !== '/'
-        ? `${backendUrl}/api/v1/auth/google` 
-        : 'https://tuition.imakshay.in/api_backend/public/api/v1/auth/google'
+      const baseUrl = import.meta.env.VITE_API_URL || '/api/v1'
+      googleRedirect = `${baseUrl}/auth/google`
     }
     
     setTimeout(() => {
@@ -219,6 +298,7 @@ export default function LoginPage() {
                   onClick={() => {
                     setIsFlipped(false)
                     setResetSubmitted(false)
+                    window.history.replaceState({}, '', '/login')
                   }}
                   className="inline-flex items-center gap-1.5 text-xs font-bold text-[rgb(var(--text-muted))] hover:text-[rgb(var(--text-primary))] transition-colors cursor-pointer bg-transparent border-0"
                 >
@@ -232,14 +312,62 @@ export default function LoginPage() {
 
               <div className="space-y-1 text-left mb-6">
                 <h2 className="text-xl sm:text-2xl font-bold text-[rgb(var(--text-primary))] font-[Outfit]">
-                  Reset Password
+                  {isValidatingToken ? 'Validating Link...' : token ? 'Set New Password' : 'Reset Password'}
                 </h2>
                 <p className="text-xs text-[rgb(var(--text-secondary))] leading-relaxed">
-                  Enter your registered account email address. We will send you an official recovery link.
+                  {isValidatingToken 
+                    ? 'Please wait while we verify your secure reset link.'
+                    : token 
+                    ? 'Enter your new password below to secure your account.'
+                    : 'Enter your registered account email address. We will send you an official recovery link.'}
                 </p>
               </div>
 
-              {resetSubmitted ? (
+              {isValidatingToken ? (
+                <div className="flex flex-col items-center justify-center py-10 opacity-70">
+                  <div className="w-8 h-8 border-4 border-[rgb(var(--primary))]/30 border-t-[rgb(var(--primary))] rounded-full animate-spin"></div>
+                  <p className="mt-4 text-xs font-bold text-[rgb(var(--text-secondary))] animate-pulse">Verifying Security Token...</p>
+                </div>
+              ) : token ? (
+                <form onSubmit={handleConfirmReset} className="flex flex-col gap-4 text-left">
+                  <Input
+                    type={showPassword ? 'text' : 'password'}
+                    label="New Password"
+                    placeholder="••••••••"
+                    value={newPassword}
+                    onChange={(e) => setNewPassword(e.target.value)}
+                    leftElement={<Lock size={15} />}
+                    required
+                    className="focus:ring-1 focus:ring-amber-500"
+                  />
+                  
+                  <Input
+                    type={showPassword ? 'text' : 'password'}
+                    label="Confirm Password"
+                    placeholder="••••••••"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    leftElement={<Lock size={15} />}
+                    rightElement={
+                      <button type="button" onClick={() => setShowPassword((v) => !v)} className="cursor-pointer text-[rgb(var(--text-muted))] hover:text-[rgb(var(--text-secondary))]">
+                        {showPassword ? <EyeOff size={15} /> : <Eye size={15} />}
+                      </button>
+                    }
+                    required
+                    className="focus:ring-1 focus:ring-amber-500"
+                  />
+
+                  <Button
+                    type="submit"
+                    variant="primary"
+                    size="lg"
+                    loading={isConfirmResetPending}
+                    className="w-full mt-2 bg-gradient-to-r from-amber-500 to-amber-600 text-white border-0 py-2.5 rounded-xl font-bold justify-center cursor-pointer text-xs sm:text-sm shadow-md shadow-amber-500/20"
+                  >
+                    Save New Password
+                  </Button>
+                </form>
+              ) : resetSubmitted ? (
                 <div className="p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-center space-y-3 my-4">
                   <CheckCircle2 size={32} className="text-emerald-500 mx-auto" />
                   <div className="space-y-1">
