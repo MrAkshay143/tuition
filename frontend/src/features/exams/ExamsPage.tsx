@@ -284,7 +284,7 @@ export const ExamsPage = () => {
 
                   {/* Header Type & Action Buttons */}
                   <div className="flex items-center justify-between pt-1 gap-1">
-                    <div className="flex items-center gap-1 min-w-0">
+                    <div className="flex items-center gap-1 min-w-0 flex-wrap sm:flex-nowrap">
                       <span className="inline-flex items-center gap-0.5 text-[8px] sm:text-[9px] font-extrabold uppercase tracking-wider text-indigo-400 bg-indigo-500/10 border border-indigo-500/20 px-1.5 sm:px-2 py-0.5 rounded-full font-mono truncate">
                         <Sparkles size={10} className="text-indigo-400 shrink-0" />
                         {exam.type || 'MCQ'}
@@ -300,6 +300,24 @@ export const ExamsPage = () => {
                           DRAFT
                         </span>
                       )}
+                    </div>
+
+                    {/* Top Right Corner Edit & Delete Action Icons */}
+                    <div className="flex items-center gap-1 shrink-0">
+                      <button
+                        onClick={() => setEditTarget(exam)}
+                        className="p-1 sm:p-1.5 rounded-lg border border-[rgb(var(--border))] text-[rgb(var(--text-muted))] hover:text-indigo-400 hover:bg-indigo-500/10 transition-all cursor-pointer"
+                        title="Edit Exam"
+                      >
+                        <Pencil size={12} />
+                      </button>
+                      <button
+                        onClick={() => setDeleteTargetId(exam.id)}
+                        className="p-1 sm:p-1.5 rounded-lg border border-[rgb(var(--border))] text-[rgb(var(--text-muted))] hover:text-rose-400 hover:bg-rose-500/10 transition-all cursor-pointer"
+                        title="Delete Exam"
+                      >
+                        <Trash2 size={12} />
+                      </button>
                     </div>
                   </div>
 
@@ -323,40 +341,25 @@ export const ExamsPage = () => {
                   </div>
 
                   {/* Bottom Actions Bar */}
-                  <div className="flex items-center gap-1.5 pt-2 border-t border-[rgb(var(--border))] mt-1 sm:mt-2">
-                    <button
-                      onClick={() => setEditTarget(exam)}
-                      className="p-1.5 sm:p-2 rounded-xl border border-[rgb(var(--border))] text-[rgb(var(--text-muted))] hover:text-indigo-400 hover:bg-indigo-500/10 transition-all cursor-pointer shrink-0"
-                      title="Edit Exam"
-                    >
-                      <Pencil size={12} className="sm:w-3.5 sm:h-3.5" />
-                    </button>
+                  <div className="flex items-center gap-2 pt-2 border-t border-[rgb(var(--border))] mt-1 sm:mt-2">
                     <Button
                       size="sm"
                       variant="primary"
-                      className="flex-1 font-bold text-[10px] sm:text-xs bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl py-1.5 shadow-xs cursor-pointer truncate"
+                      className="flex-1 font-bold text-xs bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl py-1.5 shadow-xs cursor-pointer flex items-center justify-center gap-1.5"
                       onClick={() => navigate(`${rolePrefix}/exams/${exam.id}/questions`)}
                     >
                       <Settings size={12} className="shrink-0" />
-                      <span className="hidden sm:inline">Questions</span>
-                      <span className="inline sm:hidden">Edit</span>
+                      <span>Questions</span>
                     </Button>
 
                     <Button
                       size="sm"
                       variant="secondary"
-                      className="font-bold text-[10px] sm:text-xs px-2 sm:px-3 rounded-xl py-1.5 cursor-pointer border border-[rgb(var(--border))] truncate shrink-0"
+                      className="font-bold text-xs px-2.5 sm:px-3.5 rounded-xl py-1.5 cursor-pointer border border-[rgb(var(--border))] shrink-0"
                       onClick={() => navigate(`${rolePrefix}/exams/${exam.id}/attempts`)}
                     >
                       Attempts ({exam.attempts_count || 0})
                     </Button>
-                    <button
-                      onClick={() => setDeleteTargetId(exam.id)}
-                      className="p-1.5 sm:p-2 rounded-xl border border-[rgb(var(--border))] text-[rgb(var(--text-muted))] hover:text-rose-400 hover:bg-rose-500/10 transition-all cursor-pointer shrink-0"
-                      title="Delete Exam"
-                    >
-                      <Trash2 size={12} className="sm:w-3.5 sm:h-3.5" />
-                    </button>
                   </div>
                 </Card>
               </motion.div>

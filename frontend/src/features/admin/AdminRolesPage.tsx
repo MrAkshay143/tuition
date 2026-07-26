@@ -674,57 +674,7 @@ export default function AdminRolesPage() {
               </Button>
             </div>
 
-            {/* Radio Mode Legend & Bulk Click Option Headers */}
-            <div className="flex flex-wrap items-center justify-between gap-3 p-3 bg-[rgb(var(--bg-elevated))] rounded-xl border border-[rgb(var(--border))] text-xs">
-              <div className="flex flex-wrap items-center gap-3 text-[11px]">
-                <button
-                  onClick={() => setAllGroupsLevel('full')}
-                  className="flex items-center gap-1.5 font-bold text-slate-500 dark:text-emerald-400 hover:bg-emerald-500/10 px-2 py-1 rounded-lg transition-colors cursor-pointer"
-                  title="Click to set ALL modules to Full Access"
-                >
-                  <Zap size={13} className="text-slate-500 dark:text-emerald-400" /> Full Access
-                </button>
 
-                <button
-                  onClick={() => setAllGroupsLevel('view')}
-                  className="flex items-center gap-1.5 font-bold text-slate-500 dark:text-blue-400 hover:bg-blue-500/10 px-2 py-1 rounded-lg transition-colors cursor-pointer"
-                  title="Click to set ALL modules to View Only"
-                >
-                  <Eye size={13} className="text-slate-500 dark:text-blue-400" /> View Only
-                </button>
-
-                <button
-                  onClick={() => setAllGroupsLevel('edit')}
-                  className="flex items-center gap-1.5 font-bold text-amber-400 hover:bg-amber-500/10 px-2 py-1 rounded-lg transition-colors cursor-pointer"
-                  title="Click to set ALL modules to Create / Edit"
-                >
-                  <Edit3 size={13} className="text-amber-400" /> Create / Edit
-                </button>
-
-                <button
-                  onClick={() => setAllGroupsLevel('none')}
-                  className="flex items-center gap-1.5 font-bold text-rose-400 hover:bg-rose-500/10 px-2 py-1 rounded-lg transition-colors cursor-pointer"
-                  title="Click to set ALL modules to No Access"
-                >
-                  <Slash size={13} className="text-rose-400" /> No Access
-                </button>
-              </div>
-
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={() => setAllGroupsLevel('full')}
-                  className="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-[rgb(var(--bg-surface))] border border-[rgb(var(--border))] text-[10px] font-semibold text-slate-500 dark:text-emerald-400 hover:bg-emerald-500/10 transition-colors cursor-pointer"
-                >
-                  <Maximize2 size={11} /> Expand All
-                </button>
-                <button
-                  onClick={() => setAllGroupsLevel('none')}
-                  className="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-[rgb(var(--bg-surface))] border border-[rgb(var(--border))] text-[10px] font-semibold text-rose-400 hover:bg-rose-500/10 transition-colors cursor-pointer"
-                >
-                  <Minimize2 size={11} /> Collapse All
-                </button>
-              </div>
-            </div>
 
             {/* Permissions Matrix Content */}
             <div>
