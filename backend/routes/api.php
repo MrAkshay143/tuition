@@ -151,7 +151,7 @@ Route::middleware(['auth:sanctum', 'active', \App\Http\Middleware\ValidateSessio
         Route::get('conversations', [\App\Http\Controllers\Api\V1\ChatController::class, 'conversations']);
         Route::get('messages/sync', [\App\Http\Controllers\Api\V1\ChatController::class, 'syncMessages']);
         Route::get('messages/{userId}', [\App\Http\Controllers\Api\V1\ChatController::class, 'thread']);
-        Route::post('messages/{userId}', [\App\Http\Controllers\Api\V1\ChatController::class, 'send'])->middleware('throttle:30,1');
+        Route::post('messages/{userId}', [\App\Http\Controllers\Api\V1\ChatController::class, 'send']);
         
         // Message Actions
         Route::patch('messages/status/{uuid}', [\App\Http\Controllers\Api\V1\ChatController::class, 'updateStatus']);

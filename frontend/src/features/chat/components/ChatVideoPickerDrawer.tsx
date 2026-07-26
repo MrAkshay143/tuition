@@ -63,9 +63,8 @@ export function ChatVideoPickerDrawer({ open, onClose, partnerId, onSelect }: Ch
 
   const handleCourseVideoSelect = (v: VideoPickerItem) => {
     onSelect(v)
+    onClose()
   }
-
-  if (!open) return null
 
   return (
     <AnimatePresence>
